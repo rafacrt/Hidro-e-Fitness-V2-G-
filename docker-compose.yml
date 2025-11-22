@@ -1,25 +1,28 @@
-version: '3.8'
-
 services:
-  # PostgreSQL Database
+  # 1. Frontend Application (React + Nginx)
+  frontend:
+    build: .
+    container_name: hidro_fitness_frontend
+    restart: always
+    ports:
+      - "3000:80" # Maps port 80 inside container to 3000 on host (Dokploy handles external routing)
+    depends_on:
+      - db
+
+  # 2. PostgreSQL Database
   db:
     image: postgres:15-alpine
     container_name: hidro_fitness_db
     restart: always
     env_file:
       - .env
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "${DB_PORT}:5432"
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      # Load init script to create tables and seed data automatically on first startup
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
 
-  # Database UI (Lightweight alternative to PgAdmin)
+  # 3. Database UI (Adminer)
   adminer:
     image: adminer
     container_name: hidro_fitness_adminer
