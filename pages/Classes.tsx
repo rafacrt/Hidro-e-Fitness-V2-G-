@@ -1,31 +1,442 @@
-import React, { useState } from 'react';
-import { mockClasses, mockModalities, mockPlans, mockStudents } from '../services/mockData';
-import { 
-  Clock, Users, Calendar, CheckCircle, XCircle, Plus, 
-  Settings, DollarSign, Award, MoreVertical, Search, X, Save
+import React, { useState, useEffect } from 'react';
+import {
+  fetchClasses, fetchModalities, fetchPlans,
+  createClass, createModality, createPlan,
+  updatePlan, deletePlan, updateModality, deleteModality,
+  updateClass, deleteClass
+} from '../services/api';
+import { ClassSession, Modality } from '../types';
+import {
+  Clock, Users, Calendar, Plus,
+  Settings, DollarSign, Award, MoreVertical, Search, X, Save,
+  Upload, Download, Printer, FileText, Edit, Trash, Copy
 } from 'lucide-react';
-import { ClassSession, Plan } from '../types';
+import { exportToCSV, parseCSV, downloadTemplate } from '../utils/csvHelper';
 
 type TabType = 'schedule' | 'modalities' | 'plans';
 
 const Classes: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('schedule');
-  
+  const [classes, setClasses] = useState<ClassSession[]>([]);
+  const [modalities, setModalities] = useState<Modality[]>([]);
+  const [plans, setPlans] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
   // Modal States
   const [showAttendance, setShowAttendance] = useState<number | null>(null);
   const [showClassModal, setShowClassModal] = useState(false);
   const [showModalityModal, setShowModalityModal] = useState(false);
   const [showPlanModal, setShowPlanModal] = useState(false);
-  
-  // --- Helpers ---
-  const getModalityName = (id: string) => mockModalities.find(m => m.id === id)?.name || 'Geral';
-  const getModalityColor = (id: string) => mockModalities.find(m => m.id === id)?.color || 'bg-slate-500';
 
-  const handleSave = (type: string) => {
-    alert(`${type} salvo com sucesso!`);
-    setShowClassModal(false);
-    setShowModalityModal(false);
-    setShowPlanModal(false);
+  // Edit States
+  const [editingPlan, setEditingPlan] = useState<any | null>(null);
+  const [editingModality, setEditingModality] = useState<any | null>(null);
+  const [editingClass, setEditingClass] = useState<any | null>(null);
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+
+  // Form States
+  const [classForm, setClassForm] = useState({
+    name: '', instructor: '', time: '', days: [] as string[], capacity: 20, modalityId: ''
+  });
+  const [modalityForm, setModalityForm] = useState({
+    name: '', targetAudience: 'Adulto', description: '', color: 'bg-blue-500'
+  });
+  const [planForm, setPlanForm] = useState({
+    name: '', modalityId: '', frequency: 'Mensal', price: '', durationMonths: 1, classesPerWeek: 2
+  });
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => setActiveMenuId(null);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [classesData, modalitiesData, plansData] = await Promise.all([
+        fetchClasses(),
+        fetchModalities(),
+        fetchPlans()
+      ]);
+      setClasses(classesData);
+      setModalities(modalitiesData);
+      setPlans(plansData);
+    } catch (error) {
+      console.error('Failed to load data', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // --- Helpers ---
+  const getModalityName = (id: any) => {
+    if (!id) return 'Geral';
+    return modalities.find(m => String(m.id) === String(id))?.name || 'Geral';
+  };
+
+  const getModalityColor = (id: any) => {
+    if (!id) return 'bg-slate-500';
+    return modalities.find(m => String(m.id) === String(id))?.color || 'bg-slate-500';
+  };
+
+  const normalizeKeys = (row: any, mappings: Record<string, string[]>) => {
+    const newRow: any = {};
+    Object.keys(row).forEach(key => {
+      const lowerKey = key.toLowerCase().trim();
+      let found = false;
+      for (const [standardKey, aliases] of Object.entries(mappings)) {
+        if (aliases.includes(lowerKey) || standardKey.toLowerCase() === lowerKey) {
+          newRow[standardKey] = row[key];
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        newRow[lowerKey] = row[key];
+      }
+    });
+    return newRow;
+  };
+
+  // --- Handlers ---
+  const handleCreateClass = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingClass) {
+        await updateClass(editingClass.id, classForm);
+        alert('Turma atualizada com sucesso!');
+      } else {
+        await createClass(classForm);
+        alert('Turma criada com sucesso!');
+      }
+      setShowClassModal(false);
+      setEditingClass(null);
+      setClassForm({ name: '', instructor: '', time: '', days: [] as string[], capacity: 20, modalityId: '' });
+      loadData();
+    } catch (error) {
+      alert('Erro ao salvar turma');
+    }
+  };
+
+  const handleCreateModality = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingModality) {
+        await updateModality(editingModality.id, modalityForm);
+        alert('Modalidade atualizada com sucesso!');
+      } else {
+        await createModality(modalityForm);
+        alert('Modalidade criada com sucesso!');
+      }
+      setShowModalityModal(false);
+      setEditingModality(null);
+      setModalityForm({ name: '', targetAudience: 'Adulto', description: '', color: 'bg-blue-500' });
+      loadData();
+    } catch (error) {
+      alert('Erro ao salvar modalidade');
+    }
+  };
+
+  const handleCreatePlan = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingPlan) {
+        await updatePlan(editingPlan.id, planForm);
+        alert('Plano atualizado com sucesso!');
+      } else {
+        await createPlan(planForm);
+        alert('Plano criado com sucesso!');
+      }
+      setShowPlanModal(false);
+      setEditingPlan(null);
+      setPlanForm({ name: '', modalityId: '', frequency: 'Mensal', price: '', durationMonths: 1, classesPerWeek: 2 });
+      loadData();
+    } catch (error) {
+      alert('Erro ao salvar plano');
+    }
+  };
+
+  // --- Action Handlers ---
+  const handleEditPlan = (plan: any) => {
+    setEditingPlan(plan);
+    setPlanForm({
+      name: plan.name,
+      modalityId: plan.modalityId || '',
+      frequency: plan.frequency,
+      price: plan.price,
+      durationMonths: plan.durationMonths,
+      classesPerWeek: plan.classesPerWeek
+    });
+    setShowPlanModal(true);
+    setActiveMenuId(null);
+  };
+
+  const handleDeletePlan = async (id: number) => {
+    if (window.confirm('Tem certeza que deseja excluir este plano?')) {
+      try {
+        await deletePlan(id);
+        loadData();
+      } catch (error) {
+        alert('Erro ao excluir plano');
+      }
+    }
+    setActiveMenuId(null);
+  };
+
+  const handleDuplicatePlan = async (plan: any) => {
+    try {
+      const newPlan = { ...plan, name: `${plan.name} (Cópia)` };
+      delete newPlan.id;
+      await createPlan(newPlan);
+      loadData();
+      alert('Plano duplicado com sucesso!');
+    } catch (error) {
+      alert('Erro ao duplicar plano');
+    }
+    setActiveMenuId(null);
+  };
+
+  const handleEditModality = (modality: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingModality(modality);
+    setModalityForm({
+      name: modality.name,
+      targetAudience: modality.targetAudience,
+      description: modality.description,
+      color: modality.color
+    });
+    setShowModalityModal(true);
+  };
+
+  const handleDeleteModality = async (id: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (window.confirm('Tem certeza que deseja excluir esta modalidade?')) {
+      try {
+        await deleteModality(id);
+        loadData();
+      } catch (error: any) {
+        alert(error.message || 'Erro ao excluir modalidade');
+      }
+    }
+  };
+
+  const handleDuplicateModality = async (modality: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const newModality = { ...modality, name: `${modality.name} (Cópia)` };
+      delete newModality.id;
+      await createModality(newModality);
+      loadData();
+      alert('Modalidade duplicada com sucesso!');
+    } catch (error) {
+      alert('Erro ao duplicar modalidade');
+    }
+  };
+
+  const handleEditClass = (cls: any) => {
+    setEditingClass(cls);
+    setClassForm({
+      name: cls.name,
+      instructor: cls.instructor,
+      time: cls.time,
+      days: cls.days,
+      capacity: cls.capacity,
+      modalityId: cls.modalityId
+    });
+    setShowClassModal(true);
+    setActiveMenuId(null);
+  };
+
+  const handleDeleteClass = async (id: number) => {
+    if (window.confirm('Tem certeza que deseja excluir esta turma?')) {
+      try {
+        await deleteClass(id);
+        loadData();
+      } catch (error) {
+        alert('Erro ao excluir turma');
+      }
+    }
+    setActiveMenuId(null);
+  };
+
+  const handleDuplicateClass = async (cls: any) => {
+    try {
+      const newClass = { ...cls, name: `${cls.name} (Cópia)` };
+      delete newClass.id;
+      await createClass(newClass);
+      loadData();
+      alert('Turma duplicada com sucesso!');
+    } catch (error) {
+      alert('Erro ao duplicar turma');
+    }
+    setActiveMenuId(null);
+  };
+
+  const toggleDay = (day: string) => {
+    setClassForm(prev => {
+      const days = prev.days.includes(day)
+        ? prev.days.filter(d => d !== day)
+        : [...prev.days, day];
+      return { ...prev, days };
+    });
+  };
+
+  // --- Export/Import Handlers ---
+  const handleExportModalities = () => {
+    const headers = ['name', 'targetAudience', 'description', 'color'];
+    const data = modalities.map(m => ({
+      name: m.name,
+      targetAudience: m.targetAudience,
+      description: m.description,
+      color: m.color
+    }));
+    exportToCSV(data, headers, 'modalidades');
+  };
+
+  const handleImportModalities = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      try {
+        const parsedData = await parseCSV(e.target.files[0]);
+        if (parsedData.length === 0) {
+          alert('O arquivo CSV está vazio.');
+          return;
+        }
+
+        let successCount = 0;
+        let errorCount = 0;
+
+        for (const rawRow of parsedData) {
+          const row = normalizeKeys(rawRow, {
+            name: ['nome', 'modalidade', 'name'],
+            targetAudience: ['publico', 'público', 'publico_alvo', 'targetaudience', 'target_audience'],
+            description: ['descricao', 'descrição', 'description'],
+            color: ['cor', 'color']
+          });
+
+          if (!row.name) {
+            console.warn('Linha ignorada por falta de nome:', row);
+            errorCount++;
+            continue;
+          }
+
+          try {
+            await createModality({
+              name: row.name,
+              targetAudience: row.targetAudience || 'Adulto',
+              description: row.description || '',
+              color: row.color || 'bg-blue-500'
+            });
+            successCount++;
+          } catch (err) {
+            console.error('Erro ao criar modalidade:', row.name, err);
+            errorCount++;
+          }
+        }
+        alert(`Importação concluída!\nSucesso: ${successCount}\nErros: ${errorCount}`);
+        loadData();
+      } catch (error) {
+        console.error('Erro fatal na importação:', error);
+        alert('Erro ao processar o arquivo CSV. Verifique o formato.');
+      }
+      e.target.value = '';
+    }
+  };
+
+  const handleExportPlans = () => {
+    const headers = ['name', 'modalityName', 'frequency', 'price', 'durationMonths', 'classesPerWeek'];
+    const data = plans.map(p => ({
+      name: p.name,
+      modalityName: getModalityName(p.modalityId),
+      frequency: p.frequency,
+      price: p.price,
+      durationMonths: p.durationMonths,
+      classesPerWeek: p.classesPerWeek
+    }));
+    exportToCSV(data, headers, 'planos');
+  };
+
+  const handleImportPlans = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      try {
+        const parsedData = await parseCSV(e.target.files[0]);
+        if (parsedData.length === 0) {
+          alert('O arquivo CSV está vazio.');
+          return;
+        }
+
+        let successCount = 0;
+        let errorCount = 0;
+
+        for (const rawRow of parsedData) {
+          const row = normalizeKeys(rawRow, {
+            name: ['nome', 'plano', 'name'],
+            modalityName: ['modalidade', 'modalityname', 'modality_name'],
+            frequency: ['frequencia', 'frequência', 'frequency'],
+            price: ['preco', 'preço', 'valor', 'price'],
+            durationMonths: ['duracao', 'duração', 'duracao_meses', 'durationmonths', 'duration_months'],
+            classesPerWeek: ['aulas', 'aulas_semana', 'classesperweek', 'classes_per_week']
+          });
+
+          if (!row.name || !row.price) {
+            console.warn('Linha ignorada por falta de nome ou preço:', row);
+            errorCount++;
+            continue;
+          }
+
+          const modality = modalities.find(m => m.name.toLowerCase() === (row.modalityName || '').toLowerCase());
+
+          const frequencyMap: { [key: string]: string } = {
+            'ANUAL': 'Anual',
+            'MENSAL': 'Mensal',
+            'TRIMESTRAL': 'Trimestral',
+            'SEMESTRAL': 'Semestral',
+            'BIMESTRAL': 'Bimestral'
+          };
+          const rawFrequency = (row.frequency || 'Mensal').toUpperCase();
+          const frequency = frequencyMap[rawFrequency] || row.frequency || 'Mensal';
+
+          try {
+            await createPlan({
+              name: row.name,
+              modalityId: modality ? modality.id : undefined,
+              frequency: frequency,
+              price: row.price.toString().replace(',', '.'),
+              durationMonths: parseInt(row.durationMonths) || 1,
+              classesPerWeek: parseInt(row.classesPerWeek) || 2
+            });
+            successCount++;
+          } catch (err: any) {
+            console.error('Erro ao criar plano:', row.name, err);
+            errorCount++;
+          }
+        }
+
+        let msg = `Importação concluída!\nSucesso: ${successCount}\nErros: ${errorCount}`;
+        if (errorCount > 0) {
+          msg += `\n\nVerifique o console (F12) para detalhes dos erros.`;
+        }
+        alert(msg);
+        loadData();
+      } catch (error: any) {
+        console.error('Erro fatal na importação:', error);
+        alert(`Erro ao processar o arquivo CSV: ${error.message || 'Erro desconhecido'}`);
+      }
+      e.target.value = '';
+    }
+  };
+
+  const handleDownloadTemplateModality = () => {
+    downloadTemplate(['name', 'targetAudience', 'description', 'color'], 'modalidades');
+  };
+
+  const handleDownloadTemplatePlan = () => {
+    downloadTemplate(['name', 'modalityName', 'frequency', 'price', 'durationMonths', 'classesPerWeek'], 'planos');
   };
 
   // --- Render: Schedule Tab ---
@@ -36,105 +447,163 @@ const Classes: React.FC = () => {
           <Calendar className="text-primary-600" size={20} />
           Turmas e Horários
         </h3>
-        <button 
-          onClick={() => setShowClassModal(true)}
+        <button
+          onClick={() => {
+            setEditingClass(null);
+            setClassForm({ name: '', instructor: '', time: '', days: [], capacity: 20, modalityId: '' });
+            setShowClassModal(true);
+          }}
           className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 shadow-lg shadow-primary-200 flex items-center gap-2 text-sm font-medium"
         >
           <Plus size={16} /> Nova Turma
         </button>
       </div>
 
-      <div className="grid grid-cols-1 gap-4">
-        {mockClasses.map((cls) => {
-          const percentage = Math.round((cls.enrolled / cls.capacity) * 100);
-          const isFull = percentage >= 100;
-          const modColor = getModalityColor(cls.modalityId);
+      {loading ? (
+        <div className="text-center py-10 text-slate-500">Carregando turmas...</div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4">
+          {classes.map((cls) => {
+            const percentage = Math.round((cls.enrolled / cls.capacity) * 100);
+            const isFull = percentage >= 100;
+            const modColor = getModalityColor(cls.modalityId);
 
-          return (
-            <div key={cls.id} className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 hover:border-primary-300 transition-all flex flex-col md:flex-row items-center gap-6 relative overflow-hidden">
-              {/* Color Bar */}
-              <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${modColor.replace('bg-', 'bg-')}`}></div>
+            return (
+              <div key={cls.id} className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 hover:border-primary-300 transition-all flex flex-col md:flex-row items-center gap-6 relative overflow-hidden">
+                <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${modColor.replace('bg-', 'bg-')}`}></div>
 
-              {/* Time Info */}
-              <div className="flex-shrink-0 w-full md:w-32 text-center md:text-left pl-2">
-                <div className="flex items-center justify-center md:justify-start gap-2 text-slate-800 font-bold text-lg">
-                  {cls.time}
+                <div className="flex-shrink-0 w-full md:w-32 text-center md:text-left pl-2">
+                  <div className="flex items-center justify-center md:justify-start gap-2 text-slate-800 font-bold text-lg">
+                    {cls.time}
+                  </div>
+                  <div className="text-xs text-slate-500 font-medium uppercase tracking-wide mt-1">
+                    {cls.days.join(' · ')}
+                  </div>
                 </div>
-                <div className="text-xs text-slate-500 font-medium uppercase tracking-wide mt-1">
-                  {cls.days.join(' · ')}
+
+                <div className="flex-1 min-w-0 text-center md:text-left">
+                  <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
+                    <span className={`w-2 h-2 rounded-full ${modColor}`}></span>
+                    <h3 className="font-bold text-slate-800 truncate">{cls.name}</h3>
+                  </div>
+                  <p className="text-sm text-slate-500 flex items-center justify-center md:justify-start gap-2">
+                    <Users size={14} /> {cls.instructor}
+                    <span className="text-slate-300">|</span>
+                    {getModalityName(cls.modalityId)}
+                  </p>
+                </div>
+
+                <div className="w-full md:w-48">
+                  <div className="flex justify-between text-xs mb-1 font-medium">
+                    <span className="text-slate-500">Ocupação</span>
+                    <span className={isFull ? 'text-red-600 font-bold' : 'text-teal-600'}>
+                      {cls.enrolled}/{cls.capacity} ({percentage}%)
+                    </span>
+                  </div>
+                  <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${isFull ? 'bg-red-500' : 'bg-teal-500'}`}
+                      style={{ width: `${percentage}%` }}
+                    ></div>
+                  </div>
+                  {isFull && (
+                    <p className="text-[10px] text-red-500 font-semibold mt-1 text-right">Lista de Espera: 2</p>
+                  )}
+                </div>
+
+                <div className="flex gap-2 border-t md:border-t-0 md:border-l border-slate-100 pt-3 md:pt-0 md:pl-4 w-full md:w-auto justify-center relative">
+                  <button
+                    onClick={() => setShowAttendance(cls.id)}
+                    className="px-3 py-1.5 text-xs font-medium text-primary-700 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors"
+                  >
+                    Chamada
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveMenuId(activeMenuId === `class-${cls.id}` ? null : `class-${cls.id}`);
+                    }}
+                    className="p-2 text-slate-400 hover:text-primary-600 hover:bg-slate-50 rounded-lg transition-colors"
+                  >
+                    <MoreVertical size={18} />
+                  </button>
+
+                  {activeMenuId === `class-${cls.id}` && (
+                    <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-slate-100 py-1">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleEditClass(cls); }}
+                        className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                      >
+                        <Edit size={14} /> Editar
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDuplicateClass(cls); }}
+                        className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                      >
+                        <Copy size={14} /> Duplicar
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDeleteClass(cls.id); }}
+                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                      >
+                        <Trash size={14} /> Excluir
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
-
-              {/* Class Info */}
-              <div className="flex-1 min-w-0 text-center md:text-left">
-                <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
-                   <span className={`w-2 h-2 rounded-full ${modColor}`}></span>
-                   <h3 className="font-bold text-slate-800 truncate">{cls.name}</h3>
-                </div>
-                <p className="text-sm text-slate-500 flex items-center justify-center md:justify-start gap-2">
-                   <Users size={14} /> {cls.instructor} 
-                   <span className="text-slate-300">|</span>
-                   {getModalityName(cls.modalityId)}
-                </p>
-              </div>
-
-              {/* Capacity & Status */}
-              <div className="w-full md:w-48">
-                <div className="flex justify-between text-xs mb-1 font-medium">
-                  <span className="text-slate-500">Ocupação</span>
-                  <span className={isFull ? 'text-red-600 font-bold' : 'text-teal-600'}>
-                    {cls.enrolled}/{cls.capacity} ({percentage}%)
-                  </span>
-                </div>
-                <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full rounded-full transition-all duration-500 ${isFull ? 'bg-red-500' : 'bg-teal-500'}`} 
-                    style={{ width: `${percentage}%` }}
-                  ></div>
-                </div>
-                {isFull && (
-                   <p className="text-[10px] text-red-500 font-semibold mt-1 text-right">Lista de Espera: 2</p>
-                )}
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-2 border-t md:border-t-0 md:border-l border-slate-100 pt-3 md:pt-0 md:pl-4 w-full md:w-auto justify-center">
-                <button 
-                  onClick={() => setShowAttendance(cls.id)}
-                  className="px-3 py-1.5 text-xs font-medium text-primary-700 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors"
-                >
-                  Chamada
-                </button>
-                <button className="p-2 text-slate-400 hover:text-primary-600 hover:bg-slate-50 rounded-lg transition-colors">
-                  <Settings size={18} />
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+          {classes.length === 0 && (
+            <div className="text-center py-10 text-slate-500">Nenhuma turma encontrada.</div>
+          )}
+        </div>
+      )}
     </div>
   );
 
   // --- Render: Modalities Tab ---
   const renderModalities = () => (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
           <Award className="text-purple-600" size={20} />
           Modalidades Esportivas
         </h3>
-        <button 
-          onClick={() => setShowModalityModal(true)}
-          className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 text-sm font-medium flex items-center gap-2"
-        >
-          <Plus size={16} /> Nova Modalidade
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button onClick={handleExportModalities} className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200" title="Exportar CSV">
+            <FileText size={18} />
+          </button>
+          <button onClick={() => window.print()} className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200" title="Imprimir">
+            <Printer size={18} />
+          </button>
+          <label className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200 cursor-pointer" title="Importar CSV">
+            <Upload size={18} />
+            <input type="file" accept=".csv" className="hidden" onChange={handleImportModalities} />
+          </label>
+          <button onClick={handleDownloadTemplateModality} className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200" title="Baixar Modelo">
+            <Download size={18} />
+          </button>
+          <button
+            onClick={() => {
+              setEditingModality(null);
+              setModalityForm({ name: '', targetAudience: 'Adulto', description: '', color: 'bg-blue-500' });
+              setShowModalityModal(true);
+            }}
+            className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 text-sm font-medium flex items-center gap-2"
+          >
+            <Plus size={16} /> Nova Modalidade
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mockModalities.map((mod) => (
-          <div key={mod.id} className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 relative group hover:shadow-md transition-all">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 print-only">
+        {modalities.map((mod) => (
+          <div
+            key={mod.id}
+            className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 relative group hover:shadow-md transition-all cursor-pointer"
+            onClick={(e) => handleEditModality(mod, e)}
+          >
             <div className={`absolute top-0 left-0 w-full h-1.5 rounded-t-xl ${mod.color}`} />
             <div className="flex justify-between items-start mb-3">
               <h4 className="font-bold text-slate-800 text-lg">{mod.name}</h4>
@@ -146,11 +615,29 @@ const Classes: React.FC = () => {
               {mod.description}
             </p>
             <div className="flex justify-between items-center pt-4 border-t border-slate-100">
-               <span className="text-xs text-slate-400 font-medium">ID: {mod.id}</span>
-               <button className="text-primary-600 text-sm font-medium hover:underline">Editar Regras</button>
+              <span className="text-xs text-slate-400 font-medium">ID: {mod.id}</span>
+              <div className="flex gap-2 no-print">
+                <button
+                  onClick={(e) => handleDuplicateModality(mod, e)}
+                  className="text-slate-400 hover:text-primary-600 p-1"
+                  title="Duplicar"
+                >
+                  <Copy size={16} />
+                </button>
+                <button
+                  onClick={(e) => handleDeleteModality(mod.id, e)}
+                  className="text-slate-400 hover:text-red-600 p-1"
+                  title="Excluir"
+                >
+                  <Trash size={16} />
+                </button>
+              </div>
             </div>
           </div>
         ))}
+        {modalities.length === 0 && (
+          <div className="col-span-full text-center py-10 text-slate-500">Nenhuma modalidade encontrada.</div>
+        )}
       </div>
     </div>
   );
@@ -158,20 +645,39 @@ const Classes: React.FC = () => {
   // --- Render: Plans Tab ---
   const renderPlans = () => (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
           <DollarSign className="text-green-600" size={20} />
           Planos e Preços
         </h3>
-        <button 
-          onClick={() => setShowPlanModal(true)}
-          className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-900 shadow-lg flex items-center gap-2 text-sm font-medium"
-        >
-          <Plus size={16} /> Novo Plano
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button onClick={handleExportPlans} className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200" title="Exportar CSV">
+            <FileText size={18} />
+          </button>
+          <button onClick={() => window.print()} className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200" title="Imprimir">
+            <Printer size={18} />
+          </button>
+          <label className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200 cursor-pointer" title="Importar CSV">
+            <Upload size={18} />
+            <input type="file" accept=".csv" className="hidden" onChange={handleImportPlans} />
+          </label>
+          <button onClick={handleDownloadTemplatePlan} className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200" title="Baixar Modelo">
+            <Download size={18} />
+          </button>
+          <button
+            onClick={() => {
+              setEditingPlan(null);
+              setPlanForm({ name: '', modalityId: '', frequency: 'Mensal', price: '', durationMonths: 1, classesPerWeek: 2 });
+              setShowPlanModal(true);
+            }}
+            className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-900 shadow-lg flex items-center gap-2 text-sm font-medium"
+          >
+            <Plus size={16} /> Novo Plano
+          </button>
+        </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden print-only">
         <table className="w-full text-left">
           <thead className="bg-slate-50 border-b border-slate-100">
             <tr>
@@ -179,12 +685,16 @@ const Classes: React.FC = () => {
               <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Modalidade</th>
               <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Frequência</th>
               <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Valor</th>
-              <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase text-right">Ações</th>
+              <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase text-right no-print">Ações</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {mockPlans.map((plan) => (
-              <tr key={plan.id} className="hover:bg-slate-50">
+            {plans.map((plan) => (
+              <tr
+                key={plan.id}
+                className="hover:bg-slate-50 cursor-pointer transition-colors"
+                onClick={() => handleEditPlan(plan)}
+              >
                 <td className="px-6 py-4 font-medium text-slate-900">{plan.name}</td>
                 <td className="px-6 py-4 text-slate-600 text-sm">{getModalityName(plan.modalityId)}</td>
                 <td className="px-6 py-4 text-slate-600 text-sm">
@@ -193,15 +703,49 @@ const Classes: React.FC = () => {
                   </span>
                 </td>
                 <td className="px-6 py-4 font-bold text-green-700">
-                  R$ {plan.price.toFixed(2)}
+                  R$ {Number(plan.price).toFixed(2)}
                 </td>
-                <td className="px-6 py-4 text-right">
-                  <button className="text-slate-400 hover:text-primary-600 p-1">
-                    <Settings size={18} />
+                <td className="px-6 py-4 text-right no-print relative">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveMenuId(activeMenuId === `plan-${plan.id}` ? null : `plan-${plan.id}`);
+                    }}
+                    className="text-slate-400 hover:text-primary-600 p-1"
+                  >
+                    <MoreVertical size={18} />
                   </button>
+
+                  {activeMenuId === `plan-${plan.id}` && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-slate-100 py-1">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleEditPlan(plan); }}
+                        className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                      >
+                        <Edit size={14} /> Editar
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDuplicatePlan(plan); }}
+                        className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                      >
+                        <Copy size={14} /> Duplicar
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDeletePlan(plan.id); }}
+                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                      >
+                        <Trash size={14} /> Excluir
+                      </button>
+                    </div>
+                  )}
                 </td>
               </tr>
             ))}
+            {plans.length === 0 && (
+              <tr>
+                <td colSpan={5} className="text-center py-10 text-slate-500">Nenhum plano encontrado.</td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
@@ -210,245 +754,336 @@ const Classes: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <style>{`
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          .print-only, .print-only * {
+            visibility: visible;
+            position: static;
+          }
+          .print-only {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+          }
+          .no-print {
+            display: none !important;
+          }
+        }
+      `}</style>
+
       {/* Top Navigation Tabs */}
-      <div className="bg-white p-1 rounded-xl shadow-sm border border-slate-200 inline-flex mb-2">
-        <button 
+      <div className="bg-white p-1 rounded-xl shadow-sm border border-slate-200 inline-flex mb-2 no-print">
+        <button
           onClick={() => setActiveTab('schedule')}
-          className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
-            activeTab === 'schedule' ? 'bg-primary-50 text-primary-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-          }`}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'schedule' ? 'bg-primary-50 text-primary-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
         >
-          <Calendar size={16} /> Grade & Turmas
+          Grade de Horários
         </button>
-        <button 
+        <button
           onClick={() => setActiveTab('modalities')}
-          className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
-            activeTab === 'modalities' ? 'bg-primary-50 text-primary-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-          }`}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'modalities' ? 'bg-primary-50 text-primary-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
         >
-          <Award size={16} /> Modalidades
+          Modalidades
         </button>
-        <button 
+        <button
           onClick={() => setActiveTab('plans')}
-          className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
-            activeTab === 'plans' ? 'bg-primary-50 text-primary-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-          }`}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'plans' ? 'bg-primary-50 text-primary-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
         >
-          <DollarSign size={16} /> Planos & Preços
+          Planos
         </button>
       </div>
 
-      {/* Content Area */}
-      <div className="animate-in fade-in duration-500 slide-in-from-bottom-2">
-        {activeTab === 'schedule' && renderSchedule()}
-        {activeTab === 'modalities' && renderModalities()}
-        {activeTab === 'plans' && renderPlans()}
-      </div>
+      {activeTab === 'schedule' && renderSchedule()}
+      {activeTab === 'modalities' && renderModalities()}
+      {activeTab === 'plans' && renderPlans()}
 
-      {/* --- MODALS --- */}
-
-      {/* Attendance Modal */}
-      {showAttendance && (
+      {/* Modals */}
+      {showClassModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[80vh] flex flex-col">
-            <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+              <h3 className="font-bold text-slate-800">{editingClass ? 'Editar Turma' : 'Nova Turma'}</h3>
+              <button onClick={() => setShowClassModal(false)} className="text-slate-400 hover:text-slate-600">
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleCreateClass} className="p-6 space-y-4">
               <div>
-                <h3 className="text-lg font-bold text-slate-800">Registro de Chamada</h3>
-                <p className="text-sm text-slate-500">
-                   {mockClasses.find(c => c.id === showAttendance)?.name} • {new Date().toLocaleDateString()}
-                </p>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Nome da Turma</label>
+                <input
+                  type="text"
+                  required
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  value={classForm.name}
+                  onChange={e => setClassForm({ ...classForm, name: e.target.value })}
+                  placeholder="Ex: Hidroginástica Manhã"
+                />
               </div>
-              <button onClick={() => setShowAttendance(null)} className="text-slate-400 hover:text-red-500"><Plus size={24} className="rotate-45" /></button>
-            </div>
-            
-            <div className="flex-1 overflow-y-auto p-6">
-              {/* Search within attendance */}
-              <div className="relative mb-4">
-                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                 <input 
-                   placeholder="Buscar aluno..." 
-                   className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" 
-                 />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Horário</label>
+                  <input
+                    type="time"
+                    required
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    value={classForm.time}
+                    onChange={e => setClassForm({ ...classForm, time: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Capacidade</label>
+                  <input
+                    type="number"
+                    required
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    value={classForm.capacity}
+                    onChange={e => setClassForm({ ...classForm, capacity: parseInt(e.target.value) })}
+                  />
+                </div>
               </div>
-
-              <div className="space-y-2">
-                {mockStudents.slice(0, 8).map((student, idx) => (
-                  <div key={student.id} className="flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:bg-slate-50 transition-colors">
-                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center text-xs font-bold">
-                           {student.name.charAt(0)}
-                        </div>
-                        <span className="font-medium text-slate-700">{student.name}</span>
-                     </div>
-                     <div className="flex gap-2">
-                        <button className="p-2 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Presente">
-                           <CheckCircle size={20} />
-                        </button>
-                        <button className="p-2 rounded bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Ausente">
-                           <XCircle size={20} />
-                        </button>
-                     </div>
-                  </div>
-                ))}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Instrutor</label>
+                <input
+                  type="text"
+                  required
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  value={classForm.instructor}
+                  onChange={e => setClassForm({ ...classForm, instructor: e.target.value })}
+                  placeholder="Nome do instrutor"
+                />
               </div>
-            </div>
-
-            <div className="p-6 border-t border-slate-100 bg-slate-50/50 rounded-b-xl flex justify-end gap-3">
-               <button onClick={() => setShowAttendance(null)} className="px-4 py-2 text-slate-600 font-medium hover:bg-slate-200 rounded-lg transition-colors">Cancelar</button>
-               <button onClick={() => { alert('Chamada salva!'); setShowAttendance(null); }} className="px-6 py-2 bg-primary-600 text-white font-bold rounded-lg hover:bg-primary-700 shadow-md">Finalizar Chamada</button>
-            </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Modalidade</label>
+                <select
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  value={classForm.modalityId}
+                  onChange={e => setClassForm({ ...classForm, modalityId: e.target.value })}
+                  required
+                >
+                  <option value="">Selecione...</option>
+                  {modalities.map(mod => (
+                    <option key={mod.id} value={mod.id}>{mod.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Dias da Semana</label>
+                <div className="flex flex-wrap gap-2">
+                  {['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'].map(day => (
+                    <button
+                      key={day}
+                      type="button"
+                      onClick={() => toggleDay(day)}
+                      className={`px-3 py-1 text-sm rounded-full border transition-colors ${classForm.days.includes(day)
+                        ? 'bg-primary-600 text-white border-primary-600'
+                        : 'bg-white text-slate-600 border-slate-300 hover:border-primary-400'
+                        }`}
+                    >
+                      {day}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="pt-4 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowClassModal(false)}
+                  className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium flex items-center gap-2"
+                >
+                  <Save size={18} /> Salvar Turma
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
 
-      {/* Create Class Modal */}
-      {showClassModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-           <div className="bg-white rounded-xl shadow-xl w-full max-w-lg">
-              <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-                 <h3 className="text-lg font-bold text-slate-800">Nova Turma</h3>
-                 <button onClick={() => setShowClassModal(false)}><X className="text-slate-400" /></button>
-              </div>
-              <div className="p-6 space-y-4">
-                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Nome da Turma</label>
-                    <input type="text" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="Ex: Hidro Matinal A" />
-                 </div>
-                 <div className="grid grid-cols-2 gap-4">
-                    <div>
-                       <label className="block text-sm font-medium text-slate-700 mb-1">Modalidade</label>
-                       <select className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-500">
-                          {mockModalities.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-                       </select>
-                    </div>
-                    <div>
-                       <label className="block text-sm font-medium text-slate-700 mb-1">Professor</label>
-                       <input type="text" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="Nome do instrutor" />
-                    </div>
-                 </div>
-                 <div className="grid grid-cols-3 gap-4">
-                    <div>
-                       <label className="block text-sm font-medium text-slate-700 mb-1">Início</label>
-                       <input type="time" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" />
-                    </div>
-                    <div>
-                       <label className="block text-sm font-medium text-slate-700 mb-1">Fim</label>
-                       <input type="time" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" />
-                    </div>
-                    <div>
-                       <label className="block text-sm font-medium text-slate-700 mb-1">Vagas</label>
-                       <input type="number" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="20" />
-                    </div>
-                 </div>
-                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Dias da Semana</label>
-                    <div className="flex gap-2">
-                       {['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map(day => (
-                          <label key={day} className="flex-1 flex items-center justify-center py-2 border border-slate-200 rounded hover:bg-slate-50 cursor-pointer">
-                             <input type="checkbox" className="hidden peer" />
-                             <span className="text-xs font-bold text-slate-500 peer-checked:text-primary-600">{day}</span>
-                          </label>
-                       ))}
-                    </div>
-                 </div>
-              </div>
-              <div className="p-6 border-t border-slate-100 bg-slate-50/50 rounded-b-xl flex justify-end gap-3">
-                 <button onClick={() => setShowClassModal(false)} className="px-4 py-2 text-slate-600">Cancelar</button>
-                 <button onClick={() => handleSave('Turma')} className="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium">Salvar Turma</button>
-              </div>
-           </div>
-        </div>
-      )}
-
-      {/* Create Modality Modal */}
       {showModalityModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-           <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
-              <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-                 <h3 className="text-lg font-bold text-slate-800">Nova Modalidade</h3>
-                 <button onClick={() => setShowModalityModal(false)}><X className="text-slate-400" /></button>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+              <h3 className="font-bold text-slate-800">{editingModality ? 'Editar Modalidade' : 'Nova Modalidade'}</h3>
+              <button onClick={() => setShowModalityModal(false)} className="text-slate-400 hover:text-slate-600">
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleCreateModality} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Nome</label>
+                <input
+                  type="text"
+                  required
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  value={modalityForm.name}
+                  onChange={e => setModalityForm({ ...modalityForm, name: e.target.value })}
+                />
               </div>
-              <div className="p-6 space-y-4">
-                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Nome da Modalidade</label>
-                    <input type="text" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="Ex: Cross Swim" />
-                 </div>
-                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Público Alvo</label>
-                    <select className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-500">
-                       <option>Adulto</option>
-                       <option>Infantil</option>
-                       <option>Idoso</option>
-                       <option>Todos</option>
-                    </select>
-                 </div>
-                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Cor de Identificação</label>
-                    <div className="flex gap-2">
-                       {['bg-blue-500', 'bg-red-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500'].map(color => (
-                          <button key={color} className={`w-8 h-8 rounded-full ${color} ring-2 ring-offset-2 ring-transparent hover:ring-slate-300`}></button>
-                       ))}
-                    </div>
-                 </div>
-                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Descrição</label>
-                    <textarea className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" rows={3}></textarea>
-                 </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Público Alvo</label>
+                <select
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  value={modalityForm.targetAudience}
+                  onChange={e => setModalityForm({ ...modalityForm, targetAudience: e.target.value })}
+                >
+                  <option value="Adulto">Adulto</option>
+                  <option value="Infantil">Infantil</option>
+                  <option value="Idoso">Idoso</option>
+                  <option value="Bebê">Bebê</option>
+                  <option value="Todos">Todos</option>
+                </select>
               </div>
-              <div className="p-6 border-t border-slate-100 bg-slate-50/50 rounded-b-xl flex justify-end gap-3">
-                 <button onClick={() => setShowModalityModal(false)} className="px-4 py-2 text-slate-600">Cancelar</button>
-                 <button onClick={() => handleSave('Modalidade')} className="px-4 py-2 bg-primary-600 text-white rounded-lg font-medium">Salvar</button>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Descrição</label>
+                <textarea
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  rows={3}
+                  value={modalityForm.description}
+                  onChange={e => setModalityForm({ ...modalityForm, description: e.target.value })}
+                />
               </div>
-           </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Cor de Identificação</label>
+                <div className="grid grid-cols-5 gap-2">
+                  {['bg-blue-500', 'bg-teal-500', 'bg-purple-500', 'bg-orange-500', 'bg-red-500', 'bg-indigo-500', 'bg-pink-500', 'bg-green-500', 'bg-yellow-500', 'bg-slate-500'].map(color => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => setModalityForm({ ...modalityForm, color })}
+                      className={`w-8 h-8 rounded-full ${color} ${modalityForm.color === color ? 'ring-2 ring-offset-2 ring-slate-400' : ''}`}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="pt-4 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowModalityModal(false)}
+                  className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium flex items-center gap-2"
+                >
+                  <Save size={18} /> Salvar
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
-      {/* Create Plan Modal */}
       {showPlanModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-           <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
-              <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-                 <h3 className="text-lg font-bold text-slate-800">Novo Plano de Preço</h3>
-                 <button onClick={() => setShowPlanModal(false)}><X className="text-slate-400" /></button>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+              <h3 className="font-bold text-slate-800">{editingPlan ? 'Editar Plano' : 'Novo Plano'}</h3>
+              <button onClick={() => setShowPlanModal(false)} className="text-slate-400 hover:text-slate-600">
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleCreatePlan} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Nome do Plano</label>
+                <input
+                  type="text"
+                  required
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  value={planForm.name}
+                  onChange={e => setPlanForm({ ...planForm, name: e.target.value })}
+                  placeholder="Ex: Musculação Mensal"
+                />
               </div>
-              <div className="p-6 space-y-4">
-                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Nome do Plano</label>
-                    <input type="text" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="Ex: Semestral 2024" />
-                 </div>
-                 <div className="grid grid-cols-2 gap-4">
-                    <div>
-                       <label className="block text-sm font-medium text-slate-700 mb-1">Modalidade</label>
-                       <select className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-500">
-                          {mockModalities.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-                       </select>
-                    </div>
-                    <div>
-                       <label className="block text-sm font-medium text-slate-700 mb-1">Frequência</label>
-                       <select className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-500">
-                          <option>Mensal</option>
-                          <option>Trimestral</option>
-                          <option>Semestral</option>
-                          <option>Anual</option>
-                       </select>
-                    </div>
-                 </div>
-                 <div className="grid grid-cols-2 gap-4">
-                    <div>
-                       <label className="block text-sm font-medium text-slate-700 mb-1">Aulas por Semana</label>
-                       <input type="number" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="2" />
-                    </div>
-                    <div>
-                       <label className="block text-sm font-medium text-slate-700 mb-1">Preço Total (R$)</label>
-                       <input type="number" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="0,00" />
-                    </div>
-                 </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Modalidade</label>
+                <select
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  value={planForm.modalityId}
+                  onChange={e => setPlanForm({ ...planForm, modalityId: e.target.value })}
+                >
+                  <option value="">Geral (Sem modalidade específica)</option>
+                  {modalities.map(mod => (
+                    <option key={mod.id} value={mod.id}>{mod.name}</option>
+                  ))}
+                </select>
               </div>
-              <div className="p-6 border-t border-slate-100 bg-slate-50/50 rounded-b-xl flex justify-end gap-3">
-                 <button onClick={() => setShowPlanModal(false)} className="px-4 py-2 text-slate-600">Cancelar</button>
-                 <button onClick={() => handleSave('Plano')} className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium">Salvar Plano</button>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Frequência</label>
+                  <select
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    value={planForm.frequency}
+                    onChange={e => setPlanForm({ ...planForm, frequency: e.target.value })}
+                  >
+                    <option value="Mensal">Mensal</option>
+                    <option value="Bimestral">Bimestral</option>
+                    <option value="Trimestral">Trimestral</option>
+                    <option value="Semestral">Semestral</option>
+                    <option value="Anual">Anual</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Valor (R$)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    required
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    value={planForm.price}
+                    onChange={e => setPlanForm({ ...planForm, price: e.target.value })}
+                  />
+                </div>
               </div>
-           </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Duração (Meses)</label>
+                  <input
+                    type="number"
+                    required
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    value={planForm.durationMonths}
+                    onChange={e => setPlanForm({ ...planForm, durationMonths: parseInt(e.target.value) })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Aulas/Semana</label>
+                  <input
+                    type="number"
+                    required
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    value={planForm.classesPerWeek}
+                    onChange={e => setPlanForm({ ...planForm, classesPerWeek: parseInt(e.target.value) })}
+                  />
+                </div>
+              </div>
+              <div className="pt-4 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowPlanModal(false)}
+                  className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium flex items-center gap-2"
+                >
+                  <Save size={18} /> Salvar Plano
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

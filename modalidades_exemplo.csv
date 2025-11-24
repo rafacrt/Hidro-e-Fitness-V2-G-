@@ -1,0 +1,7 @@
+name,targetAudience,description,color
+Natação Bebê,Bebê,Natação para bebês de 6 meses a 3 anos,bg-blue-400
+Natação Infantil,Infantil,Natação para crianças de 4 a 12 anos,bg-blue-500
+Natação Adulto,Adulto,Natação para adultos e adolescentes,bg-blue-600
+Hidroginástica,Adulto,Exercícios aeróbicos na água,bg-teal-500
+Hidroginástica 3ª Idade,Idoso,Hidroginástica especial para terceira idade,bg-teal-600
+Zumba,Todos,Aulas de dança fitness,bg-orange-500

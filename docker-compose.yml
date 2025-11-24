@@ -7,9 +7,22 @@ services:
     ports:
       - "3000:80" # Maps port 80 inside container to 3000 on host (Dokploy handles external routing)
     depends_on:
+      - backend
+
+  # 2. Backend API (Node.js + Express)
+  backend:
+    build: ./backend
+    container_name: hidro_fitness_backend
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/hidro_fitness?schema=public
+      - PORT=3001
+    depends_on:
       - db
 
-  # 2. PostgreSQL Database
+  # 3. PostgreSQL Database
   db:
     image: postgres:15-alpine
     container_name: hidro_fitness_db
@@ -22,7 +35,7 @@ services:
       - pgdata:/var/lib/postgresql/data
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
 
-  # 3. Database UI (Adminer)
+  # 4. Database UI (Adminer)
   adminer:
     image: adminer
     container_name: hidro_fitness_adminer

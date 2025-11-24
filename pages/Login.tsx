@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Droplets, Loader2, Lock, Mail, Eye, EyeOff } from 'lucide-react';
-import { simulateLogin } from '../services/mockData';
+import { login as apiLogin } from '../services/api';
 import { User } from '../types';
+import { useNavigate } from 'react-router-dom';
 
 interface LoginProps {
   onLogin: (user: User) => void;
@@ -13,14 +14,16 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      const user = await simulateLogin(email, password);
+      const user = await apiLogin(email, password);
       onLogin(user);
+      navigate('/');
     } catch (err: any) {
       setError(err.message || 'Erro ao realizar login');
     } finally {
@@ -103,11 +106,11 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             </button>
           </form>
         </div>
-        
+
         <div className="px-8 pb-8 text-center">
-            <p className="text-xs text-slate-400">
-                Esqueceu a senha? Contate o suporte técnico.
-            </p>
+          <p className="text-xs text-slate-400">
+            Esqueceu a senha? Contate o suporte técnico.
+          </p>
         </div>
       </div>
     </div>
