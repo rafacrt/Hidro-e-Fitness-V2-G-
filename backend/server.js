@@ -31,7 +31,7 @@ pool.connect((err, client, release) => {
 
 // --- HELPERS ---
 const toNull = (value) => {
-    if (value === '' || value === undefined || value === 'undefined' || value === null) {
+    if (value === '' || value === undefined || value === 'undefined' || value === null || value === '\\N' || value === 'NULL') {
         return null;
     }
     return value;
@@ -172,6 +172,11 @@ app.post('/api/students', async (req, res) => {
         address, guardian, plan, modality, status, medicalNotes
     } = req.body;
 
+    // Validação básica
+    if (!name) {
+        return res.status(400).json({ error: 'Nome é obrigatório' });
+    }
+
     try {
         const result = await pool.query(`
             INSERT INTO students (
@@ -187,7 +192,7 @@ app.post('/api/students', async (req, res) => {
             toNull(cpf),
             toNull(birthDate),
             toNull(phone),
-            isWhatsapp,
+            isWhatsapp || false,
             toNull(address?.cep),
             toNull(address?.street),
             toNull(address?.number),
@@ -200,13 +205,13 @@ app.post('/api/students', async (req, res) => {
             toNull(guardian?.relationship),
             toNull(plan),
             toNull(modality),
-            status,
+            status || 'Ativo',
             toNull(medicalNotes)
         ]);
         res.status(201).json({ id: result.rows[0].id, message: 'Student created' });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Internal Server Error' });
+        console.error('Erro ao criar aluno:', err.message, err.stack);
+        res.status(500).json({ error: 'Internal Server Error', details: err.message });
     }
 });
 

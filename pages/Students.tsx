@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Plus, Search, FileText, MoreVertical, Loader2, MapPin,
   Upload, Download, User, Shield, Activity, Trash2, File,
@@ -14,6 +15,7 @@ import { exportToCSV, parseCSV, downloadTemplate } from '../utils/csvHelper';
 type TabType = 'registration' | 'enrollment' | 'documents';
 
 const Students: React.FC = () => {
+  const navigate = useNavigate();
   const [students, setStudents] = useState<Student[]>([]);
   const [modalities, setModalities] = useState<Modality[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -128,6 +130,11 @@ const Students: React.FC = () => {
         const parsedData = await parseCSV(e.target.files[0]);
 
         for (const row of parsedData) {
+          // Clean \N values
+          Object.keys(row).forEach(key => {
+            if (row[key] === '\\N') row[key] = null;
+          });
+
           const newStudent: any = {
             name: row.name,
             email: row.email,
@@ -454,7 +461,7 @@ const Students: React.FC = () => {
                         <Edit size={16} /> Editar Cadastro
                       </button>
                       <button
-                        onClick={(e) => { e.stopPropagation(); /* handleFinancial */ }}
+                        onClick={(e) => { e.stopPropagation(); navigate('/finance'); }}
                         className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
                       >
                         <FileText size={16} /> Financeiro
@@ -856,7 +863,10 @@ const Students: React.FC = () => {
               >
                 Editar Cadastro
               </button>
-              <button className="px-6 py-2 bg-primary-600 text-white font-bold hover:bg-primary-700 rounded-lg transition-colors shadow-lg shadow-primary-200">
+              <button
+                onClick={() => navigate('/finance?student=' + encodeURIComponent(showDetailsModal.name))}
+                className="px-6 py-2 bg-primary-600 text-white font-bold hover:bg-primary-700 rounded-lg transition-colors shadow-lg shadow-primary-200"
+              >
                 Ver Financeiro
               </button>
             </div>

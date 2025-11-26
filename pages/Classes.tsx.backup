@@ -677,7 +677,7 @@ const Classes: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 print-only">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden print-only">
         <table className="w-full text-left">
           <thead className="bg-slate-50 border-b border-slate-100">
             <tr>
@@ -717,7 +717,7 @@ const Classes: React.FC = () => {
                   </button>
 
                   {activeMenuId === `plan-${plan.id}` && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border border-slate-100 py-1">
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-slate-100 py-1">
                       <button
                         onClick={(e) => { e.stopPropagation(); handleEditPlan(plan); }}
                         className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"

@@ -18,15 +18,23 @@ export const exportToCSV = (data: any[], headers: string[], filename: string) =>
         )
     ].join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    // Add BOM for Excel compatibility
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+
     const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
+    link.style.display = 'none';
+    link.href = url;
     link.setAttribute('download', `${filename}.csv`);
-    link.style.visibility = 'hidden';
+
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+
+    setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        console.log('Download CSV finalizado (recursos limpos).');
+    }, 2000);
 };
 
 export const parseCSV = (file: File): Promise<any[]> => {
@@ -70,13 +78,24 @@ export const parseCSV = (file: File): Promise<any[]> => {
 };
 
 export const downloadTemplate = (headers: string[], filename: string) => {
+    console.log('Gerando template CSV para:', filename);
     const csvContent = headers.join(',');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+
+    // Add BOM for Excel compatibility
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+
     const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
+    link.style.display = 'none';
+    link.href = url;
     link.setAttribute('download', `modelo_${filename}.csv`);
+
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+
+    setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        console.log('Download CSV finalizado (recursos limpos).');
+    }, 2000);
 };

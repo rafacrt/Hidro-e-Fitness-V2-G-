@@ -39,21 +39,38 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ user, children, restric
 };
 
 const App: React.FC = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    // 1. Check for DEVMODE
+    if (import.meta.env.VITE_DEVMODE === 'ENABLED') {
+      console.log('DEVMODE ENABLED: Logging in as Developer');
+      return {
+        id: 'dev-user',
+        name: 'Developer',
+        email: 'dev@local',
+        role: 'DEV',
+        avatar: ''
+      };
+    }
+    // 2. Check localStorage
+    const savedUser = localStorage.getItem('hidro_fitness_user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
 
   const handleLogin = (loggedInUser: User) => {
     setUser(loggedInUser);
+    localStorage.setItem('hidro_fitness_user', JSON.stringify(loggedInUser));
   };
 
   const handleLogout = () => {
     setUser(null);
+    localStorage.removeItem('hidro_fitness_user');
   };
 
   return (
     <Router>
       <Routes>
         <Route path="/login" element={!user ? <Login onLogin={handleLogin} /> : <Navigate to="/" />} />
-        
+
         <Route path="/*" element={
           <ProtectedRoute user={user}>
             <Layout user={user!} onLogout={handleLogout}>
@@ -64,7 +81,7 @@ const App: React.FC = () => {
                   <Route path="/classes" element={<Classes />} />
                   <Route path="/reports" element={<Reports />} />
                   <Route path="/finance" element={<Finance />} />
-                  
+
                   {/* DEV ONLY ROUTES */}
                   <Route path="/users" element={
                     <ProtectedRoute user={user} restrictedToDev={true}>
@@ -76,7 +93,7 @@ const App: React.FC = () => {
                       <ArchitectureDocs />
                     </ProtectedRoute>
                   } />
-                  
+
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Suspense>
