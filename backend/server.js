@@ -115,12 +115,15 @@ app.get('/api/dashboard/charts', async (req, res) => {
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
     try {
+        console.log('Login attempt:', { email, password }); // DEBUG
         const result = await pool.query('SELECT * FROM users WHERE email = $1 AND password = $2', [email, password]);
+        console.log('Login result count:', result.rows.length); // DEBUG
         if (result.rows.length > 0) {
             const user = result.rows[0];
             const { password, ...safeUser } = user;
             res.json(safeUser);
         } else {
+            console.log('Login failed: Invalid credentials'); // DEBUG
             res.status(401).json({ error: 'Credenciais inválidas' });
         }
     } catch (err) {

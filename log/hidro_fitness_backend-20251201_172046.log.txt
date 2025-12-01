@@ -1,0 +1,85 @@
+2025-12-01T15:18:44.107Z at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+2025-12-01T15:18:44.107Z errno: -111,
+2025-12-01T15:18:44.107Z code: 'ECONNREFUSED',
+2025-12-01T15:18:44.107Z syscall: 'connect',
+2025-12-01T15:18:44.107Z address: '172.23.0.2',
+2025-12-01T15:18:44.107Z port: 5432
+2025-12-01T15:18:44.107Z }
+2025-12-01T15:35:06.778Z npm error path /app
+2025-12-01T15:35:06.778Z npm error command failed
+2025-12-01T15:35:06.778Z npm error signal SIGTERM
+2025-12-01T15:35:06.778Z npm error command sh -c node server.js
+2025-12-01T15:35:06.781Z npm error A complete log of this run can be found in: /root/.npm/_logs/2025-12-01T15_18_43_326Z-debug-0.log
+2025-12-01T15:36:01.941Z > hidro-fitness-backend@1.0.0 start
+2025-12-01T15:36:01.941Z > node server.js
+2025-12-01T15:36:02.453Z Backend running on port 3001
+2025-12-01T15:36:02.528Z Connected to Database: { now: 2025-12-01T15:36:02.517Z }
+2025-12-01T15:36:02.529Z Constraint plans_frequency_check removed (if existed)
+2025-12-01T15:39:13.658Z npm error path /app
+2025-12-01T15:39:13.658Z npm error command failed
+2025-12-01T15:39:13.658Z npm error signal SIGTERM
+2025-12-01T15:39:13.658Z npm error command sh -c node server.js
+2025-12-01T15:39:13.663Z npm error A complete log of this run can be found in: /root/.npm/_logs/2025-12-01T15_36_01_747Z-debug-0.log
+2025-12-01T15:39:34.046Z > hidro-fitness-backend@1.0.0 start
+2025-12-01T15:39:34.046Z > node server.js
+2025-12-01T15:39:34.458Z Backend running on port 3001
+2025-12-01T15:39:34.543Z Constraint plans_frequency_check removed (if existed)
+2025-12-01T15:39:34.550Z Connected to Database: { now: 2025-12-01T15:39:34.538Z }
+2025-12-01T15:50:52.975Z npm error path /app
+2025-12-01T15:50:52.975Z npm error command failed
+2025-12-01T15:50:52.975Z npm error signal SIGTERM
+2025-12-01T15:50:52.975Z npm error command sh -c node server.js
+2025-12-01T15:50:52.979Z npm error A complete log of this run can be found in: /root/.npm/_logs/2025-12-01T15_39_33_887Z-debug-0.log
+2025-12-01T15:51:23.971Z > hidro-fitness-backend@1.0.0 start
+2025-12-01T15:51:23.971Z > node server.js
+2025-12-01T15:51:24.405Z Backend running on port 3001
+2025-12-01T15:51:24.490Z Connected to Database: { now: 2025-12-01T15:51:24.483Z }
+2025-12-01T15:51:24.492Z Constraint plans_frequency_check removed (if existed)
+2025-12-01T16:30:05.885Z npm error path /app
+2025-12-01T16:30:05.885Z npm error command failed
+2025-12-01T16:30:05.885Z npm error signal SIGTERM
+2025-12-01T16:30:05.885Z npm error command sh -c node server.js
+2025-12-01T16:30:05.890Z npm error A complete log of this run can be found in: /root/.npm/_logs/2025-12-01T15_51_23_832Z-debug-0.log
+2025-12-01T16:30:27.928Z > hidro-fitness-backend@1.0.0 start
+2025-12-01T16:30:27.928Z > node server.js
+2025-12-01T16:30:28.357Z Backend running on port 3001
+2025-12-01T16:30:28.454Z Constraint plans_frequency_check removed (if existed)
+2025-12-01T16:30:28.466Z Connected to Database: { now: 2025-12-01T16:30:28.459Z }
+2025-12-01T16:35:18.058Z npm error path /app
+2025-12-01T16:35:18.058Z npm error command failed
+2025-12-01T16:35:18.058Z npm error signal SIGTERM
+2025-12-01T16:35:18.058Z npm error command sh -c node server.js
+2025-12-01T16:35:18.062Z npm error A complete log of this run can be found in: /root/.npm/_logs/2025-12-01T16_30_27_779Z-debug-0.log
+2025-12-01T16:35:40.289Z > hidro-fitness-backend@1.0.0 start
+2025-12-01T16:35:40.289Z > node server.js
+2025-12-01T16:35:40.698Z Backend running on port 3001
+2025-12-01T16:35:45.698Z Error acquiring client Error: getaddrinfo EAI_AGAIN db
+2025-12-01T16:35:45.698Z at GetAddrInfoReqWrap.onlookup [as oncomplete] (node:dns:107:26)
+2025-12-01T16:35:45.710Z Error removing constraint: Error: getaddrinfo EAI_AGAIN db
+2025-12-01T16:35:45.710Z at /app/node_modules/pg-pool/index.js:45:11
+2025-12-01T16:35:45.710Z at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+2025-12-01T16:35:45.710Z errno: -3001,
+2025-12-01T16:35:45.710Z code: 'EAI_AGAIN',
+2025-12-01T16:35:45.710Z syscall: 'getaddrinfo',
+2025-12-01T16:35:45.710Z hostname: 'db'
+2025-12-01T16:35:45.710Z }
+2025-12-01T16:37:03.462Z npm error path /app
+2025-12-01T16:37:03.462Z npm error command failed
+2025-12-01T16:37:03.462Z npm error signal SIGTERM
+2025-12-01T16:37:03.462Z npm error command sh -c node server.js
+2025-12-01T16:37:03.466Z npm error A complete log of this run can be found in: /root/.npm/_logs/2025-12-01T16_35_40_139Z-debug-0.log
+2025-12-01T16:37:25.443Z > hidro-fitness-backend@1.0.0 start
+2025-12-01T16:37:25.443Z > node server.js
+2025-12-01T16:37:25.872Z Backend running on port 3001
+2025-12-01T16:37:25.966Z Connected to Database: { now: 2025-12-01T16:37:25.957Z }
+2025-12-01T16:37:25.967Z Constraint plans_frequency_check removed (if existed)
+2025-12-01T16:40:39.931Z npm error path /app
+2025-12-01T16:40:39.931Z npm error command failed
+2025-12-01T16:40:39.931Z npm error signal SIGTERM
+2025-12-01T16:40:39.931Z npm error command sh -c node server.js
+2025-12-01T16:40:39.935Z npm error A complete log of this run can be found in: /root/.npm/_logs/2025-12-01T16_37_25_320Z-debug-0.log
+2025-12-01T16:41:28.080Z > hidro-fitness-backend@1.0.0 start
+2025-12-01T16:41:28.080Z > node server.js
+2025-12-01T16:41:28.432Z Backend running on port 3001
+2025-12-01T16:41:28.507Z Connected to Database: { now: 2025-12-01T16:41:28.497Z }
+2025-12-01T16:41:28.509Z Constraint plans_frequency_check removed (if existed)
