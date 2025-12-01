@@ -25,12 +25,27 @@ export const fetchDashboardCharts = async (): Promise<any> => {
 };
 
 export const login = async (email: string, pass: string): Promise<User> => {
+    console.log('Sending login request to /api/login'); // DEBUG
     const response = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password: pass }),
     });
-    if (!response.ok) throw new Error('Credenciais inválidas');
+
+    console.log('Login response status:', response.status); // DEBUG
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Login error body:', errorText); // DEBUG
+
+        if (response.status === 401) {
+            throw new Error('Credenciais inválidas');
+        } else if (response.status === 502) {
+            throw new Error('Erro 502: Backend indisponível (Bad Gateway)');
+        } else {
+            throw new Error(`Erro ${response.status}: ${response.statusText}`);
+        }
+    }
     return await response.json();
 };
 

@@ -28,3 +28,19 @@
 2025-12-01T17:16:30.046Z 2025-12-01 17:16:30.046 UTC [27] LOG:  checkpoint complete: wrote 21 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=2.012 s, sync=0.005 s, total=2.024 s; sync files=14, longest=0.002 s, average=0.001 s; distance=17 kB, estimate=17 kB
 2025-12-01T17:26:28.159Z 2025-12-01 17:26:28.159 UTC [27] LOG:  checkpoint starting: time
 2025-12-01T17:26:28.171Z 2025-12-01 17:26:28.171 UTC [27] LOG:  checkpoint complete: wrote 1 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.002 s, sync=0.001 s, total=0.013 s; sync files=1, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=15 kB
+2025-12-01T18:07:48.472Z 2025-12-01 18:07:48.471 UTC [1] LOG:  received fast shutdown request
+2025-12-01T18:07:48.474Z 2025-12-01 18:07:48.474 UTC [1] LOG:  aborting any active transactions
+2025-12-01T18:07:48.484Z 2025-12-01 18:07:48.483 UTC [1] LOG:  background worker "logical replication launcher" (PID 32) exited with exit code 1
+2025-12-01T18:07:48.486Z 2025-12-01 18:07:48.485 UTC [27] LOG:  shutting down
+2025-12-01T18:07:48.488Z 2025-12-01 18:07:48.488 UTC [27] LOG:  checkpoint starting: shutdown immediate
+2025-12-01T18:07:48.498Z 2025-12-01 18:07:48.497 UTC [27] LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.013 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=14 kB
+2025-12-01T18:07:48.515Z 2025-12-01 18:07:48.515 UTC [1] LOG:  database system is shut down
+2025-12-01T18:08:10.296Z PostgreSQL Database directory appears to contain a database; Skipping initialization
+2025-12-01T18:08:10.347Z 2025-12-01 18:08:10.346 UTC [1] LOG:  starting PostgreSQL 15.15 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+2025-12-01T18:08:10.347Z 2025-12-01 18:08:10.347 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2025-12-01T18:08:10.347Z 2025-12-01 18:08:10.347 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2025-12-01T18:08:10.350Z 2025-12-01 18:08:10.350 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2025-12-01T18:08:10.358Z 2025-12-01 18:08:10.358 UTC [29] LOG:  database system was shut down at 2025-12-01 18:07:48 UTC
+2025-12-01T18:08:10.369Z 2025-12-01 18:08:10.368 UTC [1] LOG:  database system is ready to accept connections
+2025-12-01T18:13:10.432Z 2025-12-01 18:13:10.431 UTC [27] LOG:  checkpoint starting: time
+2025-12-01T18:13:10.446Z 2025-12-01 18:13:10.445 UTC [27] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.005 s, sync=0.002 s, total=0.015 s; sync files=2, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=0 kB
