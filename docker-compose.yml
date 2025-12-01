@@ -5,7 +5,7 @@ services:
     container_name: hidro_fitness_frontend
     restart: always
     ports:
-      - "3000:80" # Maps port 80 inside container to 3000 on host (Dokploy handles external routing)
+      - "3002:80" # Maps port 80 inside container to 3002 on host (Dokploy handles external routing)
     depends_on:
       - backend
 
