@@ -20,7 +20,8 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/hidro_fitness?schema=public
       - PORT=3001
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   # 3. PostgreSQL Database
   db:
@@ -34,6 +35,11 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   # 4. Database UI (Adminer)
   adminer:

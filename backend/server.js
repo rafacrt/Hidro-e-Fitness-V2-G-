@@ -15,19 +15,27 @@ const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
 });
 
-// Test DB Connection
-pool.connect((err, client, release) => {
-    if (err) {
-        return console.error('Error acquiring client', err.stack);
-    }
-    client.query('SELECT NOW()', (err, result) => {
-        release();
-        if (err) {
-            return console.error('Error executing query', err.stack);
+// Test DB Connection with Retry
+const connectWithRetry = async () => {
+    let retries = 5;
+    while (retries > 0) {
+        try {
+            const client = await pool.connect();
+            const result = await client.query('SELECT NOW()');
+            client.release();
+            console.log('Connected to Database:', result.rows[0]);
+            return;
+        } catch (err) {
+            console.error(`Error connecting to database (retries left: ${retries}):`, err.message);
+            retries -= 1;
+            await new Promise(res => setTimeout(res, 5000)); // Wait 5 seconds
         }
-        console.log('Connected to Database:', result.rows[0]);
-    });
-});
+    }
+    console.error('Could not connect to database after multiple retries.');
+    // We don't exit process here to allow the server to keep running and potentially connect later
+};
+
+connectWithRetry();
 
 // --- HELPERS ---
 const toNull = (value) => {
