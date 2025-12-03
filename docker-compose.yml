@@ -9,6 +9,8 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+    networks:
+      - app_network
 
   # 2. Backend API (Node.js + Express)
   backend:
@@ -25,6 +27,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - app_network
     depends_on:
       db:
         condition: service_healthy
@@ -46,6 +50,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - app_network
 
   # 4. Database UI (Adminer)
   adminer:
@@ -56,6 +62,12 @@ services:
       - "8080:8080"
     environment:
       ADMINER_DEFAULT_SERVER: db
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
 
 volumes:
   pgdata:
