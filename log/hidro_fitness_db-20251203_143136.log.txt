@@ -1,0 +1,45 @@
+2025-12-03T14:11:03.573Z PostgreSQL Database directory appears to contain a database; Skipping initialization
+2025-12-03T14:11:03.616Z 2025-12-03 14:11:03.616 UTC [1] LOG:  starting PostgreSQL 15.15 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+2025-12-03T14:11:03.616Z 2025-12-03 14:11:03.616 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2025-12-03T14:11:03.616Z 2025-12-03 14:11:03.616 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2025-12-03T14:11:03.619Z 2025-12-03 14:11:03.619 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2025-12-03T14:11:03.626Z 2025-12-03 14:11:03.626 UTC [29] LOG:  database system was shut down at 2025-12-03 14:11:01 UTC
+2025-12-03T14:11:03.638Z 2025-12-03 14:11:03.638 UTC [1] LOG:  database system is ready to accept connections
+2025-12-03T14:11:10.708Z 2025-12-03 14:11:10.707 UTC [41] FATAL:  database "hidro_fitness" does not exist
+2025-12-03T14:11:10.708Z 2025-12-03 14:11:10.708 UTC [42] FATAL:  database "hidro_fitness" does not exist
+2025-12-03T14:11:15.750Z 2025-12-03 14:11:15.750 UTC [50] FATAL:  database "hidro_fitness" does not exist
+2025-12-03T14:11:20.787Z 2025-12-03 14:11:20.786 UTC [58] FATAL:  database "hidro_fitness" does not exist
+2025-12-03T14:11:25.818Z 2025-12-03 14:11:25.817 UTC [66] FATAL:  database "hidro_fitness" does not exist
+2025-12-03T14:11:30.838Z 2025-12-03 14:11:30.838 UTC [74] FATAL:  database "hidro_fitness" does not exist
+2025-12-03T14:16:03.723Z 2025-12-03 14:16:03.723 UTC [27] LOG:  checkpoint starting: time
+2025-12-03T14:16:19.811Z 2025-12-03 14:16:19.810 UTC [1] LOG:  received fast shutdown request
+2025-12-03T14:16:19.812Z 2025-12-03 14:16:19.812 UTC [1] LOG:  aborting any active transactions
+2025-12-03T14:16:19.817Z 2025-12-03 14:16:19.817 UTC [1] LOG:  background worker "logical replication launcher" (PID 32) exited with exit code 1
+2025-12-03T14:16:19.883Z 2025-12-03 14:16:19.883 UTC [27] LOG:  checkpoint complete: wrote 957 buffers (5.8%); 0 WAL file(s) added, 0 removed, 1 recycled; write=16.113 s, sync=0.039 s, total=16.161 s; sync files=332, longest=0.002 s, average=0.001 s; distance=4409 kB, estimate=4409 kB
+2025-12-03T14:16:19.884Z 2025-12-03 14:16:19.884 UTC [27] LOG:  shutting down
+2025-12-03T14:16:19.886Z 2025-12-03 14:16:19.886 UTC [27] LOG:  checkpoint starting: shutdown immediate
+2025-12-03T14:16:19.891Z 2025-12-03 14:16:19.890 UTC [27] LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.007 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=3968 kB
+2025-12-03T14:16:19.906Z 2025-12-03 14:16:19.905 UTC [1] LOG:  database system is shut down
+2025-12-03T14:17:03.884Z PostgreSQL Database directory appears to contain a database; Skipping initialization
+2025-12-03T14:17:03.923Z 2025-12-03 14:17:03.922 UTC [1] LOG:  starting PostgreSQL 15.15 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+2025-12-03T14:17:03.923Z 2025-12-03 14:17:03.923 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2025-12-03T14:17:03.923Z 2025-12-03 14:17:03.923 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2025-12-03T14:17:03.926Z 2025-12-03 14:17:03.926 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2025-12-03T14:17:03.932Z 2025-12-03 14:17:03.932 UTC [29] LOG:  database system was shut down at 2025-12-03 14:16:19 UTC
+2025-12-03T14:17:03.942Z 2025-12-03 14:17:03.942 UTC [1] LOG:  database system is ready to accept connections
+2025-12-03T14:22:04.032Z 2025-12-03 14:22:04.031 UTC [27] LOG:  checkpoint starting: time
+2025-12-03T14:22:04.045Z 2025-12-03 14:22:04.045 UTC [27] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.004 s, sync=0.002 s, total=0.014 s; sync files=2, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=0 kB
+2025-12-03T14:28:53.157Z 2025-12-03 14:28:53.156 UTC [1] LOG:  received fast shutdown request
+2025-12-03T14:28:53.159Z 2025-12-03 14:28:53.159 UTC [1] LOG:  aborting any active transactions
+2025-12-03T14:28:53.164Z 2025-12-03 14:28:53.164 UTC [1] LOG:  background worker "logical replication launcher" (PID 32) exited with exit code 1
+2025-12-03T14:28:53.168Z 2025-12-03 14:28:53.168 UTC [27] LOG:  shutting down
+2025-12-03T14:28:53.170Z 2025-12-03 14:28:53.170 UTC [27] LOG:  checkpoint starting: shutdown immediate
+2025-12-03T14:28:53.179Z 2025-12-03 14:28:53.179 UTC [27] LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.012 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=0 kB
+2025-12-03T14:28:53.196Z 2025-12-03 14:28:53.196 UTC [1] LOG:  database system is shut down
+2025-12-03T14:29:21.857Z PostgreSQL Database directory appears to contain a database; Skipping initialization
+2025-12-03T14:29:21.907Z 2025-12-03 14:29:21.907 UTC [1] LOG:  starting PostgreSQL 15.15 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+2025-12-03T14:29:21.907Z 2025-12-03 14:29:21.907 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2025-12-03T14:29:21.908Z 2025-12-03 14:29:21.907 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2025-12-03T14:29:21.912Z 2025-12-03 14:29:21.911 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2025-12-03T14:29:21.921Z 2025-12-03 14:29:21.920 UTC [29] LOG:  database system was shut down at 2025-12-03 14:28:53 UTC
+2025-12-03T14:29:21.936Z 2025-12-03 14:29:21.936 UTC [1] LOG:  database system is ready to accept connections

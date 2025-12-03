@@ -47,6 +47,11 @@ const toNull = (value) => {
 
 // --- ROUTES ---
 
+// Health Check
+app.get('/api/health', (req, res) => {
+    res.status(200).json({ status: 'ok', timestamp: new Date() });
+});
+
 // Dashboard KPIs
 app.get('/api/dashboard/kpis', async (req, res) => {
     try {

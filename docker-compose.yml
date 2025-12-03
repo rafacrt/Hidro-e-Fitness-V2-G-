@@ -7,7 +7,8 @@ services:
     ports:
       - "3002:80" # Maps port 80 inside container to 3002 on host (Dokploy handles external routing)
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 
   # 2. Backend API (Node.js + Express)
   backend:
@@ -19,6 +20,11 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/hidro_fitness?schema=public
       - PORT=3001
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:3001/api/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     depends_on:
       db:
         condition: service_healthy
