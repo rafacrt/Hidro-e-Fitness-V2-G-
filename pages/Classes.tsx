@@ -684,6 +684,7 @@ const Classes: React.FC = () => {
               <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Nome do Plano</th>
               <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Modalidade</th>
               <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Frequência</th>
+              <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase text-center">Aulas/Semana</th>
               <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Valor</th>
               <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase text-right no-print">Ações</th>
             </tr>
@@ -701,6 +702,9 @@ const Classes: React.FC = () => {
                   <span className="px-2 py-1 bg-slate-100 rounded text-xs font-bold uppercase text-slate-600">
                     {plan.frequency}
                   </span>
+                </td>
+                <td className="px-6 py-4 text-slate-600 text-sm text-center">
+                  {plan.classesPerWeek}x
                 </td>
                 <td className="px-6 py-4 font-bold text-green-700">
                   R$ {Number(plan.price).toFixed(2)}

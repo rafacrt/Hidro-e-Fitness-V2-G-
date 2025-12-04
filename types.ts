@@ -69,6 +69,7 @@ export interface Student {
   // Academic
   status: 'Ativo' | 'Inativo' | 'Trancado';
   plan: string;
+  plans?: string[];
   modality?: string; // Deprecated, kept for backward compatibility
   modalities: string[]; // New field for multiple modalities
   enrollmentDate: string;

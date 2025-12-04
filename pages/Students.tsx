@@ -15,6 +15,20 @@ import { exportToCSV, parseCSV, downloadTemplate } from '../utils/csvHelper';
 
 type TabType = 'registration' | 'enrollment' | 'documents';
 
+// Helper to parse plans from string (JSON or single value)
+const parsePlans = (planStr: string | undefined): string[] => {
+  if (!planStr) return [];
+  try {
+    // Try to parse as JSON array
+    const parsed = JSON.parse(planStr);
+    if (Array.isArray(parsed)) return parsed;
+    return [planStr];
+  } catch (e) {
+    // If not JSON, treat as single string
+    return [planStr];
+  }
+};
+
 const Students: React.FC = () => {
   const navigate = useNavigate();
   const [students, setStudents] = useState<Student[]>([]);
@@ -300,6 +314,8 @@ const Students: React.FC = () => {
     try {
       const studentData = {
         ...formData,
+        // Serialize plans array to JSON string for storage
+        plan: JSON.stringify(formData.plans || []),
         // Ensure backward compatibility if needed, or just send modalities
         modality: formData.modalities && formData.modalities.length > 0 ? formData.modalities[0] : ''
       };
@@ -371,38 +387,44 @@ const Students: React.FC = () => {
         const selectedStudents = students.filter(s => selectedStudentIds.includes(s.id));
 
         for (const student of selectedStudents) {
-          if (!student.plan) continue;
-          const plan = plans.find(p => p.name === student.plan);
-          if (!plan) continue;
+          const studentPlans = parsePlans(student.plan);
+          if (studentPlans.length === 0) continue;
 
-          const today = new Date();
-          let currentMonth = today.getMonth();
-          let currentYear = today.getFullYear();
+          for (const planName of studentPlans) {
+            const plan = plans.find(p => p.name === planName);
+            if (!plan) continue;
 
-          if (today.getDate() > 10) {
-            currentMonth++;
-            if (currentMonth > 11) {
-              currentMonth = 0;
-              currentYear++;
+            const today = new Date();
+            let currentMonth = today.getMonth();
+            let currentYear = today.getFullYear();
+
+            if (today.getDate() > 10) {
+              currentMonth++;
+              if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+              }
+            }
+
+            for (let i = 0; i < plan.durationMonths; i++) {
+              const dueDate = new Date(currentYear, currentMonth + i, 10);
+              const transaction = {
+                id: crypto.randomUUID(),
+                description: `Cobrança ${dueDate.getMonth() + 1}/${dueDate.getFullYear()} - ${student.name} (${plan.name})`,
+                type: 'INCOME' as const,
+                category: 'TUITION' as const,
+                amount: plan.price,
+                date: new Date().toISOString().split('T')[0],
+                dueDate: dueDate.toISOString().split('T')[0],
+                status: 'PENDING' as const,
+                relatedEntity: student.name
+              };
+              promises.push(createTransaction(transaction));
             }
           }
-
-          for (let i = 0; i < plan.durationMonths; i++) {
-            const dueDate = new Date(currentYear, currentMonth + i, 10);
-            const transaction = {
-              id: crypto.randomUUID(),
-              description: `Cobrança ${dueDate.getMonth() + 1}/${dueDate.getFullYear()} - ${student.name}`,
-              type: 'INCOME' as const,
-              category: 'TUITION' as const,
-              amount: plan.price,
-              date: new Date().toISOString().split('T')[0],
-              dueDate: dueDate.toISOString().split('T')[0],
-              status: 'PENDING' as const,
-              relatedEntity: student.name
-            };
-            promises.push(createTransaction(transaction));
-          }
         }
+
+
       } else {
         // Manual
         if (!manualCharge.studentId || !manualCharge.amount || !manualCharge.dueDate) {
@@ -446,7 +468,8 @@ const Students: React.FC = () => {
     setIsEditing(false);
     setFormData({
       name: '', email: '', cpf: '', birthDate: '', phone: '', isWhatsapp: false,
-      plan: plans.length > 0 ? plans[0].name : '',
+      plan: '',
+      plans: [],
       modalities: [],
       status: 'Ativo',
       address: { cep: '', street: '', number: '', neighborhood: '', city: '', state: '', complement: '' },
@@ -460,6 +483,7 @@ const Students: React.FC = () => {
     setIsEditing(true);
     setFormData({
       ...student,
+      plans: parsePlans(student.plan),
       modalities: student.modalities || (student.modality ? [student.modality] : [])
     });
     setOpenMenuId(null);
@@ -1067,53 +1091,82 @@ const Students: React.FC = () => {
 
                 {activeTab === 'enrollment' && (
                   <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-slate-700 mb-2">Modalidades</label>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 border border-slate-200 p-4 rounded-lg bg-slate-50 max-h-48 overflow-y-auto">
-                          {modalities.map(m => (
-                            <label key={m.id} className="flex items-center gap-2 cursor-pointer p-2 hover:bg-white rounded-md transition-colors border border-transparent hover:border-slate-200">
-                              <input
-                                type="checkbox"
-                                checked={formData.modalities?.includes(m.name)}
-                                onChange={e => {
-                                  const current = formData.modalities || [];
-                                  if (e.target.checked) {
-                                    setFormData({ ...formData, modalities: [...current, m.name] });
-                                  } else {
-                                    setFormData({ ...formData, modalities: current.filter(name => name !== m.name) });
-                                  }
-                                }}
-                                className="w-4 h-4 rounded text-primary-600 focus:ring-primary-500 border-slate-300"
-                              />
-                              <span className="text-sm text-slate-700">{m.name}</span>
-                            </label>
-                          ))}
+                    <div className="grid grid-cols-1 gap-5">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Planos Contratados</label>
+
+                        <div className="flex gap-2 mb-4">
+                          <select
+                            id="plan-selector"
+                            className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
+                          >
+                            <option value="">Selecione um plano...</option>
+                            {plans.map(p => (
+                              <option key={p.id} value={p.name}>
+                                {p.name} - R$ {Number(p.price).toFixed(2)}
+                              </option>
+                            ))}
+                          </select>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const select = document.getElementById('plan-selector') as HTMLSelectElement;
+                              const planName = select.value;
+                              if (planName && !formData.plans?.includes(planName)) {
+                                setFormData({
+                                  ...formData,
+                                  plans: [...(formData.plans || []), planName]
+                                });
+                                select.value = '';
+                              }
+                            }}
+                            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium flex items-center gap-2"
+                          >
+                            <Plus size={18} /> Adicionar
+                          </button>
                         </div>
-                        <p className="text-xs text-slate-500 mt-1">Selecione todas as modalidades que o aluno pratica.</p>
+
+                        <div className="space-y-2">
+                          {formData.plans?.map((planName, index) => {
+                            const planDetails = plans.find(p => p.name === planName);
+                            return (
+                              <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
+                                <div className="flex items-center gap-3">
+                                  <div className="p-2 bg-white rounded-lg border border-slate-200 text-primary-600">
+                                    <CheckSquare size={18} />
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-medium text-slate-700">{planName}</p>
+                                    {planDetails && (
+                                      <p className="text-xs text-slate-500">
+                                        {planDetails.frequency} - R$ {Number(planDetails.price).toFixed(2)}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setFormData({
+                                      ...formData,
+                                      plans: formData.plans?.filter((_, i) => i !== index)
+                                    });
+                                  }}
+                                  className="text-slate-400 hover:text-red-500 p-2"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+                            );
+                          })}
+                          {(!formData.plans || formData.plans.length === 0) && (
+                            <div className="text-center py-8 text-slate-400 border-2 border-dashed border-slate-200 rounded-lg">
+                              Nenhum plano selecionado
+                            </div>
+                          )}
+                        </div>
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Plano Principal</label>
-                        <select
-                          value={formData.plan}
-                          onChange={e => setFormData({ ...formData, plan: e.target.value })}
-                          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
-                        >
-                          <option value="">Selecione...</option>
-                          {plans
-                            .filter(p => {
-                              if (!formData.modalities || formData.modalities.length === 0) return true;
-                              const selectedModalityIds = modalities
-                                .filter(m => formData.modalities?.includes(m.name))
-                                .map(m => m.id);
-                              return selectedModalityIds.includes(p.modalityId) || !p.modalityId;
-                            })
-                            .map(p => (
-                              <option key={p.id} value={p.name}>{p.name}</option>
-                            ))}
-                        </select>
-                      </div>
                       <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">Status da Matrícula</label>
                         <select
