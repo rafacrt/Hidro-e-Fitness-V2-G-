@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import {
   Plus, Search, FileText, MoreVertical, Loader2, MapPin,
   Upload, Download, User, Shield, Activity, Trash2, File,
-  MessageCircle, Phone, Mail, AlertTriangle, Calendar, X, Edit, Printer, DollarSign
+  MessageCircle, Phone, Mail, AlertTriangle, Calendar, X, Edit, Printer, DollarSign,
+  Users, CheckSquare, Square, Clock
 } from 'lucide-react';
 import {
   fetchStudents, createStudent, updateStudent, deleteStudent,
@@ -38,10 +39,21 @@ const Students: React.FC = () => {
   // Form State
   const [formData, setFormData] = useState<Partial<Student>>({
     name: '', email: '', cpf: '', birthDate: '', phone: '', isWhatsapp: false,
-    plan: '', modality: '', status: 'Ativo',
+    plan: '', modalities: [], status: 'Ativo',
     address: { cep: '', street: '', number: '', neighborhood: '', city: '', state: '', complement: '' },
     guardian: { name: '', cpf: '', phone: '', relationship: '' },
     medicalNotes: '', documents: []
+  });
+
+  // Generation Modal State
+  const [showGenerationModal, setShowGenerationModal] = useState(false);
+  const [generationTab, setGenerationTab] = useState<'auto' | 'manual'>('auto');
+  const [selectedStudentIds, setSelectedStudentIds] = useState<number[]>([]);
+  const [manualCharge, setManualCharge] = useState({
+    studentId: '',
+    description: '',
+    amount: '',
+    dueDate: new Date().toISOString().split('T')[0]
   });
 
   // --- Initial Data Fetching ---
@@ -57,7 +69,14 @@ const Students: React.FC = () => {
         fetchModalities(),
         fetchPlans()
       ]);
-      setStudents(studentsData);
+
+      // Ensure modalities array is populated for backward compatibility
+      const processedStudents = studentsData.map(s => ({
+        ...s,
+        modalities: s.modalities && s.modalities.length > 0 ? s.modalities : (s.modality ? [s.modality] : [])
+      }));
+
+      setStudents(processedStudents);
       setModalities(modalitiesData);
       setPlans(plansData);
     } catch (error) {
@@ -124,7 +143,7 @@ const Students: React.FC = () => {
   const handleExportCSV = () => {
     const headers = [
       'name', 'email', 'cpf', 'rg', 'birthDate', 'phone', 'isWhatsapp',
-      'plan', 'modality', 'status',
+      'plan', 'modalities', 'status',
       'cep', 'street', 'number', 'neighborhood', 'city', 'state', 'complement',
       'guardianName', 'guardianCpf', 'guardianPhone', 'guardianRelationship',
       'medicalNotes'
@@ -139,7 +158,7 @@ const Students: React.FC = () => {
       phone: s.phone,
       isWhatsapp: s.isWhatsapp ? 'Sim' : 'Não',
       plan: s.plan,
-      modality: s.modality,
+      modalities: s.modalities ? s.modalities.join('; ') : s.modality,
       status: s.status,
       cep: s.address?.cep,
       street: s.address?.street,
@@ -178,7 +197,7 @@ const Students: React.FC = () => {
             phone: row.phone,
             isWhatsapp: row.isWhatsapp === 'Sim',
             plan: row.plan,
-            modality: row.modality,
+            modalities: row.modalities ? row.modalities.split(';') : (row.modality ? [row.modality] : []),
             status: row.status || 'Ativo',
             address: {
               cep: row.cep,
@@ -211,7 +230,7 @@ const Students: React.FC = () => {
   const handleDownloadTemplate = () => {
     const headers = [
       'name', 'email', 'cpf', 'rg', 'birthDate', 'phone', 'isWhatsapp',
-      'plan', 'modality', 'status',
+      'plan', 'modalities', 'status',
       'cep', 'street', 'number', 'neighborhood', 'city', 'state', 'complement',
       'guardianName', 'guardianCpf', 'guardianPhone', 'guardianRelationship',
       'medicalNotes'
@@ -279,11 +298,17 @@ const Students: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const studentData = {
+        ...formData,
+        // Ensure backward compatibility if needed, or just send modalities
+        modality: formData.modalities && formData.modalities.length > 0 ? formData.modalities[0] : ''
+      };
+
       if (isEditing && formData.id) {
-        await updateStudent(formData.id, formData as Student);
+        await updateStudent(formData.id, studentData as Student);
         alert('Aluno atualizado com sucesso!');
       } else {
-        await createStudent(formData as Omit<Student, 'id'>);
+        await createStudent(studentData as Omit<Student, 'id'>);
         alert('Aluno cadastrado com sucesso!');
       }
       setShowFormModal(false);
@@ -306,64 +331,112 @@ const Students: React.FC = () => {
     }
   };
 
-  const handleGenerateTuitions = async (student: Student) => {
-    if (!student.plan) {
-      alert('O aluno não possui um plano selecionado.');
-      return;
-    }
+  // --- Generation Logic ---
 
-    const selectedPlan = plans.find(p => p.name === student.plan);
-    if (!selectedPlan) {
-      alert('Plano não encontrado.');
-      return;
+  const handleOpenGenerationModal = (student?: Student) => {
+    if (student) {
+      setSelectedStudentIds([student.id]);
+      setManualCharge(prev => ({ ...prev, studentId: student.id.toString(), description: `Cobrança - ${student.name}` }));
+    } else {
+      setSelectedStudentIds([]);
+      setManualCharge(prev => ({ ...prev, studentId: '', description: '' }));
     }
+    setShowGenerationModal(true);
+    setOpenMenuId(null);
+  };
 
-    if (!window.confirm(`Deseja gerar ${selectedPlan.durationMonths} mensalidades no valor de R$ ${selectedPlan.price} para ${student.name}?`)) {
-      return;
-    }
+  const toggleStudentSelection = (id: number) => {
+    setSelectedStudentIds(prev =>
+      prev.includes(id) ? prev.filter(sId => sId !== id) : [...prev, id]
+    );
+  };
 
+  const selectAllActiveStudents = () => {
+    const activeIds = students.filter(s => s.status === 'Ativo').map(s => s.id);
+    setSelectedStudentIds(activeIds);
+  };
+
+  const handleProcessGeneration = async () => {
     setLoading(true);
     try {
-      const today = new Date();
-      let currentMonth = today.getMonth();
-      let currentYear = today.getFullYear();
-
-      // If today is after the 10th, start next month
-      if (today.getDate() > 10) {
-        currentMonth++;
-        if (currentMonth > 11) {
-          currentMonth = 0;
-          currentYear++;
-        }
-      }
-
       const promises = [];
-      for (let i = 0; i < selectedPlan.durationMonths; i++) {
-        const dueDate = new Date(currentYear, currentMonth + i, 10);
+
+      if (generationTab === 'auto') {
+        if (selectedStudentIds.length === 0) {
+          alert('Selecione pelo menos um aluno.');
+          setLoading(false);
+          return;
+        }
+
+        const selectedStudents = students.filter(s => selectedStudentIds.includes(s.id));
+
+        for (const student of selectedStudents) {
+          if (!student.plan) continue;
+          const plan = plans.find(p => p.name === student.plan);
+          if (!plan) continue;
+
+          const today = new Date();
+          let currentMonth = today.getMonth();
+          let currentYear = today.getFullYear();
+
+          if (today.getDate() > 10) {
+            currentMonth++;
+            if (currentMonth > 11) {
+              currentMonth = 0;
+              currentYear++;
+            }
+          }
+
+          for (let i = 0; i < plan.durationMonths; i++) {
+            const dueDate = new Date(currentYear, currentMonth + i, 10);
+            const transaction = {
+              id: crypto.randomUUID(),
+              description: `Cobrança ${dueDate.getMonth() + 1}/${dueDate.getFullYear()} - ${student.name}`,
+              type: 'INCOME' as const,
+              category: 'TUITION' as const,
+              amount: plan.price,
+              date: new Date().toISOString().split('T')[0],
+              dueDate: dueDate.toISOString().split('T')[0],
+              status: 'PENDING' as const,
+              relatedEntity: student.name
+            };
+            promises.push(createTransaction(transaction));
+          }
+        }
+      } else {
+        // Manual
+        if (!manualCharge.studentId || !manualCharge.amount || !manualCharge.dueDate) {
+          alert('Preencha todos os campos obrigatórios.');
+          setLoading(false);
+          return;
+        }
+
+        const student = students.find(s => s.id.toString() === manualCharge.studentId);
+        if (!student) return;
 
         const transaction = {
           id: crypto.randomUUID(),
-          description: `Mensalidade ${dueDate.getMonth() + 1}/${dueDate.getFullYear()} - ${student.name}`,
+          description: manualCharge.description || `Cobrança Avulsa - ${student.name}`,
           type: 'INCOME' as const,
           category: 'TUITION' as const,
-          amount: selectedPlan.price,
+          amount: parseFloat(manualCharge.amount),
           date: new Date().toISOString().split('T')[0],
-          dueDate: dueDate.toISOString().split('T')[0],
+          dueDate: manualCharge.dueDate,
           status: 'PENDING' as const,
           relatedEntity: student.name
         };
-
         promises.push(createTransaction(transaction));
       }
 
       await Promise.all(promises);
-      alert('Mensalidades geradas com sucesso!');
+      alert('Cobranças geradas com sucesso!');
+      setShowGenerationModal(false);
+      setSelectedStudentIds([]);
     } catch (error) {
       console.error(error);
-      alert('Erro ao gerar mensalidades.');
+      alert('Erro ao gerar cobranças.');
     } finally {
       setLoading(false);
-      setOpenMenuId(null);
     }
   };
 
@@ -374,7 +447,7 @@ const Students: React.FC = () => {
     setFormData({
       name: '', email: '', cpf: '', birthDate: '', phone: '', isWhatsapp: false,
       plan: plans.length > 0 ? plans[0].name : '',
-      modality: modalities.length > 0 ? modalities[0].name : '',
+      modalities: [],
       status: 'Ativo',
       address: { cep: '', street: '', number: '', neighborhood: '', city: '', state: '', complement: '' },
       guardian: { name: '', cpf: '', phone: '', relationship: '' },
@@ -385,7 +458,10 @@ const Students: React.FC = () => {
 
   const handleOpenEdit = (student: Student) => {
     setIsEditing(true);
-    setFormData({ ...student });
+    setFormData({
+      ...student,
+      modalities: student.modalities || (student.modality ? [student.modality] : [])
+    });
     setOpenMenuId(null);
     setShowDetailsModal(null); // Close details if open
     setShowFormModal(true);
@@ -476,6 +552,13 @@ const Students: React.FC = () => {
             <Download size={20} />
           </button>
           <button
+            onClick={() => handleOpenGenerationModal()}
+            className="px-4 py-2.5 rounded-lg bg-white border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 flex items-center gap-2"
+          >
+            <DollarSign size={18} />
+            Gerar Cobranças
+          </button>
+          <button
             onClick={handleOpenNew}
             className="px-4 py-2.5 rounded-lg bg-primary-600 text-white font-medium hover:bg-primary-700 flex items-center gap-2 shadow-lg shadow-primary-200"
           >
@@ -517,11 +600,11 @@ const Students: React.FC = () => {
                 </td>
                 <td className="px-6 py-4">
                   <div className="text-sm font-medium text-slate-700">{student.plan}</div>
-                  <div className="text-xs text-slate-500">{student.modality}</div>
+                  <div className="text-xs text-slate-500">{student.modalities?.join(', ') || student.modality}</div>
                 </td>
                 <td className="px-6 py-4">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                    ${student.status === 'Ativo' ? 'bg-green-100 text-green-800' :
+                      ${student.status === 'Ativo' ? 'bg-green-100 text-green-800' :
                       student.status === 'Inativo' ? 'bg-red-100 text-red-800' :
                         'bg-yellow-100 text-yellow-800'}`}>
                     {student.status}
@@ -564,10 +647,10 @@ const Students: React.FC = () => {
                         <FileText size={16} /> Financeiro
                       </button>
                       <button
-                        onClick={(e) => { e.stopPropagation(); handleGenerateTuitions(student); }}
+                        onClick={(e) => { e.stopPropagation(); handleOpenGenerationModal(student); }}
                         className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
                       >
-                        <DollarSign size={16} /> Gerar Mensalidades
+                        <DollarSign size={16} /> Gerar Cobranças
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); /* handleAttendance */ }}
@@ -590,6 +673,136 @@ const Students: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Generation Modal */}
+      {showGenerationModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 no-print">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl flex flex-col max-h-[90vh]">
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+              <h3 className="text-lg font-bold text-slate-800">Gerar Cobranças</h3>
+              <button onClick={() => setShowGenerationModal(false)} className="text-slate-400 hover:text-red-500">
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto">
+              <div className="flex border-b border-slate-200 mb-6">
+                <button
+                  onClick={() => setGenerationTab('auto')}
+                  className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${generationTab === 'auto'
+                    ? 'border-primary-600 text-primary-700'
+                    : 'border-transparent text-slate-500 hover:text-slate-700'
+                    }`}
+                >
+                  Automático (Por Plano)
+                </button>
+                <button
+                  onClick={() => setGenerationTab('manual')}
+                  className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${generationTab === 'manual'
+                    ? 'border-primary-600 text-primary-700'
+                    : 'border-transparent text-slate-500 hover:text-slate-700'
+                    }`}
+                >
+                  Manual / Retroativo
+                </button>
+              </div>
+
+              {generationTab === 'auto' ? (
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <p className="text-sm text-slate-600">Selecione os alunos para gerar cobranças baseadas em seus planos.</p>
+                    <button onClick={selectAllActiveStudents} className="text-sm text-primary-600 font-medium hover:underline">
+                      Selecionar Todos Ativos
+                    </button>
+                  </div>
+                  <div className="border rounded-lg max-h-60 overflow-y-auto divide-y">
+                    {students.filter(s => s.status === 'Ativo').map(student => (
+                      <div key={student.id} className="flex items-center p-3 hover:bg-slate-50">
+                        <button
+                          onClick={() => toggleStudentSelection(student.id)}
+                          className={`mr-3 ${selectedStudentIds.includes(student.id) ? 'text-primary-600' : 'text-slate-300'}`}
+                        >
+                          {selectedStudentIds.includes(student.id) ? <CheckSquare size={20} /> : <Square size={20} />}
+                        </button>
+                        <div>
+                          <p className="font-medium text-slate-800">{student.name}</p>
+                          <p className="text-xs text-slate-500">{student.plan || 'Sem Plano'}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="bg-blue-50 p-4 rounded-lg text-sm text-blue-700">
+                    <p>Serão geradas cobranças futuras para <strong>{selectedStudentIds.length}</strong> alunos selecionados, conforme a duração de seus planos.</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Aluno</label>
+                    <select
+                      value={manualCharge.studentId}
+                      onChange={e => setManualCharge({ ...manualCharge, studentId: e.target.value })}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    >
+                      <option value="">Selecione um aluno...</option>
+                      {students.map(s => (
+                        <option key={s.id} value={s.id}>{s.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Descrição</label>
+                    <input
+                      value={manualCharge.description}
+                      onChange={e => setManualCharge({ ...manualCharge, description: e.target.value })}
+                      placeholder="Ex: Cobrança Retroativa Jan/2024"
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Valor (R$)</label>
+                      <input
+                        type="number"
+                        value={manualCharge.amount}
+                        onChange={e => setManualCharge({ ...manualCharge, amount: e.target.value })}
+                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1">Data de Vencimento</label>
+                      <input
+                        type="date"
+                        value={manualCharge.dueDate}
+                        onChange={e => setManualCharge({ ...manualCharge, dueDate: e.target.value })}
+                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="p-6 border-t border-slate-100 flex justify-end gap-3">
+              <button
+                onClick={() => setShowGenerationModal(false)}
+                className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleProcessGeneration}
+                disabled={loading}
+                className="px-6 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 disabled:opacity-50"
+              >
+                {loading ? 'Processando...' : 'Confirmar Geração'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
 
       {/* Form Modal */}
       {showFormModal && (
@@ -777,30 +990,50 @@ const Students: React.FC = () => {
                 {activeTab === 'enrollment' && (
                   <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Modalidade</label>
-                        <select
-                          value={formData.modality}
-                          onChange={e => setFormData({ ...formData, modality: e.target.value })}
-                          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
-                        >
-                          <option value="">Selecione...</option>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Modalidades</label>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 border border-slate-200 p-4 rounded-lg bg-slate-50 max-h-48 overflow-y-auto">
                           {modalities.map(m => (
-                            <option key={m.id} value={m.name}>{m.name}</option>
+                            <label key={m.id} className="flex items-center gap-2 cursor-pointer p-2 hover:bg-white rounded-md transition-colors border border-transparent hover:border-slate-200">
+                              <input
+                                type="checkbox"
+                                checked={formData.modalities?.includes(m.name)}
+                                onChange={e => {
+                                  const current = formData.modalities || [];
+                                  if (e.target.checked) {
+                                    setFormData({ ...formData, modalities: [...current, m.name] });
+                                  } else {
+                                    setFormData({ ...formData, modalities: current.filter(name => name !== m.name) });
+                                  }
+                                }}
+                                className="w-4 h-4 rounded text-primary-600 focus:ring-primary-500 border-slate-300"
+                              />
+                              <span className="text-sm text-slate-700">{m.name}</span>
+                            </label>
                           ))}
-                        </select>
+                        </div>
+                        <p className="text-xs text-slate-500 mt-1">Selecione todas as modalidades que o aluno pratica.</p>
                       </div>
+
                       <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Plano</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Plano Principal</label>
                         <select
                           value={formData.plan}
                           onChange={e => setFormData({ ...formData, plan: e.target.value })}
                           className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
                         >
                           <option value="">Selecione...</option>
-                          {plans.map(p => (
-                            <option key={p.id} value={p.name}>{p.name}</option>
-                          ))}
+                          {plans
+                            .filter(p => {
+                              if (!formData.modalities || formData.modalities.length === 0) return true;
+                              const selectedModalityIds = modalities
+                                .filter(m => formData.modalities?.includes(m.name))
+                                .map(m => m.id);
+                              return selectedModalityIds.includes(p.modalityId) || !p.modalityId;
+                            })
+                            .map(p => (
+                              <option key={p.id} value={p.name}>{p.name}</option>
+                            ))}
                         </select>
                       </div>
                       <div>
@@ -828,6 +1061,71 @@ const Students: React.FC = () => {
                         placeholder="Alergias, restrições médicas, observações importantes..."
                         className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                       />
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'enrollment' && (
+                  <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Modalidades</label>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 border border-slate-200 p-4 rounded-lg bg-slate-50 max-h-48 overflow-y-auto">
+                          {modalities.map(m => (
+                            <label key={m.id} className="flex items-center gap-2 cursor-pointer p-2 hover:bg-white rounded-md transition-colors border border-transparent hover:border-slate-200">
+                              <input
+                                type="checkbox"
+                                checked={formData.modalities?.includes(m.name)}
+                                onChange={e => {
+                                  const current = formData.modalities || [];
+                                  if (e.target.checked) {
+                                    setFormData({ ...formData, modalities: [...current, m.name] });
+                                  } else {
+                                    setFormData({ ...formData, modalities: current.filter(name => name !== m.name) });
+                                  }
+                                }}
+                                className="w-4 h-4 rounded text-primary-600 focus:ring-primary-500 border-slate-300"
+                              />
+                              <span className="text-sm text-slate-700">{m.name}</span>
+                            </label>
+                          ))}
+                        </div>
+                        <p className="text-xs text-slate-500 mt-1">Selecione todas as modalidades que o aluno pratica.</p>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Plano Principal</label>
+                        <select
+                          value={formData.plan}
+                          onChange={e => setFormData({ ...formData, plan: e.target.value })}
+                          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
+                        >
+                          <option value="">Selecione...</option>
+                          {plans
+                            .filter(p => {
+                              if (!formData.modalities || formData.modalities.length === 0) return true;
+                              const selectedModalityIds = modalities
+                                .filter(m => formData.modalities?.includes(m.name))
+                                .map(m => m.id);
+                              return selectedModalityIds.includes(p.modalityId) || !p.modalityId;
+                            })
+                            .map(p => (
+                              <option key={p.id} value={p.name}>{p.name}</option>
+                            ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Status da Matrícula</label>
+                        <select
+                          value={formData.status}
+                          onChange={e => setFormData({ ...formData, status: e.target.value as any })}
+                          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
+                        >
+                          <option value="Ativo">Ativo</option>
+                          <option value="Inativo">Inativo</option>
+                          <option value="Trancado">Trancado</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -921,7 +1219,9 @@ const Students: React.FC = () => {
                   <h4 className="text-xs font-bold text-slate-400 uppercase mb-2">Plano Atual</h4>
                   <div className="p-3 bg-primary-50 rounded-lg border border-primary-100">
                     <p className="font-bold text-primary-800">{showDetailsModal.plan}</p>
-                    <p className="text-xs text-primary-600">{showDetailsModal.modality}</p>
+                    <p className="text-xs text-primary-600 mt-1">
+                      {showDetailsModal.modalities?.join(', ') || showDetailsModal.modality}
+                    </p>
                   </div>
                 </div>
                 <div>

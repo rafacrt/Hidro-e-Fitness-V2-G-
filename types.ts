@@ -62,26 +62,27 @@ export interface Student {
   birthDate: string;
   phone: string;
   isWhatsapp?: boolean;
-  
+
   // Address
   address: Address;
 
   // Academic
   status: 'Ativo' | 'Inativo' | 'Trancado';
   plan: string;
-  modality: string;
+  modality?: string; // Deprecated, kept for backward compatibility
+  modalities: string[]; // New field for multiple modalities
   enrollmentDate: string;
-  
+
   // Financial
   paymentStatus: 'Pago' | 'Pendente' | 'Atrasado';
-  
+
   // Health & Extra
   medicalNotes?: string;
   photo?: string;
-  
+
   // Minor specific
   guardian?: Guardian;
-  
+
   // Files
   documents: StudentDocument[];
 }
