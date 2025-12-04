@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import {
   Plus, Search, FileText, MoreVertical, Loader2, MapPin,
   Upload, Download, User, Shield, Activity, Trash2, File,
-  MessageCircle, Phone, Mail, AlertTriangle, Calendar, X, Edit, Printer
+  MessageCircle, Phone, Mail, AlertTriangle, Calendar, X, Edit, Printer, DollarSign
 } from 'lucide-react';
 import {
   fetchStudents, createStudent, updateStudent, deleteStudent,
-  fetchModalities, fetchPlans, fetchAddressByCep
+  fetchModalities, fetchPlans, fetchAddressByCep, createTransaction
 } from '../services/api';
 import { Student, StudentDocument, Modality, Plan } from '../types';
 import { exportToCSV, parseCSV, downloadTemplate } from '../utils/csvHelper';
@@ -33,6 +33,7 @@ const Students: React.FC = () => {
 
   const [loadingCep, setLoadingCep] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('registration');
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Form State
   const [formData, setFormData] = useState<Partial<Student>>({
@@ -86,6 +87,39 @@ const Students: React.FC = () => {
   }, [formData.birthDate]);
 
   // --- Handlers ---
+
+  const maskCPF = (value: string) => {
+    return value
+      .replace(/\D/g, '')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})/, '$1-$2')
+      .replace(/(-\d{2})\d+?$/, '$1');
+  };
+
+  const maskPhone = (value: string) => {
+    return value
+      .replace(/\D/g, '')
+      .replace(/(\d{2})(\d)/, '($1) $2')
+      .replace(/(\d)(\d{4})(\d)/, '$1 $2-$3')
+      .replace(/(-\d{4})\d+?$/, '$1');
+  };
+
+  const maskCEP = (value: string) => {
+    return value
+      .replace(/\D/g, '')
+      .replace(/^(\d{5})(\d)/, '$1-$2')
+      .slice(0, 9);
+  };
+
+  const filteredStudents = students.filter(student => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      student.name.toLowerCase().includes(searchLower) ||
+      (student.cpf && student.cpf.includes(searchLower)) ||
+      student.id.toString().includes(searchLower)
+    );
+  });
 
   const handleExportCSV = () => {
     const headers = [
@@ -272,6 +306,67 @@ const Students: React.FC = () => {
     }
   };
 
+  const handleGenerateTuitions = async (student: Student) => {
+    if (!student.plan) {
+      alert('O aluno não possui um plano selecionado.');
+      return;
+    }
+
+    const selectedPlan = plans.find(p => p.name === student.plan);
+    if (!selectedPlan) {
+      alert('Plano não encontrado.');
+      return;
+    }
+
+    if (!window.confirm(`Deseja gerar ${selectedPlan.durationMonths} mensalidades no valor de R$ ${selectedPlan.price} para ${student.name}?`)) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const today = new Date();
+      let currentMonth = today.getMonth();
+      let currentYear = today.getFullYear();
+
+      // If today is after the 10th, start next month
+      if (today.getDate() > 10) {
+        currentMonth++;
+        if (currentMonth > 11) {
+          currentMonth = 0;
+          currentYear++;
+        }
+      }
+
+      const promises = [];
+      for (let i = 0; i < selectedPlan.durationMonths; i++) {
+        const dueDate = new Date(currentYear, currentMonth + i, 10);
+
+        const transaction = {
+          id: crypto.randomUUID(),
+          description: `Mensalidade ${dueDate.getMonth() + 1}/${dueDate.getFullYear()} - ${student.name}`,
+          type: 'INCOME' as const,
+          category: 'TUITION' as const,
+          amount: selectedPlan.price,
+          date: new Date().toISOString().split('T')[0],
+          dueDate: dueDate.toISOString().split('T')[0],
+          status: 'PENDING' as const,
+          relatedEntity: student.name
+        };
+
+        promises.push(createTransaction(transaction));
+      }
+
+      await Promise.all(promises);
+      alert('Mensalidades geradas com sucesso!');
+    } catch (error) {
+      console.error(error);
+      alert('Erro ao gerar mensalidades.');
+    } finally {
+      setLoading(false);
+      setOpenMenuId(null);
+    }
+  };
+
   // --- Action Handlers ---
 
   const handleOpenNew = () => {
@@ -361,6 +456,8 @@ const Students: React.FC = () => {
           <input
             type="text"
             placeholder="Buscar por nome, CPF ou matrícula..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-primary-500 focus:outline-none bg-white"
           />
         </div>
@@ -401,7 +498,7 @@ const Students: React.FC = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {students.map((student) => (
+            {filteredStudents.map((student) => (
               <tr
                 key={student.id}
                 className="hover:bg-slate-50 transition-colors cursor-pointer"
@@ -461,10 +558,16 @@ const Students: React.FC = () => {
                         <Edit size={16} /> Editar Cadastro
                       </button>
                       <button
-                        onClick={(e) => { e.stopPropagation(); navigate('/finance'); }}
+                        onClick={(e) => { e.stopPropagation(); navigate(`/finance?student=${encodeURIComponent(student.name)}`); }}
                         className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
                       >
                         <FileText size={16} /> Financeiro
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleGenerateTuitions(student); }}
+                        className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                      >
+                        <DollarSign size={16} /> Gerar Mensalidades
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); /* handleAttendance */ }}
@@ -522,7 +625,8 @@ const Students: React.FC = () => {
                         <label className="block text-sm font-medium text-slate-700 mb-1">CPF</label>
                         <input
                           value={formData.cpf}
-                          onChange={e => setFormData({ ...formData, cpf: e.target.value })}
+                          onChange={e => setFormData({ ...formData, cpf: maskCPF(e.target.value) })}
+                          maxLength={14}
                           className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                         />
                       </div>
@@ -550,7 +654,8 @@ const Students: React.FC = () => {
                         <div className="flex gap-2">
                           <input
                             value={formData.phone}
-                            onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                            onChange={e => setFormData({ ...formData, phone: maskPhone(e.target.value) })}
+                            maxLength={15}
                             className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                           />
                           <label className={`flex items-center justify-center px-3 rounded-lg border cursor-pointer transition-colors ${formData.isWhatsapp
@@ -580,7 +685,8 @@ const Students: React.FC = () => {
                           <div className="relative">
                             <input
                               value={formData.address?.cep}
-                              onChange={e => handleAddressChange('cep', e.target.value)}
+                              onChange={e => handleAddressChange('cep', maskCEP(e.target.value))}
+                              maxLength={9}
                               onBlur={handleCepBlur}
                               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                             />
@@ -613,11 +719,11 @@ const Students: React.FC = () => {
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-slate-700 mb-1">Cidade / UF</label>
-                          <div className="flex gap-2">
+                          <div className="flex gap-2 w-full">
                             <input
                               value={formData.address?.city}
                               onChange={e => handleAddressChange('city', e.target.value)}
-                              className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                              className="flex-1 min-w-0 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                             />
                             <input
                               value={formData.address?.state}
@@ -648,7 +754,8 @@ const Students: React.FC = () => {
                             <label className="block text-sm font-medium text-slate-700 mb-1">CPF do Responsável</label>
                             <input
                               value={formData.guardian?.cpf}
-                              onChange={e => handleGuardianChange('cpf', e.target.value)}
+                              onChange={e => handleGuardianChange('cpf', maskCPF(e.target.value))}
+                              maxLength={14}
                               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                             />
                           </div>
@@ -656,7 +763,8 @@ const Students: React.FC = () => {
                             <label className="block text-sm font-medium text-slate-700 mb-1">Telefone</label>
                             <input
                               value={formData.guardian?.phone}
-                              onChange={e => handleGuardianChange('phone', e.target.value)}
+                              onChange={e => handleGuardianChange('phone', maskPhone(e.target.value))}
+                              maxLength={15}
                               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                             />
                           </div>
