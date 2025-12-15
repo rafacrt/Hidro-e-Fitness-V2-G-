@@ -162,6 +162,9 @@ const connectWithRetry = async () => {
         return;
     }
 
+    // Ensure schema exists (create tables if needed)
+    await ensureSchemaExists();
+
     let retries = 5;
     while (retries > 0) {
         try {
