@@ -279,7 +279,7 @@ app.get('/api/dashboard/charts', async (req, res) => {
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
     try {
-        console.log('Login attempt:', { email, password }); // DEBUG
+        console.log('Login attempt:', { email }); // DEBUG
         const result = await pool.query('SELECT * FROM users WHERE email = $1 AND password = $2', [email, password]);
         console.log('Login result count:', result.rows.length); // DEBUG
         if (result.rows.length > 0) {
