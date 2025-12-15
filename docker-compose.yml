@@ -9,6 +9,8 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+    volumes:
+      - ./log/nginx:/var/log/nginx
     networks:
       - app_network
 
@@ -22,6 +24,8 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/hidro_fitness?schema=public
       - PORT=3001
+    volumes:
+      - ./log/backend:/app/log
     healthcheck:
       test: [ "CMD", "wget", "--spider", "-q", "http://localhost:3001/api/health" ]
       interval: 10s

@@ -1,22 +1,82 @@
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 3001;
+
+// Logging Helper
+const logDir = path.join(__dirname, 'log');
+if (!fs.existsSync(logDir)) {
+    try {
+        fs.mkdirSync(logDir);
+    } catch (e) {
+        console.error('Could not create log directory:', e);
+    }
+}
+const logFile = path.join(logDir, 'backend.log');
+
+const logToFile = (message) => {
+    const timestamp = new Date().toISOString();
+    const logMessage = `[${timestamp}] ${message}\n`;
+    try {
+        fs.appendFileSync(logFile, logMessage);
+    } catch (e) {
+        console.error('Failed to write to log file:', e);
+    }
+};
+
+// Global Error Handlers
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+    logToFile(`Uncaught Exception: ${err.message}\n${err.stack}`);
+    // Optional: process.exit(1); // Keep alive if possible for debugging, or let Docker restart
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    logToFile(`Unhandled Rejection: ${reason}`);
+});
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
 // Database Connection
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-});
+let pool;
+try {
+    if (!process.env.DATABASE_URL) {
+        const msg = "DATABASE_URL environment variable is not defined";
+        console.error(msg);
+        logToFile(msg);
+    } else {
+        console.log("Initializing Pool with DATABASE_URL..."); // Don't log the actual URL for security if it has passwords
+        pool = new Pool({
+            connectionString: process.env.DATABASE_URL,
+        });
+
+        // Error handler for the pool itself (e.g. idle client errors)
+        pool.on('error', (err, client) => {
+            console.error('Unexpected error on idle client', err);
+            logToFile(`Unexpected error on idle client: ${err.message}`);
+        });
+    }
+} catch (err) {
+    console.error("Failed to initialize database pool:", err);
+    logToFile(`Failed to initialize database pool: ${err.message}`);
+}
 
 // Test DB Connection with Retry
 const connectWithRetry = async () => {
+    if (!pool) {
+        console.error("Pool is not initialized, skipping connection retry.");
+        logToFile("Pool is not initialized, skipping connection retry.");
+        return;
+    }
+
     let retries = 5;
     while (retries > 0) {
         try {
@@ -24,14 +84,17 @@ const connectWithRetry = async () => {
             const result = await client.query('SELECT NOW()');
             client.release();
             console.log('Connected to Database:', result.rows[0]);
+            logToFile('Connected to Database successfully.');
             return;
         } catch (err) {
             console.error(`Error connecting to database (retries left: ${retries}):`, err.message);
+            logToFile(`Error connecting to database: ${err.message}`);
             retries -= 1;
             await new Promise(res => setTimeout(res, 5000)); // Wait 5 seconds
         }
     }
     console.error('Could not connect to database after multiple retries.');
+    logToFile('Could not connect to database after multiple retries.');
     // We don't exit process here to allow the server to keep running and potentially connect later
 };
 
@@ -561,10 +624,22 @@ app.delete('/api/users/:id', async (req, res) => {
 });
 
 // Remove constraint if exists to allow flexible frequency names
-pool.query("ALTER TABLE plans DROP CONSTRAINT IF EXISTS plans_frequency_check")
-    .then(() => console.log("Constraint plans_frequency_check removed (if existed)"))
-    .catch(err => console.error("Error removing constraint:", err));
+if (pool) {
+    pool.query("ALTER TABLE plans DROP CONSTRAINT IF EXISTS plans_frequency_check")
+        .then(() => {
+            console.log("Constraint plans_frequency_check removed (if existed)");
+            logToFile("Constraint plans_frequency_check removed (if existed)");
+        })
+        .catch(err => {
+            console.error("Error removing constraint:", err);
+            logToFile(`Error removing constraint: ${err.message}`);
+        });
+} else {
+    console.warn("Pool not initialized, skipping constraint removal.");
+    logToFile("Pool not initialized, skipping constraint removal.");
+}
 
 app.listen(port, () => {
     console.log(`Backend running on port ${port}`);
+    logToFile(`Backend running on port ${port}`);
 });
