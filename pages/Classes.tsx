@@ -45,6 +45,9 @@ const Classes: React.FC = () => {
     name: '', modalityId: '', frequency: 'Mensal', price: '', durationMonths: 1, classesPerWeek: 2
   });
 
+  // Bulk Actions State
+  const [selectedPlans, setSelectedPlans] = useState<number[]>([]);
+
   useEffect(() => {
     loadData();
   }, []);
@@ -380,7 +383,8 @@ const Classes: React.FC = () => {
             frequency: ['frequencia', 'frequência', 'frequency'],
             price: ['preco', 'preço', 'valor', 'price'],
             durationMonths: ['duracao', 'duração', 'duracao_meses', 'durationmonths', 'duration_months'],
-            classesPerWeek: ['aulas', 'aulas_semana', 'classesperweek', 'classes_per_week']
+            durationMonths: ['duracao', 'duração', 'duracao_meses', 'durationmonths', 'duration_months'],
+            classesPerWeek: ['aulas', 'aulas_semana', 'classesperweek', 'classes_per_week', 'aulas/semana', 'aulas por semana', 'qtd_aulas', 'frequencia_semanal']
           });
 
           if (!row.name || !row.price) {
@@ -642,6 +646,45 @@ const Classes: React.FC = () => {
     </div>
   );
 
+  // --- Bulk Action Handlers ---
+  const handleSelectPlan = (id: number) => {
+    setSelectedPlans(prev => prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]);
+  };
+
+  const handleSelectAllPlans = () => {
+    if (selectedPlans.length === plans.length) {
+      setSelectedPlans([]);
+    } else {
+      setSelectedPlans(plans.map(p => p.id));
+    }
+  };
+
+  const handleBulkDeletePlans = async () => {
+    if (selectedPlans.length === 0) return;
+
+    if (window.confirm(`Tem certeza que deseja excluir ${selectedPlans.length} planos selecionados?`)) {
+      setLoading(true);
+      let errorCount = 0;
+      for (const id of selectedPlans) {
+        try {
+          await deletePlan(id);
+        } catch (error) {
+          console.error(`Erro ao excluir plano ${id}`, error);
+          errorCount++;
+        }
+      }
+      await loadData();
+      setSelectedPlans([]);
+      setLoading(false);
+      if (errorCount > 0) {
+        alert(`Operação concluída com ${errorCount} erros.`);
+      } else {
+        alert('Planos excluídos com sucesso!');
+      }
+    }
+  };
+
+
   // --- Render: Plans Tab ---
   const renderPlans = () => (
     <div className="space-y-6">
@@ -651,6 +694,14 @@ const Classes: React.FC = () => {
           Planos e Preços
         </h3>
         <div className="flex flex-wrap gap-2">
+          {selectedPlans.length > 0 && (
+            <button
+              onClick={handleBulkDeletePlans}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-sm flex items-center gap-2 text-sm font-medium animate-in fade-in slide-in-from-top-2"
+            >
+              <Trash size={16} /> Excluir ({selectedPlans.length})
+            </button>
+          )}
           <button onClick={handleExportPlans} className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200" title="Exportar CSV">
             <FileText size={18} />
           </button>
@@ -681,6 +732,14 @@ const Classes: React.FC = () => {
         <table className="w-full text-left">
           <thead className="bg-slate-50 border-b border-slate-100">
             <tr>
+              <th className="px-6 py-4 w-10 no-print">
+                <input
+                  type="checkbox"
+                  className="rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                  checked={plans.length > 0 && selectedPlans.length === plans.length}
+                  onChange={handleSelectAllPlans}
+                />
+              </th>
               <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Nome do Plano</th>
               <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Modalidade</th>
               <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Frequência</th>
@@ -696,6 +755,14 @@ const Classes: React.FC = () => {
                 className="hover:bg-slate-50 cursor-pointer transition-colors"
                 onClick={() => handleEditPlan(plan)}
               >
+                <td className="px-6 py-4 w-10 no-print" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="checkbox"
+                    className="rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                    checked={selectedPlans.includes(plan.id)}
+                    onChange={() => handleSelectPlan(plan.id)}
+                  />
+                </td>
                 <td className="px-6 py-4 font-medium text-slate-900">{plan.name}</td>
                 <td className="px-6 py-4 text-slate-600 text-sm">{getModalityName(plan.modalityId)}</td>
                 <td className="px-6 py-4 text-slate-600 text-sm">
@@ -747,7 +814,7 @@ const Classes: React.FC = () => {
             ))}
             {plans.length === 0 && (
               <tr>
-                <td colSpan={5} className="text-center py-10 text-slate-500">Nenhum plano encontrado.</td>
+                <td colSpan={6} className="text-center py-10 text-slate-500">Nenhum plano encontrado.</td>
               </tr>
             )}
           </tbody>
