@@ -22,50 +22,16 @@ services:
     ports:
       - "3001:3001"
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/hidro_fitness?schema=public
+      - DATABASE_URL=postgresql://postgress:8X892LtEO1ljgYK2@hidro-hidro-jhrojv:5432/hidro_fitness
       - PORT=3001
     volumes:
       - ./log/backend:/app/log
+      - ./database/init.sql:/app/init.sql
     healthcheck:
       test: [ "CMD", "wget", "--spider", "-q", "http://localhost:3001/api/health" ]
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - app_network
-    depends_on:
-      db:
-        condition: service_healthy
-
-  # 3. PostgreSQL Database
-  db:
-    image: postgres:15-alpine
-    container_name: hidro_fitness_db
-    restart: always
-    env_file:
-      - .env
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - app_network
-
-  # 4. Database UI (Adminer)
-  adminer:
-    image: adminer
-    container_name: hidro_fitness_adminer
-    restart: always
-    ports:
-      - "8080:8080"
-    environment:
-      ADMINER_DEFAULT_SERVER: db
     networks:
       - app_network
 

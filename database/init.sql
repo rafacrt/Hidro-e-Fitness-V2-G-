@@ -120,4 +120,5 @@ CREATE TABLE IF NOT EXISTS transactions (
 -- Inserir usuários iniciais
 INSERT INTO users (name, email, password, role, avatar) VALUES
 ('Rafael (Desenvolvedor)', 'tecnorafa12@gmail.com', 'Rafa2533', 'DEV', 'https://ui-avatars.com/api/?name=Rafael&background=6366f1&color=fff'),
-('Ferdinando (Gerente)', 'hidro@hidroeftness.com.br', 'ferdinando25', 'MANAGER', 'https://ui-avatars.com/api/?name=Ferdinando&background=0d9488&color=fff');
+('Ferdinando (Gerente)', 'hidro@hidroeftness.com.br', 'ferdinando25', 'MANAGER', 'https://ui-avatars.com/api/?name=Ferdinando&background=0d9488&color=fff')
+ON CONFLICT (email) DO NOTHING;
