@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS plans (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     modality_id INTEGER REFERENCES modalities(id),
-    frequency VARCHAR(20) CHECK (frequency IN ('Mensal', 'Bimestral', 'Trimestral', 'Semestral', 'Anual')),
+    frequency VARCHAR(20) CHECK (frequency IN ('Semanal', 'Mensal', 'Bimestral', 'Trimestral', 'Semestral', 'Anual')),
     price DECIMAL(10, 2) NOT NULL,
     duration_months INTEGER NOT NULL,
     classes_per_week INTEGER NOT NULL

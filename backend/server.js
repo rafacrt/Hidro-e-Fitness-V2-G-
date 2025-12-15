@@ -165,6 +165,25 @@ const connectWithRetry = async () => {
     // Ensure schema exists (create tables if needed)
     await ensureSchemaExists();
 
+    // Run migrations/updates
+    try {
+        await pool.query(`
+            DO $$
+            BEGIN
+                -- Drop old constraint if exists
+                IF EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'plans_frequency_check') THEN
+                    ALTER TABLE plans DROP CONSTRAINT plans_frequency_check;
+                END IF;
+                -- Add new constraint with Semanal
+                ALTER TABLE plans ADD CONSTRAINT plans_frequency_check 
+                CHECK (frequency IN ('Semanal', 'Mensal', 'Bimestral', 'Trimestral', 'Semestral', 'Anual'));
+            END $$;
+        `);
+        console.log("Schema constraints updated.");
+    } catch (err) {
+        console.error("Schema update failed:", err.message);
+    }
+
     let retries = 5;
     while (retries > 0) {
         try {

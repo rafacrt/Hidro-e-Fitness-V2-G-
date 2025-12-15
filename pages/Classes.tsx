@@ -398,6 +398,7 @@ const Classes: React.FC = () => {
           const frequencyMap: { [key: string]: string } = {
             'ANUAL': 'Anual',
             'MENSAL': 'Mensal',
+            'SEMANAL': 'Semanal',
             'TRIMESTRAL': 'Trimestral',
             'SEMESTRAL': 'Semestral',
             'BIMESTRAL': 'Bimestral'
@@ -430,6 +431,8 @@ const Classes: React.FC = () => {
       } catch (error: any) {
         console.error('Erro fatal na importação:', error);
         alert(`Erro ao processar o arquivo CSV: ${error.message || 'Erro desconhecido'}`);
+      } finally {
+        setLoading(false); // End loading
       }
       e.target.value = '';
     }
@@ -463,105 +466,102 @@ const Classes: React.FC = () => {
         </button>
       </div>
 
-      {loading ? (
-        <div className="text-center py-10 text-slate-500">Carregando turmas...</div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4">
-          {classes.map((cls) => {
-            const percentage = Math.round((cls.enrolled / cls.capacity) * 100);
-            const isFull = percentage >= 100;
-            const modColor = getModalityColor(cls.modalityId);
+      <div className="grid grid-cols-1 gap-4">
+        {classes.map((cls) => {
+          const percentage = Math.round((cls.enrolled / cls.capacity) * 100);
+          const isFull = percentage >= 100;
+          const modColor = getModalityColor(cls.modalityId);
 
-            return (
-              <div key={cls.id} className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 hover:border-primary-300 transition-all flex flex-col md:flex-row items-center gap-6 relative overflow-hidden">
-                <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${modColor.replace('bg-', 'bg-')}`}></div>
+          return (
+            <div key={cls.id} className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 hover:border-primary-300 transition-all flex flex-col md:flex-row items-center gap-6 relative overflow-hidden">
+              <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${modColor.replace('bg-', 'bg-')}`}></div>
 
-                <div className="flex-shrink-0 w-full md:w-32 text-center md:text-left pl-2">
-                  <div className="flex items-center justify-center md:justify-start gap-2 text-slate-800 font-bold text-lg">
-                    {cls.time}
-                  </div>
-                  <div className="text-xs text-slate-500 font-medium uppercase tracking-wide mt-1">
-                    {cls.days.join(' · ')}
-                  </div>
+              <div className="flex-shrink-0 w-full md:w-32 text-center md:text-left pl-2">
+                <div className="flex items-center justify-center md:justify-start gap-2 text-slate-800 font-bold text-lg">
+                  {cls.time}
                 </div>
-
-                <div className="flex-1 min-w-0 text-center md:text-left">
-                  <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
-                    <span className={`w-2 h-2 rounded-full ${modColor}`}></span>
-                    <h3 className="font-bold text-slate-800 truncate">{cls.name}</h3>
-                  </div>
-                  <p className="text-sm text-slate-500 flex items-center justify-center md:justify-start gap-2">
-                    <Users size={14} /> {cls.instructor}
-                    <span className="text-slate-300">|</span>
-                    {getModalityName(cls.modalityId)}
-                  </p>
-                </div>
-
-                <div className="w-full md:w-48">
-                  <div className="flex justify-between text-xs mb-1 font-medium">
-                    <span className="text-slate-500">Ocupação</span>
-                    <span className={isFull ? 'text-red-600 font-bold' : 'text-teal-600'}>
-                      {cls.enrolled}/{cls.capacity} ({percentage}%)
-                    </span>
-                  </div>
-                  <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-500 ${isFull ? 'bg-red-500' : 'bg-teal-500'}`}
-                      style={{ width: `${percentage}%` }}
-                    ></div>
-                  </div>
-                  {isFull && (
-                    <p className="text-[10px] text-red-500 font-semibold mt-1 text-right">Lista de Espera: 2</p>
-                  )}
-                </div>
-
-                <div className="flex gap-2 border-t md:border-t-0 md:border-l border-slate-100 pt-3 md:pt-0 md:pl-4 w-full md:w-auto justify-center relative">
-                  <button
-                    onClick={() => setShowAttendance(cls.id)}
-                    className="px-3 py-1.5 text-xs font-medium text-primary-700 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors"
-                  >
-                    Chamada
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setActiveMenuId(activeMenuId === `class-${cls.id}` ? null : `class-${cls.id}`);
-                    }}
-                    className="p-2 text-slate-400 hover:text-primary-600 hover:bg-slate-50 rounded-lg transition-colors"
-                  >
-                    <MoreVertical size={18} />
-                  </button>
-
-                  {activeMenuId === `class-${cls.id}` && (
-                    <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-slate-100 py-1">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); handleEditClass(cls); }}
-                        className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
-                      >
-                        <Edit size={14} /> Editar
-                      </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); handleDuplicateClass(cls); }}
-                        className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
-                      >
-                        <Copy size={14} /> Duplicar
-                      </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); handleDeleteClass(cls.id); }}
-                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                      >
-                        <Trash size={14} /> Excluir
-                      </button>
-                    </div>
-                  )}
+                <div className="text-xs text-slate-500 font-medium uppercase tracking-wide mt-1">
+                  {cls.days.join(' · ')}
                 </div>
               </div>
-            );
-          })}
-          {classes.length === 0 && (
-            <div className="text-center py-10 text-slate-500">Nenhuma turma encontrada.</div>
-          )}
-        </div>
+
+              <div className="flex-1 min-w-0 text-center md:text-left">
+                <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
+                  <span className={`w-2 h-2 rounded-full ${modColor}`}></span>
+                  <h3 className="font-bold text-slate-800 truncate">{cls.name}</h3>
+                </div>
+                <p className="text-sm text-slate-500 flex items-center justify-center md:justify-start gap-2">
+                  <Users size={14} /> {cls.instructor}
+                  <span className="text-slate-300">|</span>
+                  {getModalityName(cls.modalityId)}
+                </p>
+              </div>
+
+              <div className="w-full md:w-48">
+                <div className="flex justify-between text-xs mb-1 font-medium">
+                  <span className="text-slate-500">Ocupação</span>
+                  <span className={isFull ? 'text-red-600 font-bold' : 'text-teal-600'}>
+                    {cls.enrolled}/{cls.capacity} ({percentage}%)
+                  </span>
+                </div>
+                <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${isFull ? 'bg-red-500' : 'bg-teal-500'}`}
+                    style={{ width: `${percentage}%` }}
+                  ></div>
+                </div>
+                {isFull && (
+                  <p className="text-[10px] text-red-500 font-semibold mt-1 text-right">Lista de Espera: 2</p>
+                )}
+              </div>
+
+              <div className="flex gap-2 border-t md:border-t-0 md:border-l border-slate-100 pt-3 md:pt-0 md:pl-4 w-full md:w-auto justify-center relative">
+                <button
+                  onClick={() => setShowAttendance(cls.id)}
+                  className="px-3 py-1.5 text-xs font-medium text-primary-700 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors"
+                >
+                  Chamada
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveMenuId(activeMenuId === `class-${cls.id}` ? null : `class-${cls.id}`);
+                  }}
+                  className="p-2 text-slate-400 hover:text-primary-600 hover:bg-slate-50 rounded-lg transition-colors"
+                >
+                  <MoreVertical size={18} />
+                </button>
+
+                {activeMenuId === `class-${cls.id}` && (
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-slate-100 py-1">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleEditClass(cls); }}
+                      className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                    >
+                      <Edit size={14} /> Editar
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDuplicateClass(cls); }}
+                      className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                    >
+                      <Copy size={14} /> Duplicar
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDeleteClass(cls.id); }}
+                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                    >
+                      <Trash size={14} /> Excluir
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+        {classes.length === 0 && (
+          <div className="text-center py-10 text-slate-500">Nenhuma turma encontrada.</div>
+        )}
+      </div>
       )}
     </div>
   );
@@ -1097,6 +1097,7 @@ const Classes: React.FC = () => {
                     value={planForm.frequency}
                     onChange={e => setPlanForm({ ...planForm, frequency: e.target.value })}
                   >
+                    <option value="Semanal">Semanal</option>
                     <option value="Mensal">Mensal</option>
                     <option value="Bimestral">Bimestral</option>
                     <option value="Trimestral">Trimestral</option>
