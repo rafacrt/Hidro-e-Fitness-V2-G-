@@ -131,11 +131,17 @@ const Students: React.FC = () => {
   };
 
   const maskPhone = (value: string) => {
-    return value
-      .replace(/\D/g, '')
-      .replace(/(\d{2})(\d)/, '($1) $2')
-      .replace(/(\d)(\d{4})(\d)/, '$1 $2-$3')
-      .replace(/(-\d{4})\d+?$/, '$1');
+    const cleanValue = value.replace(/\D/g, '').slice(0, 11);
+
+    if (cleanValue.length <= 10) {
+      return cleanValue
+        .replace(/(\d{2})(\d)/, '($1) $2')
+        .replace(/(\d{4})(\d)/, '$1-$2');
+    } else {
+      return cleanValue
+        .replace(/(\d{2})(\d)/, '($1) $2')
+        .replace(/(\d{5})(\d)/, '$1-$2');
+    }
   };
 
   const maskCEP = (value: string) => {
@@ -1086,7 +1092,9 @@ const Students: React.FC = () => {
                               return selectedModalityIds.includes(p.modalityId) || !p.modalityId;
                             })
                             .map(p => (
-                              <option key={p.id} value={p.name}>{p.name}</option>
+                              <option key={p.id} value={p.name}>
+                                {p.name} - {p.frequency}
+                              </option>
                             ))}
                         </select>
                       </div>
