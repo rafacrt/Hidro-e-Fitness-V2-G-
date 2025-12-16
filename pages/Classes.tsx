@@ -9,7 +9,7 @@ import { ClassSession, Modality } from '../types';
 import {
   Clock, Users, Calendar, Plus,
   Settings, DollarSign, Award, MoreVertical, Search, X, Save,
-  Upload, Download, Printer, FileText, Edit, Trash, Copy
+  Upload, Download, Printer, FileText, Edit, Trash, Copy, ArrowUpDown
 } from 'lucide-react';
 import { exportToCSV, parseCSV, downloadTemplate } from '../utils/csvHelper';
 
@@ -47,6 +47,9 @@ const Classes: React.FC = () => {
 
   // Bulk Actions State
   const [selectedPlans, setSelectedPlans] = useState<number[]>([]);
+
+  // Sorting State
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 
   useEffect(() => {
     loadData();
@@ -685,6 +688,49 @@ const Classes: React.FC = () => {
   };
 
 
+  // --- Sorting Logic ---
+  const requestSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedPlans = React.useMemo(() => {
+    let sortableItems = [...plans];
+    if (sortConfig !== null) {
+      sortableItems.sort((a, b) => {
+        let aValue: any = a[sortConfig.key];
+        let bValue: any = b[sortConfig.key];
+
+        // Custom handling for specific columns
+        if (sortConfig.key === 'modalityName') {
+          aValue = getModalityName(a.modalityId).toLowerCase();
+          bValue = getModalityName(b.modalityId).toLowerCase();
+        } else if (sortConfig.key === 'price') {
+          aValue = Number(a.price);
+          bValue = Number(b.price);
+        } else if (sortConfig.key === 'classesPerWeek') {
+          aValue = Number(a.classesPerWeek);
+          bValue = Number(b.classesPerWeek);
+        } else if (typeof aValue === 'string') {
+          aValue = aValue.toLowerCase();
+          bValue = bValue.toLowerCase();
+        }
+
+        if (aValue < bValue) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableItems;
+  }, [plans, sortConfig, modalities]);
+
   // --- Render: Plans Tab ---
   const renderPlans = () => (
     <div className="space-y-6">
@@ -740,16 +786,56 @@ const Classes: React.FC = () => {
                   onChange={handleSelectAllPlans}
                 />
               </th>
-              <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Nome do Plano</th>
-              <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Modalidade</th>
-              <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Frequência</th>
-              <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase text-center">Aulas/Semana</th>
-              <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Valor</th>
+              <th
+                className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase cursor-pointer hover:bg-slate-100 transition-colors group"
+                onClick={() => requestSort('name')}
+              >
+                <div className="flex items-center gap-1">
+                  Nome do Plano
+                  <ArrowUpDown size={14} className={`text-slate-400 ${sortConfig?.key === 'name' ? 'text-primary-600' : 'opacity-0 group-hover:opacity-100'}`} />
+                </div>
+              </th>
+              <th
+                className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase cursor-pointer hover:bg-slate-100 transition-colors group"
+                onClick={() => requestSort('modalityName')}
+              >
+                <div className="flex items-center gap-1">
+                  Modalidade
+                  <ArrowUpDown size={14} className={`text-slate-400 ${sortConfig?.key === 'modalityName' ? 'text-primary-600' : 'opacity-0 group-hover:opacity-100'}`} />
+                </div>
+              </th>
+              <th
+                className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase cursor-pointer hover:bg-slate-100 transition-colors group"
+                onClick={() => requestSort('frequency')}
+              >
+                <div className="flex items-center gap-1">
+                  Frequência
+                  <ArrowUpDown size={14} className={`text-slate-400 ${sortConfig?.key === 'frequency' ? 'text-primary-600' : 'opacity-0 group-hover:opacity-100'}`} />
+                </div>
+              </th>
+              <th
+                className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase text-center cursor-pointer hover:bg-slate-100 transition-colors group"
+                onClick={() => requestSort('classesPerWeek')}
+              >
+                <div className="flex items-center justify-center gap-1">
+                  Aulas/Semana
+                  <ArrowUpDown size={14} className={`text-slate-400 ${sortConfig?.key === 'classesPerWeek' ? 'text-primary-600' : 'opacity-0 group-hover:opacity-100'}`} />
+                </div>
+              </th>
+              <th
+                className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase cursor-pointer hover:bg-slate-100 transition-colors group"
+                onClick={() => requestSort('price')}
+              >
+                <div className="flex items-center gap-1">
+                  Valor
+                  <ArrowUpDown size={14} className={`text-slate-400 ${sortConfig?.key === 'price' ? 'text-primary-600' : 'opacity-0 group-hover:opacity-100'}`} />
+                </div>
+              </th>
               <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase text-right no-print">Ações</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {plans.map((plan) => (
+            {sortedPlans.map((plan) => (
               <tr
                 key={plan.id}
                 className="hover:bg-slate-50 cursor-pointer transition-colors"

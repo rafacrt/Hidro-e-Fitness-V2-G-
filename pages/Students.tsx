@@ -196,48 +196,78 @@ const Students: React.FC = () => {
       try {
         const parsedData = await parseCSV(e.target.files[0]);
 
+        // Helper to convert DD/MM/YYYY to YYYY-MM-DD
+        const convertDatePtBrToISO = (dateStr: string | null | undefined) => {
+          if (!dateStr || dateStr === 'null' || dateStr === '\\N') return null;
+          // Check if matches DD/MM/YYYY
+          const parts = dateStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+          if (parts) {
+            return `${parts[3]}-${parts[2]}-${parts[1]}`;
+          }
+          return dateStr;
+        };
+
+        let successCount = 0;
+        let errorCount = 0;
+
         for (const row of parsedData) {
           // Clean \N values
           Object.keys(row).forEach(key => {
             if (row[key] === '\\N') row[key] = null;
           });
 
-          const newStudent: any = {
-            name: row.name,
-            email: row.email,
-            cpf: row.cpf,
-            rg: row.rg,
-            birthDate: row.birthDate,
-            phone: row.phone,
-            isWhatsapp: row.isWhatsapp === 'Sim',
-            plan: row.plan,
-            modalities: row.modalities ? row.modalities.split(';') : (row.modality ? [row.modality] : []),
-            status: row.status || 'Ativo',
-            address: {
-              cep: row.cep,
-              street: row.street,
-              number: row.number,
-              neighborhood: row.neighborhood,
-              city: row.city,
-              state: row.state,
-              complement: row.complement
-            },
-            guardian: {
-              name: row.guardianName,
-              cpf: row.guardianCpf,
-              phone: row.guardianPhone,
-              relationship: row.guardianRelationship
-            },
-            medicalNotes: row.medicalNotes
-          };
-          await createStudent(newStudent);
+          // Skip empty rows
+          if (!row.name) continue;
+
+          try {
+            const newStudent: any = {
+              name: row.name,
+              email: row.email,
+              cpf: row.cpf,
+              rg: row.rg,
+              birthDate: convertDatePtBrToISO(row.birthDate),
+              phone: row.phone,
+              isWhatsapp: row.isWhatsapp === 'Sim' || row.isWhatsapp === 'TRUE' || row.isWhatsapp === 'true',
+              plan: row.plan,
+              modalities: row.modalities ? row.modalities.split(';') : (row.modality ? [row.modality] : []),
+              status: row.status || 'Ativo',
+              address: {
+                cep: row.cep,
+                street: row.street,
+                number: row.number,
+                neighborhood: row.neighborhood,
+                city: row.city,
+                state: row.state,
+                complement: row.complement
+              },
+              guardian: {
+                name: row.guardianName,
+                cpf: row.guardianCpf,
+                phone: row.guardianPhone,
+                relationship: row.guardianRelationship
+              },
+              medicalNotes: row.medicalNotes
+            };
+
+            await createStudent(newStudent);
+            successCount++;
+          } catch (err) {
+            console.error('Erro ao importar linha:', row, err);
+            errorCount++;
+          }
         }
-        alert('Importação concluída com sucesso!');
+
+        let message = `Importação concluída! Sucesso: ${successCount}`;
+        if (errorCount > 0) message += `, Erros: ${errorCount}`;
+        alert(message);
+
         loadData();
       } catch (error) {
         console.error(error);
         alert('Erro ao importar CSV. Verifique o formato do arquivo.');
       }
+      // Reset input
+      e.target.value = '';
     }
   };
 
