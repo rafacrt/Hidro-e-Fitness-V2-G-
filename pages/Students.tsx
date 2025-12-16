@@ -659,7 +659,9 @@ const Students: React.FC = () => {
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <div className="text-sm font-medium text-slate-700">{student.plan}</div>
+                  <div className="text-sm font-medium text-slate-700">
+                    {(!student.plan || student.plan === '[]' || student.plan === 'Sem Plano') ? (student.modalities?.[0] || 'Sem Plano') : student.plan}
+                  </div>
                   <div className="text-xs text-slate-500">{student.modalities?.join(', ') || student.modality}</div>
                 </td>
                 <td className="px-6 py-4">
@@ -1310,7 +1312,9 @@ const Students: React.FC = () => {
                   <h4 className="text-xs font-bold text-slate-400 uppercase mb-2">Plano Atual</h4>
                   <div className="p-3 bg-primary-50 rounded-lg border border-primary-100">
                     <p className="font-bold text-primary-800">
-                      {(!showDetailsModal.plan || showDetailsModal.plan === '[]') ? 'Sem Plano' : showDetailsModal.plan}
+                      {(!showDetailsModal.plan || showDetailsModal.plan === '[]' || showDetailsModal.plan === 'Sem Plano')
+                        ? (showDetailsModal.modalities?.[0] || 'Sem Plano')
+                        : showDetailsModal.plan}
                     </p>
                     <p className="text-xs text-primary-600 mt-1">
                       {showDetailsModal.modalities?.join(', ') || showDetailsModal.modality}
