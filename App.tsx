@@ -13,6 +13,7 @@ const Classes = React.lazy(() => import('./pages/Classes'));
 const UserManagement = React.lazy(() => import('./pages/UserManagement'));
 const Reports = React.lazy(() => import('./pages/Reports'));
 const Finance = React.lazy(() => import('./pages/Finance'));
+const DeveloperBackup = React.lazy(() => import('./pages/DeveloperBackup'));
 
 // Loading Component
 const LoadingScreen = () => (
@@ -91,6 +92,11 @@ const App: React.FC = () => {
                   <Route path="/architecture" element={
                     <ProtectedRoute user={user} restrictedToDev={true}>
                       <ArchitectureDocs />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/developer/backup" element={
+                    <ProtectedRoute user={user} restrictedToDev={true}>
+                      <DeveloperBackup />
                     </ProtectedRoute>
                   } />
 
