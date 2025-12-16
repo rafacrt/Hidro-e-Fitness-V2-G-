@@ -63,7 +63,8 @@ const DeveloperBackup: React.FC = () => {
                     ];
                     sRows.push(row.join(';'));
                 });
-                zip.file('alunos.csv', sRows.join('\n'));
+                // Add BOM for Excel UTF-8 compatibility
+                zip.file('alunos.csv', '\uFEFF' + sRows.join('\n'));
             }
 
             // --- PLANOS CSV ---
@@ -82,7 +83,7 @@ const DeveloperBackup: React.FC = () => {
                     ];
                     pRows.push(row.join(';'));
                 });
-                zip.file('planos.csv', pRows.join('\n'));
+                zip.file('planos.csv', '\uFEFF' + pRows.join('\n'));
             }
 
             // --- MODALIDADES CSV ---
@@ -99,7 +100,7 @@ const DeveloperBackup: React.FC = () => {
                     ];
                     mRows.push(row.join(';'));
                 });
-                zip.file('modalidades.csv', mRows.join('\n'));
+                zip.file('modalidades.csv', '\uFEFF' + mRows.join('\n'));
             }
 
             // 4. Download

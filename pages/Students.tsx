@@ -1309,7 +1309,9 @@ const Students: React.FC = () => {
                 <div>
                   <h4 className="text-xs font-bold text-slate-400 uppercase mb-2">Plano Atual</h4>
                   <div className="p-3 bg-primary-50 rounded-lg border border-primary-100">
-                    <p className="font-bold text-primary-800">{showDetailsModal.plan}</p>
+                    <p className="font-bold text-primary-800">
+                      {(!showDetailsModal.plan || showDetailsModal.plan === '[]') ? 'Sem Plano' : showDetailsModal.plan}
+                    </p>
                     <p className="text-xs text-primary-600 mt-1">
                       {showDetailsModal.modalities?.join(', ') || showDetailsModal.modality}
                     </p>
