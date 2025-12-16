@@ -386,7 +386,6 @@ const Classes: React.FC = () => {
             frequency: ['frequencia', 'frequência', 'frequency'],
             price: ['preco', 'preço', 'valor', 'price'],
             durationMonths: ['duracao', 'duração', 'duracao_meses', 'durationmonths', 'duration_months'],
-            durationMonths: ['duracao', 'duração', 'duracao_meses', 'durationmonths', 'duration_months'],
             classesPerWeek: ['aulas', 'aulas_semana', 'classesperweek', 'classes_per_week', 'aulas/semana', 'aulas por semana', 'qtd_aulas', 'frequencia_semanal']
           });
 
@@ -565,7 +564,6 @@ const Classes: React.FC = () => {
           <div className="text-center py-10 text-slate-500">Nenhuma turma encontrada.</div>
         )}
       </div>
-      )}
     </div>
   );
 
