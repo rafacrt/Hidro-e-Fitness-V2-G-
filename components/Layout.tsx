@@ -14,7 +14,8 @@ import {
   Shield,
   Key,
   FileBarChart,
-  Database
+  Database,
+  Moon
 } from 'lucide-react';
 import { User } from '../types';
 
@@ -40,6 +41,7 @@ const SidebarItem = ({ icon: Icon, label, to, active }: { icon: any, label: stri
 const Layout: React.FC<LayoutProps> = ({ children, user, onLogout }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
@@ -147,10 +149,34 @@ const Layout: React.FC<LayoutProps> = ({ children, user, onLogout }) => {
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="relative p-2 text-slate-400 hover:bg-slate-50 rounded-full transition-colors">
+            <button
+              className="p-2 text-slate-400 hover:bg-slate-50 rounded-full transition-colors"
+              title="Alternar Tema (Dark/Light)"
+              onClick={() => alert('Modo escuro em desenvolvimento!')}
+            >
+              <Moon size={20} />
+            </button>
+            <button
+              className="relative p-2 text-slate-400 hover:bg-slate-50 rounded-full transition-colors"
+              onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+            >
               <Bell size={20} />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
             </button>
+
+            {/* Notifications Dropdown */}
+            {isNotificationsOpen && (
+              <div className="absolute top-16 right-4 w-80 bg-white rounded-xl shadow-xl border border-slate-100 z-50 animate-in fade-in slide-in-from-top-2">
+                <div className="p-4 border-b border-slate-50 flex justify-between items-center">
+                  <h4 className="font-bold text-slate-700">Notificações</h4>
+                  <button onClick={() => setIsNotificationsOpen(false)}><X size={16} className="text-slate-400" /></button>
+                </div>
+                <div className="p-4 text-center text-slate-500 py-8">
+                  <Bell size={32} className="mx-auto text-slate-300 mb-2" />
+                  <p className="text-sm">Nenhuma notificação nova.</p>
+                </div>
+              </div>
+            )}
           </div>
         </header>
 
