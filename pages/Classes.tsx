@@ -1005,7 +1005,7 @@ const Classes: React.FC = () => {
                 </td>
                 <td className="px-6 py-4 font-bold text-green-700">
                   {isBulkEditing ? (
-                    <div className="relative">
+                    <div className="relative" onClick={(e) => e.stopPropagation()}>
                       <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400">R$</span>
                       <input
                         type="number"
