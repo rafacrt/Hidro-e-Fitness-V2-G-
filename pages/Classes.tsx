@@ -16,11 +16,14 @@ import { exportToCSV, parseCSV, downloadTemplate } from '../utils/csvHelper';
 type TabType = 'schedule' | 'modalities' | 'plans';
 
 const Classes: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabType>('schedule');
+  const [activeTab, setActiveTab] = useState<TabType>('plans'); // Default to plans
   const [classes, setClasses] = useState<ClassSession[]>([]);
   const [modalities, setModalities] = useState<Modality[]>([]);
   const [plans, setPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Search State
+  const [planSearch, setPlanSearch] = useState('');
 
   // Modal States
   const [showAttendance, setShowAttendance] = useState<number | null>(null);
@@ -697,6 +700,16 @@ const Classes: React.FC = () => {
 
   const sortedPlans = React.useMemo(() => {
     let sortableItems = [...plans];
+
+    // Filter by search
+    if (planSearch) {
+      const searchLower = planSearch.toLowerCase();
+      sortableItems = sortableItems.filter(p =>
+        p.name.toLowerCase().includes(searchLower) ||
+        getModalityName(p.modalityId).toLowerCase().includes(searchLower)
+      );
+    }
+
     if (sortConfig !== null) {
       sortableItems.sort((a, b) => {
         let aValue: any = a[sortConfig.key];
@@ -833,6 +846,19 @@ const Classes: React.FC = () => {
           <DollarSign className="text-green-600" size={20} />
           Planos e Preços
         </h3>
+
+        <div className="flex-1 max-w-xs mx-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <input
+              type="text"
+              placeholder="Buscar planos..."
+              className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              value={planSearch}
+              onChange={(e) => setPlanSearch(e.target.value)}
+            />
+          </div>
+        </div>
 
         {isBulkEditing ? (
           <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 bg-yellow-50 p-2 rounded-lg border border-yellow-100">
@@ -1096,10 +1122,10 @@ const Classes: React.FC = () => {
       {/* Top Navigation Tabs */}
       <div className="bg-white p-1 rounded-xl shadow-sm border border-slate-200 inline-flex mb-2 no-print">
         <button
-          onClick={() => setActiveTab('schedule')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'schedule' ? 'bg-primary-50 text-primary-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+          onClick={() => setActiveTab('plans')}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'plans' ? 'bg-primary-50 text-primary-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
         >
-          Grade de Horários
+          Planos
         </button>
         <button
           onClick={() => setActiveTab('modalities')}
@@ -1108,16 +1134,16 @@ const Classes: React.FC = () => {
           Modalidades
         </button>
         <button
-          onClick={() => setActiveTab('plans')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'plans' ? 'bg-primary-50 text-primary-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+          onClick={() => setActiveTab('schedule')}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'schedule' ? 'bg-primary-50 text-primary-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
         >
-          Planos
+          Grade de Horários
         </button>
       </div>
 
-      {activeTab === 'schedule' && renderSchedule()}
-      {activeTab === 'modalities' && renderModalities()}
       {activeTab === 'plans' && renderPlans()}
+      {activeTab === 'modalities' && renderModalities()}
+      {activeTab === 'schedule' && renderSchedule()}
 
       {/* Modals */}
       {showClassModal && (
