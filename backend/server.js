@@ -233,7 +233,14 @@ app.get('/api/dashboard/kpis', async (req, res) => {
         const totalEnrolled = parseInt(occupationResult.rows[0].total_enrolled) || 0;
         const occupationRate = totalCap > 0 ? Math.round((totalEnrolled / totalCap) * 100) : 0;
 
-        const revenueResult = await pool.query("SELECT SUM(amount) FROM transactions WHERE type = 'INCOME' AND status = 'PAID' AND date_part('month', date) = date_part('month', CURRENT_DATE)");
+        const revenueResult = await pool.query(`
+            SELECT SUM(amount) 
+            FROM transactions 
+            WHERE type = 'INCOME' 
+            AND status = 'PAID' 
+            AND date_part('month', date) = date_part('month', CURRENT_DATE)
+            AND date_part('year', date) = date_part('year', CURRENT_DATE)
+        `);
         const revenue = parseFloat(revenueResult.rows[0].sum) || 0;
 
         const daysMap = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];

@@ -15,7 +15,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { KPI } from '../types';
-import { fetchDashboardKPIs, fetchDashboardCharts } from '../services/api';
+import { fetchDashboardKPIs, fetchDashboardCharts, fetchStudents } from '../services/api';
 
 const COLORS = ['#3b82f6', '#f59e0b', '#ef4444', '#10b981', '#8b5cf6'];
 
@@ -49,17 +49,61 @@ const KpiCard: React.FC<{ kpi: KPI }> = ({ kpi }) => {
 const Dashboard: React.FC = () => {
   const [kpis, setKpis] = useState<KPI[]>([]);
   const [chartsData, setChartsData] = useState<any>({ frequency: [], occupation: [], status: [] });
+  const [birthdays, setBirthdays] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [kpisData, charts] = await Promise.all([
+        const [kpisData, charts, studentsData] = await Promise.all([
           fetchDashboardKPIs(),
-          fetchDashboardCharts()
+          fetchDashboardCharts(),
+          fetchStudents()
         ]);
         setKpis(kpisData);
         setChartsData(charts);
+
+        // Process Birthdays
+        const currentMonth = new Date().getMonth(); // 0-indexed
+        const birthdayList = studentsData
+          .filter(s => {
+            if (!s.birthDate) return false;
+            // Handle ISO (YYYY-MM-DD) or PT-BR (DD/MM/YYYY)
+            let month;
+            if (s.birthDate.includes('/')) {
+              month = parseInt(s.birthDate.split('/')[1]) - 1;
+            } else {
+              month = new Date(s.birthDate).getMonth();
+            }
+            return month === currentMonth;
+          })
+          .map(s => {
+            let day, birthYear;
+            if (s.birthDate.includes('/')) {
+              const parts = s.birthDate.split('/');
+              day = parts[0];
+              birthYear = parseInt(parts[2]);
+            } else {
+              const date = new Date(s.birthDate);
+              day = date.getDate().toString().padStart(2, '0'); // Corrected so it's not off by one due to TZ if possible, but simplest is string split
+              if (s.birthDate.includes('T')) day = s.birthDate.split('T')[0].split('-')[2]; // Robust ISO split
+              else day = s.birthDate.split('-')[2];
+
+              birthYear = new Date(s.birthDate).getFullYear();
+            }
+
+            const age = new Date().getFullYear() - birthYear;
+            return {
+              id: s.id,
+              name: s.name,
+              day,
+              age
+            };
+          })
+          .sort((a, b) => parseInt(a.day) - parseInt(b.day));
+
+        setBirthdays(birthdayList);
+
       } catch (error) {
         console.error("Failed to load dashboard data", error);
       } finally {
@@ -141,25 +185,43 @@ const Dashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Occupation Chart */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-          <h3 className="text-lg font-bold text-slate-800 mb-1">Ocupação das Turmas</h3>
-          <p className="text-sm text-slate-500 mb-6">Distribuição percentual por modalidade</p>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartsData.occupation} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
-                <XAxis type="number" hide />
-                <YAxis dataKey="name" type="category" width={110} tickLine={false} axisLine={false} tick={{ fontSize: 12, fill: '#475569', fontWeight: 500 }} />
-                <RechartsTooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '8px' }} />
-                <Bar dataKey="value" fill="#0d9488" radius={[0, 4, 4, 0]} barSize={28}>
-                  {chartsData.occupation.map((entry: any, index: number) => (
-                    <Cell key={`cell-${index}`} fill={entry.value > 90 ? '#ef4444' : '#0d9488'} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+        {/* Upcoming Birthdays (Aniversariantes do Mês) */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex flex-col">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-lg font-bold text-slate-800">Aniversariantes do Mês</h3>
+              <p className="text-sm text-slate-500">Alunos celebrando vida em {new Date().toLocaleDateString('pt-BR', { month: 'long' })}</p>
+            </div>
+            <div className="p-2 bg-pink-50 rounded-lg text-pink-500">
+              <Calendar size={20} />
+            </div>
           </div>
+
+          <div className="flex-1 overflow-y-auto space-y-3 max-h-64 pr-2">
+            {birthdays.length === 0 ? (
+              <div className="text-center py-8 text-slate-400 text-sm">Nenhum aniversariante encontrado neste mês.</div>
+            ) : (
+              birthdays.map((birthday, idx) => (
+                <div key={idx} className="flex items-center justify-between p-3 rounded-lg bg-pink-50/50 border border-pink-100 hover:bg-pink-50 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-pink-200 text-pink-700 flex items-center justify-center text-xs font-bold">
+                      {birthday.day}
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-slate-700 text-sm">{birthday.name}</h4>
+                      <p className="text-xs text-slate-500">{birthday.age ? `${birthday.age} anos` : 'Parabéns!'}</p>
+                    </div>
+                  </div>
+                  <button className="text-xs font-medium text-pink-600 hover:text-pink-700 px-2 py-1 rounded bg-white border border-pink-200 shadow-sm">
+                    Parabenizar
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+          <button className="w-full mt-4 py-2 text-sm text-pink-600 font-medium border border-pink-200 rounded-lg hover:bg-pink-50 transition-colors flex items-center justify-center gap-2">
+            Ver lista completa <ArrowRight size={14} />
+          </button>
         </div>
 
         {/* Status Overview */}

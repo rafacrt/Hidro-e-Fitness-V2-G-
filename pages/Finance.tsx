@@ -146,10 +146,20 @@ const Finance = () => {
     const { startDate, endDate } = getFilterDates();
 
     return transactions.filter(t => {
-      const transactionDate = new Date(t.date);
-      const d = new Date(transactionDate.getFullYear(), transactionDate.getMonth(), transactionDate.getDate());
-      const start = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
-      const end = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+      // Safe Date Parsing (Avoid UTC shifts)
+      // Assuming t.date is YYYY-MM-DD from DB/Input
+      let d;
+      if (t.date.includes('T')) {
+        d = new Date(t.date); // Fallback if full ISO
+      } else {
+        const [y, m, day] = t.date.split('-').map(Number);
+        d = new Date(y, m - 1, day);
+      }
+
+      // Reset time for comparison
+      d.setHours(0, 0, 0, 0);
+      const start = new Date(startDate); start.setHours(0, 0, 0, 0);
+      const end = new Date(endDate); end.setHours(23, 59, 59, 999);
 
       const dateMatch = d >= start && d <= end;
 
@@ -157,7 +167,6 @@ const Finance = () => {
         ? t.relatedEntity?.toLowerCase().includes(studentFilter.toLowerCase()) || t.description.toLowerCase().includes(studentFilter.toLowerCase())
         : true;
 
-      // If filtering by student, ignore date range to show full history
       if (studentFilter) {
         return studentMatch;
       }
@@ -197,24 +206,41 @@ const Finance = () => {
     if (!selectedMonth) return [];
 
     const [year, month] = selectedMonth.split('-').map(Number);
-    const startDate = new Date(year, month - 1, 1);
+    // Use last day of month to capture all enrollments up to that point
     const endDate = new Date(year, month, 0);
+    const startDate = new Date(year, month - 1, 1);
 
     return students
       .filter(s => s.status === 'Ativo' && s.name.toLowerCase().includes(tuitionSearch.toLowerCase()))
       .map(student => {
         // Check enrollment date
         if (student.enrollmentDate) {
-          const enrollment = new Date(student.enrollmentDate);
-          // If student enrolled AFTER this month, skip
-          if (enrollment > endDate) return null;
+          // Safe parse
+          let enrolDate;
+          if (student.enrollmentDate.includes('T')) enrolDate = new Date(student.enrollmentDate);
+          else {
+            const [ey, em, ed] = student.enrollmentDate.split('-').map(Number);
+            enrolDate = new Date(ey, em - 1, ed);
+          }
+
+          // If enrolled AFTER the selected month's end, skip
+          if (enrolDate > endDate) return null;
         }
 
         // Find transaction for this student in this month
+        // Match strictly by month/year of selectedMonth
         const transaction = transactions.find(t => {
-          const tDate = new Date(t.date);
-          const inMonth = tDate >= startDate && tDate <= endDate;
-          return inMonth && t.relatedEntity === student.name && t.category === 'TUITION' && t.type === 'INCOME';
+          let tDate;
+          if (t.date.includes('T')) tDate = new Date(t.date);
+          else {
+            const [ty, tm, td] = t.date.split('-').map(Number);
+            tDate = new Date(ty, tm - 1, td);
+          }
+
+          const sameMonth = tDate.getMonth() === (month - 1);
+          const sameYear = tDate.getFullYear() === year;
+
+          return sameMonth && sameYear && t.relatedEntity === student.name && t.category === 'TUITION' && t.type === 'INCOME';
         });
 
         const plan = plans.find(p => p.name === student.plan);
@@ -248,27 +274,59 @@ const Finance = () => {
       .filter(item => item !== null);
   }, [students, transactions, plans, selectedMonth, tuitionSearch]);
 
-  // Mock Projection Logic based on history average
+  // Real Projection Logic based on history average (Last 90 days)
   const projection = useMemo(() => {
-    const estimatedDailyIncome = 400;
-    const estimatedDailyExpense = 250;
+    if (transactions.length === 0) return { income: 0, expense: 0, balance: 0 };
 
-    const projectedIncome = estimatedDailyIncome * projectionDays;
-    const projectedExpense = estimatedDailyExpense * projectionDays;
+    const now = new Date();
+    // 90 days ago
+    const startHistory = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+    startHistory.setHours(0, 0, 0, 0);
+
+    const historyItems = transactions.filter(t => {
+      let d;
+      if (t.date.includes('T')) d = new Date(t.date);
+      else {
+        const [y, m, day] = t.date.split('-').map(Number);
+        d = new Date(y, m - 1, day);
+      }
+      return d >= startHistory && d <= now && t.status === 'PAID';
+    });
+
+    const totalIncome90 = historyItems
+      .filter(t => t.type === 'INCOME')
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+
+    const totalExpense90 = historyItems
+      .filter(t => t.type === 'EXPENSE')
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+
+    const historyDays = 90; // Fixed window
+    const dailyIncome = totalIncome90 / historyDays;
+    const dailyExpense = totalExpense90 / historyDays;
+
+    const projectedIncome = dailyIncome * projectionDays;
+    const projectedExpense = dailyExpense * projectionDays;
 
     return {
       income: projectedIncome,
       expense: projectedExpense,
       balance: projectedIncome - projectedExpense
     };
-  }, [projectionDays]);
+  }, [projectionDays, transactions]);
 
   // Chart Data Preparation
   const chartData = useMemo(() => {
     const grouped: Record<string, { date: string, income: number, expense: number }> = {};
 
     filteredTransactions.forEach(t => {
-      const date = new Date(t.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+      let date;
+      if (t.date.includes('T')) {
+        date = new Date(t.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+      } else {
+        const [y, m, d] = t.date.split('-');
+        date = `${d}/${m}`;
+      }
       if (!grouped[date]) grouped[date] = { date, income: 0, expense: 0 };
 
       if (t.type === 'INCOME' && t.status === 'PAID') grouped[date].income += Number(t.amount);
@@ -749,7 +807,11 @@ const Finance = () => {
                     {tuitionStatus.map((item: any) => (
                       <tr key={item.student.id} className="hover:bg-slate-50 transition-colors">
                         <td className="px-6 py-4 font-medium text-slate-800">{item.student.name}</td>
-                        <td className="px-6 py-4 text-slate-600">{item.student.plan}</td>
+                        <td className="px-6 py-4 text-slate-600">
+                          {(!item.student.plan || item.student.plan === '[]' || item.student.plan === 'Sem Plano')
+                            ? (item.student.modalities?.[0] || 'Sem Plano')
+                            : item.student.plan}
+                        </td>
                         <td className="px-6 py-4 text-slate-600">R$ {Number(item.amount).toFixed(2)}</td>
                         <td className="px-6 py-4">
                           {item.status === 'PAID' ? (

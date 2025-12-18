@@ -729,6 +729,102 @@ const Classes: React.FC = () => {
     return sortableItems;
   }, [plans, sortConfig, modalities]);
 
+  // Bulk Edit State
+  const [isBulkEditing, setIsBulkEditing] = useState(false);
+  const [bulkEdits, setBulkEdits] = useState<Record<number, { price: string }>>({});
+  const [adjustmentValue, setAdjustmentValue] = useState('');
+  const [adjustmentType, setAdjustmentType] = useState<'percentage' | 'fixed'>('percentage');
+
+  // --- Handlers ---
+  const handleBulkEditChange = (id: number, field: 'price', value: string) => {
+    setBulkEdits(prev => ({
+      ...prev,
+      [id]: { ...prev[id], [field]: value }
+    }));
+  };
+
+  const handleGlobalAdjustment = () => {
+    const val = parseFloat(adjustmentValue);
+    if (isNaN(val) || val === 0) return;
+
+    const newEdits: Record<number, { price: string }> = {};
+
+    sortedPlans.forEach(plan => {
+      const dbPrice = plan.price !== undefined && plan.price !== null ? plan.price : 0;
+      let currentPrice = parseFloat(bulkEdits[plan.id]?.price || String(dbPrice));
+      if (isNaN(currentPrice)) currentPrice = 0;
+
+      let newPrice = currentPrice;
+
+      if (adjustmentType === 'percentage') {
+        newPrice = currentPrice * (1 + val / 100);
+      } else {
+        newPrice = currentPrice + val;
+      }
+
+      newEdits[plan.id] = { price: newPrice.toFixed(2) };
+    });
+
+    setBulkEdits(prev => ({ ...prev, ...newEdits }));
+    alert(`Reajuste aplicado em ${Object.keys(newEdits).length} planos. Clique em Salvar para confirmar.`);
+  };
+
+  const handleSaveBulkEdits = async () => {
+    setLoading(true);
+    let successCount = 0;
+    let errorCount = 0;
+
+    const updates = Object.entries(bulkEdits);
+    if (updates.length === 0) {
+      setIsBulkEditing(false);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await Promise.all(updates.map(async ([idStr, changes]) => {
+        const id = parseInt(idStr);
+        const originalPlan = plans.find(p => p.id === id);
+        if (!originalPlan) return;
+
+        // Merge original data with changes to respect required fields
+        const updatedPlan = {
+          ...originalPlan,
+          price: changes.price,
+          // Ensure we send all required fields for update
+          modalityId: originalPlan.modalityId || null
+        };
+
+        // Remove ID from body if API implementation requires it (usually put ignores ID in body or uses it)
+        // Check api.ts updatePlan implementation if needed, usually it takes (id, data)
+
+        try {
+          await updatePlan(id, updatedPlan);
+          successCount++;
+        } catch (e) {
+          console.error(`Failed to update plan ${id}`, e);
+          errorCount++;
+        }
+      }));
+
+      await loadData();
+      setIsBulkEditing(false);
+      setBulkEdits({});
+      alert(`Edição em massa concluída!\nAtualizados: ${successCount}\nErros: ${errorCount}`);
+    } catch (error) {
+      console.error("Bulk save error", error);
+      alert("Erro crítico ao salvar alterações.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelBulkEdit = () => {
+    setIsBulkEditing(false);
+    setBulkEdits({});
+    setAdjustmentValue('');
+  };
+
   // --- Render: Plans Tab ---
   const renderPlans = () => (
     <div className="space-y-6">
@@ -737,39 +833,88 @@ const Classes: React.FC = () => {
           <DollarSign className="text-green-600" size={20} />
           Planos e Preços
         </h3>
-        <div className="flex flex-wrap gap-2">
-          {selectedPlans.length > 0 && (
+
+        {isBulkEditing ? (
+          <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 bg-yellow-50 p-2 rounded-lg border border-yellow-100">
+            <div className="flex items-center gap-2 mr-4 border-r border-yellow-200 pr-4">
+              <span className="text-xs font-bold text-yellow-800 uppercase">Reajuste Global:</span>
+              <select
+                value={adjustmentType}
+                onChange={e => setAdjustmentType(e.target.value as any)}
+                className="text-sm border-yellow-200 rounded px-2 py-1 bg-white text-slate-700"
+              >
+                <option value="percentage">Porcentagem (%)</option>
+                <option value="fixed">Valor Fixo (R$)</option>
+              </select>
+              <input
+                type="number"
+                placeholder={adjustmentType === 'percentage' ? "Ex: 10" : "Ex: 5.00"}
+                value={adjustmentValue}
+                onChange={e => setAdjustmentValue(e.target.value)}
+                className="w-24 text-sm border-yellow-200 rounded px-2 py-1"
+              />
+              <button
+                onClick={handleGlobalAdjustment}
+                className="p-1 px-3 bg-yellow-200 text-yellow-800 rounded hover:bg-yellow-300 text-sm font-bold"
+              >
+                Aplicar
+              </button>
+            </div>
+
             <button
-              onClick={handleBulkDeletePlans}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-sm flex items-center gap-2 text-sm font-medium animate-in fade-in slide-in-from-top-2"
+              onClick={handleCancelBulkEdit}
+              className="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 text-sm font-medium"
             >
-              <Trash size={16} /> Excluir ({selectedPlans.length})
+              Cancelar
             </button>
-          )}
-          <button onClick={handleExportPlans} className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200" title="Exportar CSV">
-            <FileText size={18} />
-          </button>
-          <button onClick={() => window.print()} className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200" title="Imprimir">
-            <Printer size={18} />
-          </button>
-          <label className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200 cursor-pointer" title="Importar CSV">
-            <Upload size={18} />
-            <input type="file" accept=".csv" className="hidden" onChange={handleImportPlans} />
-          </label>
-          <button onClick={handleDownloadTemplatePlan} className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200" title="Baixar Modelo">
-            <Download size={18} />
-          </button>
-          <button
-            onClick={() => {
-              setEditingPlan(null);
-              setPlanForm({ name: '', modalityId: '', frequency: 'Mensal', price: '', durationMonths: 1, classesPerWeek: 2 });
-              setShowPlanModal(true);
-            }}
-            className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-900 shadow-lg flex items-center gap-2 text-sm font-medium"
-          >
-            <Plus size={16} /> Novo Plano
-          </button>
-        </div>
+            <button
+              onClick={handleSaveBulkEdits}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-md flex items-center gap-2 text-sm font-medium"
+            >
+              <Save size={16} /> Salvar Alterações
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {selectedPlans.length > 0 && (
+              <button
+                onClick={handleBulkDeletePlans}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-sm flex items-center gap-2 text-sm font-medium animate-in fade-in slide-in-from-top-2"
+              >
+                <Trash size={16} /> Excluir ({selectedPlans.length})
+              </button>
+            )}
+            <button
+              onClick={() => setIsBulkEditing(true)}
+              className="px-4 py-2 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-lg hover:bg-indigo-100 flex items-center gap-2 text-sm font-medium"
+            >
+              <Edit size={16} /> Edição em Massa
+            </button>
+            <button onClick={handleExportPlans} className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200" title="Exportar CSV">
+              <FileText size={18} />
+            </button>
+            <button onClick={() => window.print()} className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200" title="Imprimir">
+              <Printer size={18} />
+            </button>
+            <label className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200 cursor-pointer" title="Importar CSV">
+              <Upload size={18} />
+              <input type="file" accept=".csv" className="hidden" onChange={handleImportPlans} />
+            </label>
+            <button onClick={handleDownloadTemplatePlan} className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200" title="Baixar Modelo">
+              <Download size={18} />
+            </button>
+            <button
+              onClick={() => {
+                setEditingPlan(null);
+                setPlanForm({ name: '', modalityId: '', frequency: 'Mensal', price: '', durationMonths: 1, classesPerWeek: 2 });
+                setShowPlanModal(true);
+              }}
+              className="px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-900 shadow-lg flex items-center gap-2 text-sm font-medium"
+            >
+              <Plus size={16} /> Novo Plano
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 print-only">
@@ -782,11 +927,12 @@ const Classes: React.FC = () => {
                   className="rounded border-slate-300 text-primary-600 focus:ring-primary-500"
                   checked={plans.length > 0 && selectedPlans.length === plans.length}
                   onChange={handleSelectAllPlans}
+                  disabled={isBulkEditing}
                 />
               </th>
               <th
                 className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase cursor-pointer hover:bg-slate-100 transition-colors group"
-                onClick={() => requestSort('name')}
+                onClick={() => !isBulkEditing && requestSort('name')}
               >
                 <div className="flex items-center gap-1">
                   Nome do Plano
@@ -795,7 +941,7 @@ const Classes: React.FC = () => {
               </th>
               <th
                 className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase cursor-pointer hover:bg-slate-100 transition-colors group"
-                onClick={() => requestSort('modalityName')}
+                onClick={() => !isBulkEditing && requestSort('modalityName')}
               >
                 <div className="flex items-center gap-1">
                   Modalidade
@@ -858,40 +1004,57 @@ const Classes: React.FC = () => {
                   {plan.classesPerWeek}x
                 </td>
                 <td className="px-6 py-4 font-bold text-green-700">
-                  R$ {Number(plan.price).toFixed(2)}
+                  {isBulkEditing ? (
+                    <div className="relative">
+                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400">R$</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={bulkEdits[plan.id]?.price !== undefined ? bulkEdits[plan.id].price : plan.price}
+                        onChange={(e) => handleBulkEditChange(plan.id, 'price', e.target.value)}
+                        className={`w-32 pl-8 pr-2 py-1 border rounded focus:ring-2 focus:ring-primary-500 focus:outline-none ${bulkEdits[plan.id] ? 'border-primary-500 bg-primary-50' : 'border-slate-300'}`}
+                      />
+                    </div>
+                  ) : (
+                    `R$ ${Number(plan.price).toFixed(2)}`
+                  )}
                 </td>
                 <td className="px-6 py-4 text-right no-print relative">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setActiveMenuId(activeMenuId === `plan-${plan.id}` ? null : `plan-${plan.id}`);
-                    }}
-                    className="text-slate-400 hover:text-primary-600 p-1"
-                  >
-                    <MoreVertical size={18} />
-                  </button>
+                  {!isBulkEditing && (
+                    <>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveMenuId(activeMenuId === `plan-${plan.id}` ? null : `plan-${plan.id}`);
+                        }}
+                        className="text-slate-400 hover:text-primary-600 p-1"
+                      >
+                        <MoreVertical size={18} />
+                      </button>
 
-                  {activeMenuId === `plan-${plan.id}` && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border border-slate-100 py-1">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); handleEditPlan(plan); }}
-                        className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
-                      >
-                        <Edit size={14} /> Editar
-                      </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); handleDuplicatePlan(plan); }}
-                        className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
-                      >
-                        <Copy size={14} /> Duplicar
-                      </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); handleDeletePlan(plan.id); }}
-                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                      >
-                        <Trash size={14} /> Excluir
-                      </button>
-                    </div>
+                      {activeMenuId === `plan-${plan.id}` && (
+                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border border-slate-100 py-1">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleEditPlan(plan); }}
+                            className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                          >
+                            <Edit size={14} /> Editar
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleDuplicatePlan(plan); }}
+                            className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                          >
+                            <Copy size={14} /> Duplicar
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleDeletePlan(plan.id); }}
+                            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                          >
+                            <Trash size={14} /> Excluir
+                          </button>
+                        </div>
+                      )}
+                    </>
                   )}
                 </td>
               </tr>
