@@ -809,7 +809,7 @@ const Finance = () => {
                         <td className="px-6 py-4 font-medium text-slate-800">{item.student.name}</td>
                         <td className="px-6 py-4 text-slate-600">
                           {(!item.student.plan || item.student.plan === '[]' || item.student.plan === 'Sem Plano')
-                            ? (item.student.modalities?.[0] || 'Sem Plano')
+                            ? (item.student.modalities?.[0] || item.student.modality || 'Sem Plano')
                             : item.student.plan}
                         </td>
                         <td className="px-6 py-4 text-slate-600">R$ {Number(item.amount).toFixed(2)}</td>
