@@ -1077,62 +1077,7 @@ const Students: React.FC = () => {
                         <p className="text-xs text-slate-500 mt-1">Selecione todas as modalidades que o aluno pratica.</p>
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Plano Principal</label>
-                        <select
-                          value={formData.plan}
-                          onChange={e => setFormData({ ...formData, plan: e.target.value })}
-                          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
-                        >
-                          <option value="">Selecione...</option>
-                          {plans
-                            .filter(p => {
-                              if (!formData.modalities || formData.modalities.length === 0) return true;
-                              const selectedModalityIds = modalities
-                                .filter(m => formData.modalities?.includes(m.name))
-                                .map(m => m.id);
-                              return selectedModalityIds.includes(p.modalityId) || !p.modalityId;
-                            })
-                            .map(p => (
-                              <option key={p.id} value={p.name}>
-                                {p.name} - {p.frequency}
-                              </option>
-                            ))}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Status da Matrícula</label>
-                        <select
-                          value={formData.status}
-                          onChange={e => setFormData({ ...formData, status: e.target.value as any })}
-                          className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
-                        >
-                          <option value="Ativo">Ativo</option>
-                          <option value="Inativo">Inativo</option>
-                          <option value="Trancado">Trancado</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="border-t border-slate-100 pt-6">
-                      <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <Activity size={16} className="text-red-500" /> Ficha Médica / Observações
-                      </h4>
-                      <textarea
-                        rows={4}
-                        value={formData.medicalNotes}
-                        onChange={e => setFormData({ ...formData, medicalNotes: e.target.value })}
-                        placeholder="Alergias, restrições médicas, observações importantes..."
-                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'enrollment' && (
-                  <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-                    <div className="grid grid-cols-1 gap-5">
-                      <div>
+                      <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-slate-700 mb-2">Planos Contratados</label>
 
                         <div className="flex gap-2 mb-4">
@@ -1207,7 +1152,7 @@ const Students: React.FC = () => {
                         </div>
                       </div>
 
-                      <div>
+                      <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-slate-700 mb-1">Status da Matrícula</label>
                         <select
                           value={formData.status}
@@ -1220,8 +1165,23 @@ const Students: React.FC = () => {
                         </select>
                       </div>
                     </div>
+
+                    <div className="border-t border-slate-100 pt-6">
+                      <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <Activity size={16} className="text-red-500" /> Ficha Médica / Observações
+                      </h4>
+                      <textarea
+                        rows={4}
+                        value={formData.medicalNotes}
+                        onChange={e => setFormData({ ...formData, medicalNotes: e.target.value })}
+                        placeholder="Alergias, restrições médicas, observações importantes..."
+                        className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      />
+                    </div>
                   </div>
                 )}
+
+
 
                 {activeTab === 'documents' && (
                   <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
