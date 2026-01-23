@@ -99,9 +99,17 @@ const initializePool = () => {
             logToFile(msg);
         } else {
             console.log("Initializing Pool with DATABASE_URL...");
-            pool = new Pool({
+            const poolConfig = {
                 connectionString: process.env.DATABASE_URL,
-            });
+            };
+
+            // Enable SSL for production or non-local databases if needed
+            if (process.env.NODE_ENV === 'production' || process.env.DATABASE_URL.includes('ssl')) {
+                poolConfig.ssl = { rejectUnauthorized: false };
+            }
+
+            console.log("Initializing Pool with config:", { ...poolConfig, connectionString: '***' });
+            pool = new Pool(poolConfig);
 
             pool.on('error', (err, client) => {
                 console.error('Unexpected error on idle client', err);
