@@ -7,7 +7,7 @@ const csvFilePath = path.join(__dirname, '../../alunos.csv');
 
 // Local DB connection
 const pool = new Pool({
-    connectionString: 'postgresql://postgres:password@localhost:5432/hidro_fitness'
+    connectionString: 'postgresql://postgres:password@localhost:5433/hidro_fitness'
 });
 
 async function importStudents() {
