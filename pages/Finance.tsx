@@ -258,17 +258,29 @@ const Finance = () => {
         // Calculate amount based on plans
         const planNames = parsePlans(student.plan);
         let amount = 0;
+        let planLabelParts: string[] = [];
         let planLabel = '';
 
         if (planNames.length > 0) {
-          // Sum prices of all plans
-          amount = planNames.reduce((sum, name) => {
-            const p = plans.find(pl => pl.name === name);
-            return sum + (p ? Number(p.price) : 0);
-          }, 0);
-          planLabel = planNames.join(' + ');
+          planNames.forEach(name => {
+            // Try partial match or trim match
+            const p = plans.find(pl => pl.name.toLowerCase().trim() === name.toLowerCase().trim());
+            if (p) {
+              amount += Number(p.price);
+              planLabelParts.push(p.name);
+            } else {
+              // If plan not found in DB, use the specific name stored in student
+              planLabelParts.push(name);
+            }
+          });
+          planLabel = planLabelParts.join(' + ');
         } else {
-          // Fallback for single plan legacy or empty
+          // Fallback if somehow parsePlans returns empty but student.plan exists
+          if (student.plan) planLabel = student.plan;
+        }
+
+        // If we still have 0 amount and no label, check strictly legacy
+        if (amount === 0 && !planLabel && student.plan) {
           const p = plans.find(pl => pl.name === student.plan);
           if (p) {
             amount = Number(p.price);
@@ -276,15 +288,13 @@ const Finance = () => {
           }
         }
 
-        // Use transaction amount if available? 
-        // User asked to pull from plan, but if paid, maybe we should show paid amount?
-        // For now, let's stick to plan amount as "expected amount", or we can override if transaction exists.
-        // If there is a transaction, usually we show what was paid/billed.
+        // If transaction exists (Paid or manually created pending), it overrides the plan calculation
+        // because it represents the actual record of what is changing hands.
         if (transaction && Number(transaction.amount) > 0) {
           amount = Number(transaction.amount);
         }
 
-        // Determine status
+        // Check overdue
         let status: 'PAID' | 'PENDING' | 'LATE' | 'NONE' = 'NONE';
 
         if (transaction) {

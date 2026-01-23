@@ -12,6 +12,7 @@ import {
   Upload, Download, Printer, FileText, Edit, Trash, Copy, ArrowUpDown
 } from 'lucide-react';
 import { exportToCSV, parseCSV, downloadTemplate } from '../utils/csvHelper';
+import { LoadingOverlay } from '../components/LoadingOverlay';
 
 type TabType = 'schedule' | 'modalities' | 'plans';
 
@@ -21,6 +22,7 @@ const Classes: React.FC = () => {
   const [modalities, setModalities] = useState<Modality[]>([]);
   const [plans, setPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [importing, setImporting] = useState(false);
 
   // Search State
   const [planSearch, setPlanSearch] = useState('');
@@ -310,6 +312,7 @@ const Classes: React.FC = () => {
 
   const handleImportModalities = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
+      setImporting(true);
       try {
         const parsedData = await parseCSV(e.target.files[0]);
         if (parsedData.length === 0) {
@@ -352,6 +355,8 @@ const Classes: React.FC = () => {
       } catch (error) {
         console.error('Erro fatal na importação:', error);
         alert('Erro ao processar o arquivo CSV. Verifique o formato.');
+      } finally {
+        setImporting(false);
       }
       e.target.value = '';
     }
@@ -372,6 +377,7 @@ const Classes: React.FC = () => {
 
   const handleImportPlans = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
+      setImporting(true);
       try {
         const parsedData = await parseCSV(e.target.files[0]);
         if (parsedData.length === 0) {
@@ -437,7 +443,7 @@ const Classes: React.FC = () => {
         console.error('Erro fatal na importação:', error);
         alert(`Erro ao processar o arquivo CSV: ${error.message || 'Erro desconhecido'}`);
       } finally {
-        setLoading(false); // End loading
+        setImporting(false);
       }
       e.target.value = '';
     }
@@ -1144,6 +1150,8 @@ const Classes: React.FC = () => {
       {activeTab === 'plans' && renderPlans()}
       {activeTab === 'modalities' && renderModalities()}
       {activeTab === 'schedule' && renderSchedule()}
+
+      <LoadingOverlay isVisible={importing} message="Importando arquivo..." />
 
       {/* Modals */}
       {showClassModal && (

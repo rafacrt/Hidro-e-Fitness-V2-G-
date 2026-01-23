@@ -12,6 +12,7 @@ import {
 } from '../services/api';
 import { Student, StudentDocument, Modality, Plan } from '../types';
 import { exportToCSV, parseCSV, downloadTemplate } from '../utils/csvHelper';
+import { LoadingOverlay } from '../components/LoadingOverlay';
 
 type TabType = 'registration' | 'enrollment' | 'documents';
 
@@ -35,6 +36,7 @@ const Students: React.FC = () => {
   const [modalities, setModalities] = useState<Modality[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
+  const [importing, setImporting] = useState(false);
 
   // Modals State
   const [showFormModal, setShowFormModal] = useState(false);
@@ -199,6 +201,7 @@ const Students: React.FC = () => {
 
   const handleImportCSV = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
+      setImporting(true);
       try {
         const parsedData = await parseCSV(e.target.files[0]);
 
@@ -271,6 +274,8 @@ const Students: React.FC = () => {
       } catch (error) {
         console.error(error);
         alert('Erro ao importar CSV. Verifique o formato do arquivo.');
+      } finally {
+        setImporting(false);
       }
       // Reset input
       e.target.value = '';
@@ -1338,6 +1343,8 @@ const Students: React.FC = () => {
           </div>
         </div>
       )}
+
+      <LoadingOverlay isVisible={importing} message="Importando alunos..." />
     </div>
   );
 };

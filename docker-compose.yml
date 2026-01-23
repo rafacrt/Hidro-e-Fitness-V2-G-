@@ -1,4 +1,21 @@
 services:
+  # 0. Database (Local Only)
+  db:
+    image: postgres:15-alpine
+    container_name: hidro_fitness_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: hidro_fitness
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app_network
+
   # 1. Frontend Application (React + Nginx)
   frontend:
     build: .
@@ -21,8 +38,10 @@ services:
     restart: always
     ports:
       - "3001:3001"
+    depends_on:
+      - db
     environment:
-      - DATABASE_URL=postgresql://postgress:8X892LtEO1ljgYK2@hidro-hidro-jhrojv:5432/hidro_fitness
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:password@db:5432/hidro_fitness}
       - PORT=3001
     volumes:
       - ./log/backend:/app/log
