@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import { fetchStudents, fetchPlans, fetchModalities } from '../services/api'; // We'll need to ensuring this exports correctly or fetch directly
+import { fetchStudents, fetchPlans, fetchModalities, fetchUsers, fetchClasses, fetchTransactions } from '../services/api'; // We'll need to ensuring this exports correctly or fetch directly
 import { Download, Database, FileArchive, Loader2 } from 'lucide-react';
 
 const DeveloperBackup: React.FC = () => {
@@ -12,10 +12,13 @@ const DeveloperBackup: React.FC = () => {
             setLoading(true);
 
             // 1. Fetch data
-            const [students, plans, modalities] = await Promise.all([
+            const [students, plans, modalities, users, classes, transactions] = await Promise.all([
                 fetchStudents(),
                 fetchPlans(),
-                fetchModalities()
+                fetchModalities(),
+                fetchUsers(),
+                fetchClasses(),
+                fetchTransactions()
             ]);
 
             const zip = new JSZip();
@@ -29,6 +32,8 @@ const DeveloperBackup: React.FC = () => {
                     'Responsável CPF', 'Responsável Telefone', 'Relacionamento', 'Notas Médicas'
                 ];
                 const sRows = [sHeaders.join(';')];
+                const dRows = [['Student ID', 'Doc ID', 'Nome Arquivo', 'Tipo', 'Data Upload'].join(';')]; // Header for Documents
+
                 students.forEach((s: any) => {
                     // Fix: Handle plan field correctly. If it's "[]" string or empty array, output empty string.
                     let planVal = s.plan;
@@ -62,9 +67,25 @@ const DeveloperBackup: React.FC = () => {
                         `"${s.medicalNotes?.replace(/"/g, '""') || ''}"`
                     ];
                     sRows.push(row.join(';'));
+
+                    // Check for documents
+                    if (s.documents && Array.isArray(s.documents)) {
+                        s.documents.forEach((d: any) => {
+                            dRows.push([
+                                s.id,
+                                d.id,
+                                `"${d.name || ''}"`,
+                                d.type,
+                                d.uploadDate
+                            ].join(';'));
+                        });
+                    }
                 });
                 // Add BOM for Excel UTF-8 compatibility
                 zip.file('alunos.csv', '\uFEFF' + sRows.join('\n'));
+                if (dRows.length > 1) {
+                    zip.file('documentos_alunos.csv', '\uFEFF' + dRows.join('\n'));
+                }
             }
 
             // --- PLANOS CSV ---
@@ -103,12 +124,72 @@ const DeveloperBackup: React.FC = () => {
                 zip.file('modalidades.csv', '\uFEFF' + mRows.join('\n'));
             }
 
+            // --- TURMAS CSV ---
+            if (classes && classes.length > 0) {
+                const cHeaders = ['ID', 'Nome', 'Horário Início', 'Horário Fim', 'Dias', 'Instrutor', 'Capacidade', 'Matriculados', 'ID Modalidade', 'Status'];
+                const cRows = [cHeaders.join(';')];
+                classes.forEach((c: any) => {
+                    const row = [
+                        c.id,
+                        `"${c.name || ''}"`,
+                        c.time || '',
+                        c.endTime || '',
+                        `"${Array.isArray(c.days) ? c.days.join(', ') : c.days}"`,
+                        `"${c.instructor || ''}"`,
+                        c.capacity || '',
+                        c.enrolled || '',
+                        c.modalityId || '',
+                        c.status || ''
+                    ];
+                    cRows.push(row.join(';'));
+                });
+                zip.file('turmas.csv', '\uFEFF' + cRows.join('\n'));
+            }
+
+            // --- FINANCEIRO CSV ---
+            if (transactions && transactions.length > 0) {
+                const fHeaders = ['ID', 'Data', 'Data Vencimento', 'Descrição', 'Tipo', 'Categoria', 'Valor', 'Status', 'Entidade Relacionada'];
+                const fRows = [fHeaders.join(';')];
+                transactions.forEach((t: any) => {
+                    const row = [
+                        t.id,
+                        t.date || '',
+                        t.dueDate || '',
+                        `"${t.description || ''}"`,
+                        t.type || '',
+                        t.category || '',
+                        t.amount || '',
+                        t.status || '',
+                        `"${t.relatedEntity || ''}"`
+                    ];
+                    fRows.push(row.join(';'));
+                });
+                zip.file('financeiro.csv', '\uFEFF' + fRows.join('\n'));
+            }
+
+            // --- USUARIOS CSV ---
+            if (users && users.length > 0) {
+                const uHeaders = ['ID', 'Nome', 'Email', 'Role'];
+                const uRows = [uHeaders.join(';')];
+                users.forEach((u: any) => {
+                    const row = [
+                        u.id,
+                        `"${u.name || ''}"`,
+                        `"${u.email || ''}"`,
+                        u.role || ''
+                    ];
+                    uRows.push(row.join(';'));
+                });
+                zip.file('usuarios.csv', '\uFEFF' + uRows.join('\n'));
+            }
+
+
             // 4. Download
             const date = new Date().toISOString().split('T')[0];
             const content = await zip.generateAsync({ type: 'blob' });
-            saveAs(content, `backup_sistema_${date}.zip`);
+            saveAs(content, `backup_sistema_completo_${date}.zip`);
 
-            alert('Backup concluído com sucesso!');
+            alert('Backup COMPLETO concluído com sucesso!');
 
         } catch (error) {
             console.error('Erro ao gerar backup:', error);
@@ -135,9 +216,11 @@ const DeveloperBackup: React.FC = () => {
                         <h2 className="text-xl font-bold text-slate-800 mb-2">Exportar Dados do Sistema</h2>
                         <p className="text-slate-500">
                             Gera um arquivo ZIP contendo:
-                            <br />- Alunos (CSV)
-                            <br />- Planos (CSV)
-                            <br />- Modalidades (CSV)
+                            <br />- Alunos e Documentos (CSV)
+                            <br />- Planos e Modalidades (CSV)
+                            <br />- Turmas (CSV)
+                            <br />- Financeiro (CSV)
+                            <br />- Usuários (CSV)
                         </p>
                     </div>
 
