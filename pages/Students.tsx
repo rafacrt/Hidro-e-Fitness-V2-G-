@@ -1088,7 +1088,7 @@ const Students: React.FC = () => {
                             <option value="">Selecione um plano...</option>
                             {plans.map(p => (
                               <option key={p.id} value={p.name}>
-                                {p.name} - R$ {Number(p.price).toFixed(2)}
+                                {p.name} - R$ {Number(p.price).toFixed(2)} - {p.frequency}
                               </option>
                             ))}
                           </select>
@@ -1124,7 +1124,7 @@ const Students: React.FC = () => {
                                     <p className="text-sm font-medium text-slate-700">{planName}</p>
                                     {planDetails && (
                                       <p className="text-xs text-slate-500">
-                                        {planDetails.frequency} - R$ {Number(planDetails.price).toFixed(2)}
+                                        R$ {Number(planDetails.price).toFixed(2)} - {planDetails.frequency}
                                       </p>
                                     )}
                                   </div>

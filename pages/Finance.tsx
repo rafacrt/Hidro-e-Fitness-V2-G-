@@ -201,6 +201,18 @@ const Finance = () => {
     return { totalIncome, totalExpense, netProfit, defaultRate };
   }, [filteredTransactions]);
 
+  // Helper to parse plans
+  const parsePlans = (planStr: string | undefined): string[] => {
+    if (!planStr) return [];
+    try {
+      const parsed = JSON.parse(planStr);
+      if (Array.isArray(parsed)) return parsed;
+      return [planStr];
+    } catch (e) {
+      return [planStr];
+    }
+  };
+
   // Tuition Status Logic
   const tuitionStatus = useMemo(() => {
     if (!selectedMonth) return [];
@@ -243,8 +255,34 @@ const Finance = () => {
           return sameMonth && sameYear && t.relatedEntity === student.name && t.category === 'TUITION' && t.type === 'INCOME';
         });
 
-        const plan = plans.find(p => p.name === student.plan);
-        const amount = plan ? plan.price : 0;
+        // Calculate amount based on plans
+        const planNames = parsePlans(student.plan);
+        let amount = 0;
+        let planLabel = '';
+
+        if (planNames.length > 0) {
+          // Sum prices of all plans
+          amount = planNames.reduce((sum, name) => {
+            const p = plans.find(pl => pl.name === name);
+            return sum + (p ? Number(p.price) : 0);
+          }, 0);
+          planLabel = planNames.join(' + ');
+        } else {
+          // Fallback for single plan legacy or empty
+          const p = plans.find(pl => pl.name === student.plan);
+          if (p) {
+            amount = Number(p.price);
+            planLabel = p.name;
+          }
+        }
+
+        // Use transaction amount if available? 
+        // User asked to pull from plan, but if paid, maybe we should show paid amount?
+        // For now, let's stick to plan amount as "expected amount", or we can override if transaction exists.
+        // If there is a transaction, usually we show what was paid/billed.
+        if (transaction && Number(transaction.amount) > 0) {
+          amount = Number(transaction.amount);
+        }
 
         // Determine status
         let status: 'PAID' | 'PENDING' | 'LATE' | 'NONE' = 'NONE';
@@ -265,7 +303,7 @@ const Finance = () => {
 
         return {
           student,
-          plan,
+          planLabel: planLabel || student.plan || 'Sem Plano',
           amount,
           status,
           transaction
@@ -808,9 +846,7 @@ const Finance = () => {
                       <tr key={item.student.id} className="hover:bg-slate-50 transition-colors">
                         <td className="px-6 py-4 font-medium text-slate-800">{item.student.name}</td>
                         <td className="px-6 py-4 text-slate-600">
-                          {(!item.student.plan || item.student.plan === '[]' || item.student.plan === 'Sem Plano')
-                            ? (item.student.modalities?.[0] || item.student.modality || 'Sem Plano')
-                            : item.student.plan}
+                          {item.planLabel}
                         </td>
                         <td className="px-6 py-4 text-slate-600">R$ {Number(item.amount).toFixed(2)}</td>
                         <td className="px-6 py-4">
