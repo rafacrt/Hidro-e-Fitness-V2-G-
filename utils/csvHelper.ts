@@ -51,16 +51,55 @@ export const parseCSV = (file: File): Promise<any[]> => {
             const firstLine = lines[0];
             const commaCount = (firstLine.match(/,/g) || []).length;
             const semicolonCount = (firstLine.match(/;/g) || []).length;
-            const delimiter = semicolonCount > commaCount ? ';' : ',';
+            const delimiter = semicolonCount >= commaCount ? ';' : ','; // Default to semicolon if equal or greater
 
-            // Regex to split by delimiter while ignoring delimiters inside quotes
-            // The regex dynamically adapts to the detected delimiter
-            const regex = new RegExp(`\\s*${delimiter}(?=(?:(?:[^"]*"){2})*[^"]*$)\\s*`);
+            console.log("Detected delimiter:", delimiter);
 
-            const headers = lines[0].split(regex).map(h => h.trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
+            // Robust CSV splitting regex
+            // This handles: values; "quoted;values"; "values""with""quotes"
+            const splitCheck = new RegExp(`(?:^|${delimiter})(\s*(?:(?:"(?:[^"]*")*")|(?:[^"${delimiter}]*)))`, 'g');
+
+            // Simple helper to parse a line
+            const parseLine = (line: string) => {
+                const result = [];
+                let match;
+                const lineWithCaret = delimiter + line; // Prepended delimiter to match regex logic
+
+                // Reset regex state
+                splitCheck.lastIndex = 0;
+
+                // Use a simpler approach for splitting if complex regex fails often
+                // Traditional split by delimiter but respect quotes
+                const chars = line.split('');
+                let current = '';
+                let insideQuote = false;
+
+                for (let i = 0; i < chars.length; i++) {
+                    const char = chars[i];
+                    const nextChar = chars[i + 1];
+
+                    if (char === '"') {
+                        if (insideQuote && nextChar === '"') {
+                            current += '"';
+                            i++; // skip next quote
+                        } else {
+                            insideQuote = !insideQuote;
+                        }
+                    } else if (char === delimiter && !insideQuote) {
+                        result.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                result.push(current.trim());
+                return result;
+            };
+
+            const headers = parseLine(lines[0]).map(h => h.replace(/^"|"$/g, '').trim());
 
             const result = lines.slice(1).map(line => {
-                const values = line.split(regex).map(val => val.trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
+                const values = parseLine(line).map(val => val.replace(/^"|"$/g, '').replace(/""/g, '"'));
 
                 const obj: any = {};
                 headers.forEach((header, index) => {
