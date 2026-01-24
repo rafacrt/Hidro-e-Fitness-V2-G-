@@ -5,39 +5,36 @@ const seedDatabase = async (pool) => {
     if (!pool) return;
 
     try {
-        // Check if Modalities table is empty
-        const check = await pool.query('SELECT COUNT(*) FROM modalities');
-        const count = parseInt(check.rows[0].count);
-
-        if (count > 0) {
-            console.log("Seed skipped: Modalities table is not empty.");
-            return;
-        }
-
-        console.log("Seeding database (initial deployment detected)...");
+        console.log("Seeding database check...");
         const client = await pool.connect();
 
         try {
             await client.query('BEGIN');
 
             // 1. MODALITIES
-            const modalPath = path.join(__dirname, 'seed_data/modalidades.csv');
-            if (fs.existsSync(modalPath)) {
-                console.log("Seeding Modalities...");
-                const lines = fs.readFileSync(modalPath, 'utf-8').split('\n').slice(1).filter(l => l.trim());
-                for (const line of lines) {
-                    const regex = /;(?=(?:(?:[^"]*"){2})*[^"]*$)/;
-                    const cols = line.split(regex).map(v => v.trim().replace(/^"|"$/g, ''));
-                    if (cols.length < 5) continue;
-                    const [id, name, target, desc, color] = cols;
+            const checkMod = await client.query('SELECT COUNT(*) FROM modalities');
+            if (parseInt(checkMod.rows[0].count) === 0) {
+                console.log("Seeding database (initial deployment detected for Modalities)...");
+                const modalPath = path.join(__dirname, 'seed_data/modalidades.csv');
+                if (fs.existsSync(modalPath)) {
+                    console.log("Seeding Modalities...");
+                    const lines = fs.readFileSync(modalPath, 'utf-8').split('\n').slice(1).filter(l => l.trim());
+                    for (const line of lines) {
+                        const regex = /;(?=(?:(?:[^"]*"){2})*[^"]*$)/;
+                        const cols = line.split(regex).map(v => v.trim().replace(/^"|"$/g, ''));
+                        if (cols.length < 5) continue;
+                        const [id, name, target, desc, color] = cols;
 
-                    await client.query(`
-                        INSERT INTO modalities (id, name, target_audience, description, color)
-                        VALUES ($1, $2, $3, $4, $5)
-                        ON CONFLICT (id) DO NOTHING
-                    `, [id, name, target, desc, color]);
+                        await client.query(`
+                            INSERT INTO modalities (id, name, target_audience, description, color)
+                            VALUES ($1, $2, $3, $4, $5)
+                            ON CONFLICT (id) DO NOTHING
+                        `, [id, name, target, desc, color]);
+                    }
+                    await client.query("SELECT setval('modalities_id_seq', (SELECT MAX(id) FROM modalities))");
                 }
-                await client.query("SELECT setval('modalities_id_seq', (SELECT MAX(id) FROM modalities))");
+            } else {
+                console.log("Modalities already exist, skipping.");
             }
 
             // 2. PLANS
