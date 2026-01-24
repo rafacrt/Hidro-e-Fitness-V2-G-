@@ -17,8 +17,44 @@ import {
   Printer,
   Edit,
   Trash2,
-  FileText
+  FileText,
+  RotateCcw
 } from 'lucide-react';
+// ... (existing imports)
+
+// ... (in component body)
+
+const handleUndoReceiveTuition = async (item: any) => {
+  if (!item.transaction) return;
+  if (window.confirm(`Deseja desfazer o recebimento de ${item.student.name}? O registro financeiro será excluído e a mensalidade voltará a ficar pendente.`)) {
+    try {
+      await deleteTransaction(item.transaction.id);
+      await loadTransactions();
+    } catch (error) {
+      alert('Erro ao desfazer recebimento');
+      console.error(error);
+    }
+  }
+};
+
+// ... (inside render, replacing the PAID status check)
+
+{
+  item.status === 'PAID' && (
+    <div className="flex items-center justify-end gap-3">
+      <span className="px-2 py-0.5 rounded text-xs font-bold uppercase bg-green-100 text-green-700 flex items-center gap-1">
+        <Check size={12} /> Pago
+      </span>
+      <button
+        onClick={() => handleUndoReceiveTuition(item)}
+        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+        title="Desfazer Pagamento (Estornar)"
+      >
+        <RotateCcw size={16} />
+      </button>
+    </div>
+  )
+}
 import {
   BarChart,
   Bar,
@@ -390,6 +426,21 @@ const Finance = () => {
 
   // --- Handlers ---
 
+  // --- Handlers ---
+
+  const handleUndoReceiveTuition = async (item: any) => {
+    if (!item.transaction) return;
+    if (window.confirm(`Deseja desfazer o recebimento de ${item.student.name}? O registro financeiro será excluído e a mensalidade voltará a ficar pendente.`)) {
+      try {
+        await deleteTransaction(item.transaction.id);
+        await loadTransactions();
+      } catch (error) {
+        alert('Erro ao desfazer recebimento');
+        console.error(error);
+      }
+    }
+  };
+
   const handleReceiveTuition = (item: any) => {
     const [year, month] = selectedMonth.split('-').map(Number);
     const dueDate = new Date(year, month - 1, 10).toISOString().split('T')[0];
@@ -406,6 +457,9 @@ const Finance = () => {
     setEditingTransaction(null);
     setShowModal(true);
   };
+  // ... (skip down to JSX)
+
+
 
   const handleOpenModal = () => {
     setEditingTransaction(null);
@@ -878,9 +932,18 @@ const Finance = () => {
                             </button>
                           )}
                           {item.status === 'PAID' && (
-                            <span className="text-xs text-slate-400 flex items-center justify-end gap-1">
-                              <Check size={14} /> Pago
-                            </span>
+                            <div className="flex items-center justify-end gap-3">
+                              <span className="px-2 py-0.5 rounded text-xs font-bold uppercase bg-green-100 text-green-700 flex items-center gap-1">
+                                <Check size={12} /> Pago
+                              </span>
+                              <button
+                                onClick={() => handleUndoReceiveTuition(item)}
+                                className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                                title="Desfazer Pagamento (Estornar)"
+                              >
+                                <RotateCcw size={16} />
+                              </button>
+                            </div>
                           )}
                         </td>
                       </tr>
