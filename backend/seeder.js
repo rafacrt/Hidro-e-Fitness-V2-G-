@@ -181,11 +181,55 @@ const seedDatabase = async (pool) => {
                 console.log(`[SEEDER] Student seeding finished. Inserted: ${inserted}, Skipped/Failed: ${skipped}`);
             } else {
                 console.error(`[SEEDER] Students file NOT FOUND at ${studentsPath}`);
-                // List directory to help debug
-                try {
-                    const dir = path.dirname(studentsPath);
-                    console.log(`[SEEDER] Directory contents of ${dir}:`, fs.readdirSync(dir));
-                } catch (e) { console.log("Could not list dir"); }
+            }
+
+            // 4. FINANCE (TRANSACTIONS)
+            const financePath = path.join(__dirname, 'seed_data/financeiro.csv');
+            console.log(`[SEEDER] Checking for finance file at: ${financePath}`);
+
+            if (fs.existsSync(financePath)) {
+                console.log("[SEEDER] Reading Finance content...");
+                const fileContent = fs.readFileSync(financePath, 'utf-8');
+                const lines = fileContent.split('\n').filter(l => l.trim().length > 0);
+                // Skip Header
+                const dataLines = lines.slice(1);
+                let inserted = 0;
+
+                for (let i = 0; i < dataLines.length; i++) {
+                    const line = dataLines[i];
+                    try {
+                        const regex = /;(?=(?:(?:[^"]*"){2})*[^"]*$)/;
+                        const values = line.split(regex).map(val => val.trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
+
+                        // id;description;type;category;amount;date;due_date;status;related_entity
+                        if (values.length < 9) continue;
+
+                        const sanitize = (val) => (!val || val === '' || val === 'null' ? null : val);
+
+                        const trans = {
+                            id: values[0],
+                            description: values[1],
+                            type: values[2],
+                            category: values[3],
+                            amount: values[4],
+                            date: sanitize(values[5]),
+                            due_date: sanitize(values[6]),
+                            status: values[7],
+                            related_entity: sanitize(values[8])
+                        };
+
+                        await client.query(`
+                            INSERT INTO transactions (id, description, type, category, amount, date, due_date, status, related_entity)
+                            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                            ON CONFLICT (id) DO NOTHING
+                        `, [trans.id, trans.description, trans.type, trans.category, trans.amount, trans.date, trans.due_date, trans.status, trans.related_entity]);
+
+                        inserted++;
+                    } catch (err) {
+                        console.error(`[SEEDER] Finance Error line ${i + 2}: ${err.message}`);
+                    }
+                }
+                console.log(`[SEEDER] Finance seeded: ${inserted} transactions.`);
             }
 
             await client.query('COMMIT');

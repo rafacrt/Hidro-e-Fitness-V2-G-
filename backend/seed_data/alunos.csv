@@ -1,213 +1,213 @@
-﻿ID;Nome;Email;CPF;RG;Data Nascimento;Telefone;Whatsapp;Plano;Modalidades;Status;CEP;Rua;Número;Bairro;Cidade;Estado;Complemento;Responsável Nome;Responsável CPF;Responsável Telefone;Relacionamento;Notas Médicas
-174;"ADEMIR JOSÉ DA SILVA";"";"721.186.288-20";"";1952-02-19T00:00:00.000Z;"(19) 98168-4948";Não;"";"";Ativo;13060-530;"Rua José Ramos Catarino";332;"Parque Tropical";"Campinas";SP;"";"";"";"";"";""
-73;"ALDETE IZIDORO";"";"278.302.238-90";"";1977-08-27T00:00:00.000Z;"(19) 97162-5982";Não;"";"";Ativo;13060-012;"Rua Umberto Vetoratto";124;"Jardim Ipiranga";"Campinas";SP;"";"";"";"";"";""
-121;"ALEXANDRE PESTANA";"";"";"";2019-03-13T00:00:00.000Z;"(19) 99512-5259";Não;"";"";Ativo;13059-848;"Avenida Deputado Luís Eduardo Magalhães";543;"Jardim Uruguai";"Campinas";SP;"";"";"";"";"";""
-156;"ALICE BUENO";"";"";"";2018-08-06T00:00:00.000Z;"(19) 98228-5594";Não;"";"";Ativo;13060-024;"Rua Conselheiro Antônio Carlos";1881;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-127;"ALICE MIRELLA MONTEIRO";"";"";"";2018-05-05T00:00:00.000Z;"(19) 98916-1577";Não;"";"";Ativo;13058-488;"Rua Che Guevara";71;"Jardim Nova Esperança";"Campinas";SP;"";"";"";"";"";""
-31;"ALICIA PEREIRA DE OLIVEIRA CARDOSO";"";"";"";2021-02-14T00:00:00.000Z;"(19) 99474-1974";Não;"";"";Ativo;13059780;"Rua Henrique Thoni Filho";208;"Jardim Ouro Preto";"Campinas";SP;"";"";"";"";"";""
-15;"ALICIA REZENDE SOUZA";"";"";"";2019-03-29T00:00:00.000Z;"(19) 97418-3988";Não;"";"";Ativo;13050450;"Rua Mineiros do Tietê";497;"Vila Pompéia";"Campinas";SP;"";"";"";"";"";""
-28;"ANA JULIA MESSIAS DO NASCIMENTO SANTOS";"";"541.100.718-60";"";2006-03-31T00:00:00.000Z;"(19) 99499-8629";Não;"";"";Ativo;13060-325;"Rua Doutor Antônio Sylvio Cunha Bueno";;"Jardim Roseira";"Campinas";SP;"";"";"";"";"";""
-38;"ANA LUCIA BARBOSA DE SOUZA SILVA";"";"120.796.538-30";"";1964-05-27T00:00:00.000Z;"(19) 98710-9269";Não;"";"";Ativo;13060533;"Rua Laércio Monzani";312;"Parque Tropical";"Campinas";SP;"";"";"";"";"";""
-79;"ANA PAULA MESSIAS NASCIMENTO";"";"230.182.348-20";"";1987-04-28T00:00:00.000Z;"(19) 98890-0520";Não;"";"";Ativo;13060228;"Rua José Amâncio Cucatti";312;"Jardim Londres";"Campinas";SP;"";"";"";"";"";""
-191;"ANA PAULA PAZINI DE AVILA";"";"457.211.748-97";"";1998-12-23T00:00:00.000Z;"(19) 98611-3993";Não;"";"";Ativo;13060-562;"Rua Alzira Marcondes";160;"Residencial Parque da Fazenda";"Campinas";SP;"";"";"";"";"";""
-212;"ANDREIA CRISTINA DE FARIA";"";"148.793.728-89";"";1971-07-20T00:00:00.000Z;"(19) 99124-3167";Não;"";"";Ativo;13061-900;"Rua Albatroz";65;"Vila Padre Manoel de Nóbrega";"Campinas";SP;"";"";"";"";"";""
-12;"APARECIDA CELIA ALVES";"";"838.977.782-7";"";1960-10-04T00:00:00.000Z;"(19) 93386-1509";Não;"";"";Ativo;13030720;"Rua Paulo Lacerda";326;"São Bernardo";"Campinas";SP;"";"";"";"";"";""
-197;"APARECIDA DE LOURDES VALENTE";"";"312.999.138-73";"";1959-08-26T00:00:00.000Z;"(19) 99283-8430";Não;"";"";Ativo;13060-151;"Rua Arlindo Gomes";39;"Jardim Novo Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-164;"ARIETE PEREIRA ANDRÉ";"";"158.376.488-79";"";1952-03-11T00:00:00.000Z;"(19) 99348-3939";Não;"";"";Ativo;13051-105;"Rua João Tonoli";235;"Jardim das Bandeiras";"Campinas";SP;"";"";"";"";"";""
-180;"ARISTOTELES BISPO MATEUS";"";"005.644.938-05";"";1955-05-28T00:00:00.000Z;"(79) 99650-0226";Não;"";"";Ativo;13060-414;"Rua Adolpho Guimarães Barros";414;"Jardim Novo Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-50;"ARTHUR DE SOUZA PAULO";"";"";"";2022-12-10T00:00:00.000Z;"(19) 98978-8175";Não;"";"";Ativo;13060161;"Rua Joaquim Lourenço de Godoy";138;"Jardim Novo Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-20;"ARTHUR LUIZ MOREIRA";"";"";"";2019-04-10T00:00:00.000Z;"(19) 99166-4495";Não;"";"";Ativo;13051076;"Rua Professora Amália de Arruda Legendre Martini";1115;"Jardim do Lago Continuação";"Campinas";SP;"";"";"";"";"";""
-30;"ARTHUR PEREIRA DE OLIVEIRA CARDOSO";"";"";"";2021-02-14T00:00:00.000Z;"(19) 99474-1974";Não;"";"";Ativo;13059780;"Rua Henrique Thoni Filho";208;"Jardim Ouro Preto";"Campinas";SP;"";"";"";"";"";""
-143;"ARUNA MOREA SILVA SANTOS";"";"";"";0001-01-01T00:00:00.000Z;"(19) 98115-1915";Não;"";"";Ativo;13060-858;"Avenida Presidente Juscelino";1290;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-9;"BEATRIZ MARTINS MANGIA COIMBRA";"";"";"";2023-05-12T00:00:00.000Z;"(19) 98278-9610";Não;"";"";Ativo;13061125;"Rua Luís Pereira Barreto";2;"Jardim García";"Campinas";SP;"";"";"";"";"";""
-14;"BEATRIZ RODRIGUES ARAUJO";"";"";"";2013-08-08T00:00:00.000Z;"(19) 99158-6070";Não;"";"";Ativo;13060744;"Rua Rúbens Roberto Ciolfi";315;"Parque Residencial Vila União";"Campinas";SP;"";"";"";"";"";""
-41;"BELLA TEOFILO RIBEIRO";"";"";"";2023-07-11T00:00:00.000Z;"(19) 98894-1478";Não;"";"";Ativo;13060055;"Rua da Solidariedade";25;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-96;"BENICIO DE OLIVEIRA GUIRALDI";"";"";"";2022-06-12T00:00:00.000Z;"(19) 99217-9381";Não;"";"";Ativo;13056005;"Rua Izabel Lopes Ventura";485;"Jardim Planalto de Viracopos";"Campinas";SP;"";"";"";"";"";""
-39;"BENJAMIN LINS NORONHA";"";"";"";2016-09-02T00:00:00.000Z;"(19) 99217-9381";Não;"";"";Inativo;13050420;"Rua Araçoiaba da Serra";704;"Cidade Jardim";"Campinas";SP;"";"";"";"";"";""
-40;"BENJAMIN PRINCE OLIVEIRA DIAS";"";"";"";2019-11-25T00:00:00.000Z;"(19) 99138-7811";Não;"";"";Ativo;13051076;"Rua Professora Amália de Arruda Legendre Martini";1115;"Jardim do Lago Continuação";"Campinas";SP;"";"";"";"";"";""
-90;"BERNARDO SOARES ANDREO";"";"";"";2022-04-29T00:00:00.000Z;"(19) 97153-8181";Não;"";"";Ativo;13050-411;"Rua Joanópolis";96;"Cidade Jardim";"Campinas";SP;"";"";"";"";"";""
-133;"BRAYAN HENRIQUE GOMES INACIO";"";"";"";2024-07-04T00:00:00.000Z;"(19) 99573-9896";Não;"";"";Ativo;13050-520;"Rua Antimônio";38;"Vila Rica";"Campinas";SP;"";"";"";"";"";""
-185;"BRAYAN MAXIMIANO OLIVEIRA";"";"393.841.438-39";"";1995-12-06T00:00:00.000Z;"(19) 97420-7075";Não;"";"";Ativo;13060-281;"Rua Flor do Maracujá";375B;"Jardim Nova Morada";"Campinas";SP;"";"";"";"";"";""
-117;"BRUNA DIAS ARAUJO";"";"463.474.858-42";"";2000-06-20T00:00:00.000Z;"";Não;"";"";Ativo;13060-735;"Rua Euclides Arruda de Almeida";195;"Parque Residencial Vila União";"Campinas";SP;"";"";"";"";"";""
-189;"CAIO ANDRADE GONÇALVES DA SILVA";"";"423.374.778-19";"";1995-06-09T00:00:00.000Z;"(19) 99335-5693";Não;"";"";Ativo;13051-079;"Rua Emerson da Silva Berton";411;"Jardim do Lago Continuação";"Campinas";SP;"";"";"";"";"";""
-61;"CAIO DA SILVA";"";"";"";2020-06-25T00:00:00.000Z;"(19) 98917-6562";Não;"";"";Ativo;13060734;"Rua Albert Sabin";84;"Parque Residencial Vila União";"Campinas";SP;"";"";"";"";"";""
-163;"CARMELUCE RODRIGUES SANTANA";"";"017.033.388-20";"";1952-04-25T00:00:00.000Z;"(19) 99287-2823";Não;"";"";Ativo;13058-224;"Rua Maria Eunice Flausino Barbosa";349;"Conjunto Residencial Parque São Bento";"Campinas";SP;"";"";"";"";"";""
-113;"CECILIA APARECIDA FERRETI SOUZA";"";"154.678.188-89";"";1968-06-29T00:00:00.000Z;"(19) 99691-4602";Não;"";"";Ativo;13060-410;"Rua Michael Robert Kaan";377;"Jardim Novo Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-75;"CECILIA FREITAS ROCHA";"";"";"";2015-06-03T00:00:00.000Z;"(19) 97419-9799";Não;"";"";Ativo;13060314;"Avenida Brasília";1156;"Jardim Roseira";"Campinas";SP;"";"";"";"";"";""
-186;"CESAR LUCENA SILVA";"";"";"";2024-05-08T00:00:00.000Z;"(19) 99430-7879";Não;"";"";Ativo;13059-054;"Rua Comendador João Guilhen Garcia";;"Jardim Florence";"Campinas";SP;"";"";"";"";"";""
-55;"CLAUDIO OLAVO DA SILVA JUNIOR";"";"222.590.958-01";"";1981-12-05T00:00:00.000Z;"(19) 99570-7739";Não;"";"";Inativo;13050435;"Rua Padre Donizete Tavares de Lima";1055;"Cidade Jardim";"Campinas";SP;"";"";"";"";"";""
-168;"CLODOALDO PURIFICAÇÃO SOUZA";"";"";"";2018-04-23T00:00:00.000Z;"(19) 97416-4222";Não;"";"";Ativo;13050-576;"Rua Beatriz Pacheco Pompeo de Camargo";12;"Jardim Novo Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-29;"CRISTIANA MESSIAS DO NASCIMENTO";"";"324.295.198-01";"";1984-11-11T00:00:00.000Z;"(19) 99334-7806";Não;"";"";Inativo;13060325;"Rua Doutor Antônio Sylvio Cunha Bueno";;"Jardim Roseira";"Campinas";SP;"";"";"";"";"";""
-167;"CRISTIANA ROCHA DE ALMEIDA";"";"282.195.558-58";"";1980-03-16T00:00:00.000Z;"(19) 9710-113";Não;"";"";Ativo;13060-562;"Rua Alzira Marcondes";160;"Residencial Parque da Fazenda";"Campinas";SP;"";"";"";"";"";""
-150;"DANIELE FERREIRA DA SILVA";"";"412.714.938-88";"";2000-03-23T00:00:00.000Z;"(19) 98766-1209";Não;"";"";Inativo;13059-619;"Rua Orlando Signorelli";170;"Cidade Satélite Íris";"Campinas";SP;"";"";"";"";"";""
-108;"DANIELLE RIBEIRO AZEVEDO PITARELLO";"";"";"";1991-11-27T00:00:00.000Z;"(19) 99957-9832";Não;"";"";Inativo;13050621;"Rua Carlos Roberto Caetano de Souza";150;"Conjunto Residencial Souza Queiroz";"Campinas";SP;"";"";"";"";"";""
-3;"DAVI GABRIEL PASSANI OLIVEIRA";"";"";"";2023-09-01T00:00:00.000Z;"";Não;"";"";Ativo;13052550;"Avenida Ary Rodrigues";315;"Parque CamÃ©lias";"Campinas";SP;"";"";"";"";"";""
-25;"DIOGO RIBEIRO DO PRADO";"";"";"";2018-08-05T00:00:00.000Z;"(19) 98733-4749";Não;"";"";Ativo;13060061;"Rua Orestes Colombari";266;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-203;"EDNA FORTUNATO DE SOUZA";"";"217.482.578-38";"";1954-10-14T00:00:00.000Z;"(19) 99117-5340";Não;"";"";Ativo;13060-534;"Rua José Faccioni";390;"Parque Tropical";"Campinas";SP;"";"";"";"";"";""
-101;"EDNALDA PINHEIRO DE ALMEIDA GARCIA";"";"271.334.338-00";"";1976-12-20T00:00:00.000Z;"(19) 99184-7261";Não;"";"";Ativo;13060254;"Rua José Campos Filho";281;"Jardim Londres";"Campinas";SP;"";"";"";"";"";""
-18;"EDVALDA GISELE P.S. CAPURSSI";"";"273.192.278-86";"";1979-09-28T00:00:00.000Z;"(19) 98197-5283";Não;"";"";Ativo;13060223;"Rua Pelicano";277;"Jardim Londres";"Campinas";SP;"";"";"";"";"";""
-33;"ELAINE CRISTINA LUPI CHIOTTI";"";"311.940.238-94";"";1981-12-15T00:00:00.000Z;"(19) 99179-2370";Não;"";"";Ativo;13060746;"Rua Manoel Arthur Cavalcante Lacombe";156;"Parque Residencial Vila União";"Campinas";SP;"";"";"";"";"";""
-66;"ELIZABETH FRANCISCA DE OLIVEIRA CASTRO";"";"220.901.848-09";"";1957-11-08T00:00:00.000Z;"(19) 98296-2875";Não;"";"";Ativo;13060063;"Rua Ruy Pupo Campos Ferreira";;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-126;"EMANUELLE ROCHA ";"";"";"";2021-01-15T00:00:00.000Z;"(19) 97405-1677";Não;"";"";Ativo;13040-725;"Rua Visconde de Congonhas do Campo";1161;"Loteamento Parque São Martinho";"Campinas";SP;"";"";"";"";"";""
-6;"EMANUELLY DUARTE SILVA TERRITO";"";"";"";2021-12-27T00:00:00.000Z;"(19) 98602-1705";Não;"";"";Ativo;13058286;"Rua Professor Casemiro dos Reis Filho";222;"Loteamento Residencial Novo Mundo";"Campinas";SP;"";"";"";"";"";""
-94;"ENZO GABRIEL MACHADO PIRES";"";"";"";2020-10-21T00:00:00.000Z;"(19) 98365-0380";Não;"";"";Ativo;13052114;"Rua Victório Pavan";;"Jardim Morumbi";"Campinas";SP;"";"";"";"";"";""
-138;"ENZO GABRIEL SANTOS";"";"";"";2019-04-05T00:00:00.000Z;"(19) 98194-2303";Não;"";"";Inativo;13050-814;"Rua Antônio Pires Barbosa";15;"Jardim Capivari";"Campinas";SP;"";"";"";"";"";""
-88;"ESTER ARARUNA NUNES";"";"";"";2019-08-05T00:00:00.000Z;"(19) 98829-8633";Não;"";"";Ativo;13060489;"Rua Madre Tereza de Calcutá";360;"Jardim Santa Lúcia";"Campinas";SP;"";"";"";"";"";""
-56;"FABIANA NASCIMENTO DA SILVA";"";"319.091.008-11";"";1985-01-18T00:00:00.000Z;"(19) 99570-7039";Não;"";"";Ativo;13050435;"Rua Padre Donizete Tavares de Lima";1055;"Cidade Jardim";"Campinas";SP;"";"";"";"";"";""
-201;"FABIO FERREIRA DA SILVA";"";"";"";2013-08-08T00:00:00.000Z;"(19) 98324-8876";Não;"";"";Ativo;13059-647;"Rua Doutor Mamed Hussein";1027;"Cidade Satélite Íris";"Campinas";SP;"";"";"";"";"";""
-169;"FRANCELI FERREIRA LIMA";"";"273.387.408-14";"";1973-05-26T00:00:00.000Z;"(19) 98412-7905";Não;"";"";Ativo;13060-254;"Rua José Campos Filho";242;"Jardim Londres";"Campinas";SP;"";"";"";"";"";""
-195;"GABRIELA DA SILVA DOS SANTOS";"";"453.148.418-51";"";1998-02-01T00:00:00.000Z;"(19) 98214-7000";Não;"";"";Ativo;13059-626;"Rua Elpídio Nivoloni";626;"Cidade Satélite Íris";"Campinas";SP;"";"";"";"";"";""
-53;"GABRIELA DE SOUZA MATHIAS";"";"";"";2018-11-05T00:00:00.000Z;"(19) 98838-9030";Não;"";"";Ativo;13060502;"Rua Domingos Marciano";82;"Jardim Santa Lúcia";"Campinas";SP;"";"";"";"";"";""
-8;"GABRIELLE SANTOS DA COSTA";"";"";"";2017-12-31T00:00:00.000Z;"(19) 99548-1538";Não;"";"";Ativo;13060511;"Rua Oswaldo Ims";;"Jardim Santa Lúcia";"Campinas";SP;"";"";"";"";"";""
-200;"GENY BOSA GOMES";"";"002.035.788-56";"";1959-02-13T00:00:00.000Z;"(19) 99123-0863";Não;"";"";Ativo;13054-109;"Rua Jurura";443;"Vila Aeroporto";"Campinas";SP;"";"";"";"";"";""
-47;"GRACELI ALVES DE ARRUDA";"";"173.887.538-50";"";1968-08-01T00:00:00.000Z;"(19) 99315-4787";Não;"";"";Inativo;13060063;"Rua Ruy Pupo Campos Ferreira";;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-122;"GUSTAVO DA SILVA CAMPOS";"";"";"";2016-01-10T00:00:00.000Z;"(19) 99331-4463";Não;"";"";Ativo;13056-524;"Rua Leonor Santos";80;"Jardim Vista Alegre";"Campinas";SP;"";"";"";"";"";""
-184;"GUSTAVO PRATES DOS SANTOS";"";"403.066.988-38";"";1994-09-13T00:00:00.000Z;"(19) 99988-7477";Não;"";"";Ativo;13060-515;"Rua Santa Maria Madalena Postel";135;"Jardim Santa Lúcia";"Campinas";SP;"";"";"";"";"";""
-198;"HARRISON HENRIQUE CORREIA DA SILVA";"";"452.700.938-98";"";1996-03-05T00:00:00.000Z;"(19) 98309-8695";Não;"";"";Ativo;13059-028;"Rua Doutora Libia Hermisa Grandinetti Tortina";495;"Jardim Florence";"Campinas";SP;"";"";"";"";"";""
-119;"HEITOR DE OLIVEIRA NASCIMENTO";"";"";"";2019-04-13T00:00:00.000Z;"(19) 97415-8836";Não;"";"";Ativo;13059-641;"Rua Chrispim Gomes";518;"Cidade Satélite Íris";"Campinas";SP;"";"";"";"";"";""
-21;"HEITOR LUIZ MOREIRA";"";"";"";2019-04-10T00:00:00.000Z;"(19) 99166-4495";Não;"";"";Ativo;13051076;"Rua Professora Amália de Arruda Legendre Martini";1115;"Jardim do Lago Continuação";"Campinas";SP;"";"";"";"";"";""
-124;"HEITOR TOBIAS";"";"";"";2020-10-15T00:00:00.000Z;"(19) 99173-2206";Não;"";"";Ativo;13060-779;"Rua João Cavoto";208;"Parque Residencial Vila União";"Campinas";SP;"";"";"";"";"";""
-182;"HELENA GONÇALVES OLIVEIRA";"";"470.629.325-15";"";1973-04-08T00:00:00.000Z;"(19) 98124-8940";Não;"";"";Ativo;13058-580;"Rua Otto Lara Resende";100;"Parque Valença II";"Campinas";SP;"";"";"";"";"";""
-115;"HELENA MARIA COSTA";"";"061.916.898-61";"";0001-01-01T00:00:00.000Z;"(19) 98451-9838";Não;"";"";Ativo;13060-008;"Rua Antônio Menito";256;"Jardim Anchieta";"Campinas";SP;"";"";"";"";"";""
-192;"HELENA MARIA RABELO";"";"082.127.138-57";"";1963-04-28T00:00:00.000Z;"(19) 99830-1195";Não;"";"";Ativo;13060-113;"Rua Ozorino Ribeiro de Melo";457;"Jardim Novo Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-74;"HELOISA FREITAS ROCHA";"";"";"";2022-05-28T00:00:00.000Z;"(19) 97419-9799";Não;"";"";Ativo;13060314;"Avenida Brasília";1156;"Jardim Roseira";"Campinas";SP;"";"";"";"";"";""
-211;"HELOISA LOPES LODDO";"";"";"";2018-10-04T00:00:00.000Z;"(19) 97414-4439";Não;"";"";Ativo;13060-058;"Rua Orlando Silva";29;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-63;"HELOISE RAPELA PIGA ROQUE";"";"";"";2022-12-11T00:00:00.000Z;"(19) 99598-6488";Não;"";"";Ativo;13052444;"Rua Corumbataí";215;"Jardim Itatinga";"Campinas";SP;"";"";"";"";"";""
-140;"HENRIQUE GABRIEL DE SOUZA SIMENES";"";"";"";2021-02-01T00:00:00.000Z;"(19) 99718-7490";Não;"";"";Ativo;13060-719;"Rua Pedro Diogo";135;"Parque Residencial Vila União";"Campinas";SP;"";"";"";"";"";""
-22;"HERMINIA SABINO";"";"15496418836";"";1959-11-07T00:00:00.000Z;"(19) 97160-6137";Não;"";"";Inativo;13060702;"Rua Célio dos Santos Ferreira";285;"Parque Residencial Vila União";"Campinas";SP;"";"";"";"";"";""
-194;"HILARY DAGNE DE OLIVEIRA";"";"526.124.958-94";"";2002-09-03T00:00:00.000Z;"(19) 98989-1468";Não;"";"";Ativo;13059-450;"Ruela Tainha";193;"Núcleo Residencial Princesa D'Oeste";"Campinas";SP;"";"";"";"";"";""
-125;"IAN ROCHA PEREIRA";"";"440.662.828-22";"";1996-06-06T00:00:00.000Z;"(19) 97419-0797";Não;"";"";Inativo;13060-854;"Rua Sílvio Rizzardo";400;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-76;"ICARO JOSÉ MORAES FELIZBERTO";"";"";"";2020-03-24T00:00:00.000Z;"(19) 97419-9799";Não;"";"";Inativo;13053240;"Avenida Joaquim Olavo Sampaio";150;"Vila Palmeiras I";"Campinas";SP;"";"";"";"";"";""
-210;"IDELVINA SIMONETTO";"";"078.761.141-72";"";1952-01-20T00:00:00.000Z;"(19) 98360-5729";Não;"";"";Ativo;13060-534;"Rua José Faccioni";226;"Parque Tropical";"Campinas";SP;"";"";"";"";"";""
-42;"INGRID BUGATTI ROCHA PEREIRA";"";"452.260.578-14";"";1995-10-25T00:00:00.000Z;"(19) 99146-4117";Não;"";"";Ativo;13060854;"Rua Sílvio Rizzardo";400;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-5;"IRENE MARQUES DOS SANTOS";"";"149.994.588-45";"";1967-04-02T00:00:00.000Z;"(19) 99324-6654";Não;"";"";Inativo;13060702;"Rua Célio dos Santos Ferreira";278;"Parque Residencial Vila União";"Campinas";SP;"";"";"";"";"";""
-144;"ISABELA BRUNELLI DISTASSI";"";"";"";2024-07-08T00:00:00.000Z;"(19) 99308-5858";Não;"";"";Ativo;13050-050;"Rua Dionísio Cazotti";617;"Vila Mimosa";"Campinas";SP;"";"";"";"";"";""
-139;"ISABELLA DOS SANTOS NUNES";"";"424.930.638-05";"";2021-02-16T00:00:00.000Z;"(19) 98194-2303";Não;"";"";Inativo;13050-814;"Rua Antônio Pires Barbosa";15;"Jardim Capivari";"Campinas";SP;"";"";"";"";"";""
-206;"ISAEL FARIA";"";"825.552.068-68";"";1958-05-09T00:00:00.000Z;"(19) 98119-3192";Não;"";"";Ativo;13051-125;"Rua Manoel Militão de Melo";322;"Jardim das Bandeiras";"Campinas";SP;"";"";"";"";"";""
-172;"ISIS SOUZA CHAVES";"";"";"";2024-06-16T00:00:00.000Z;"(19) 99102-4037";Não;"";"";Ativo;13054-371;"Rua Itália Fausta";458;"Parque Vista Alegre";"Campinas";SP;"";"";"";"";"";""
-132;"ISIS VALENTINA GOULART DE CAMPOS HENRIQUE";"";"";"";2023-11-30T00:00:00.000Z;"(19) 98901-3172";Não;"";"";Ativo;13061-311;"Rua Juriti";59;"Vila Padre Manoel de Nóbrega";"Campinas";SP;"";"";"";"";"";""
-179;"IVANICE SILVA MATEUS";"";"375.163.295-68";"";1965-03-01T00:00:00.000Z;"(79) 99650-0226";Não;"";"";Ativo;13060-414;"Rua Adolpho Guimarães Barros";920;"Jardim Novo Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-151;"IVANIR FERREIRA";"";"068.893.218-55";"";1965-08-04T00:00:00.000Z;"(19) 99167-3794";Não;"";"";Ativo;13059-619;"Rua Orlando Signorelli";170;"Cidade Satélite Íris";"Campinas";SP;"";"";"";"";"";""
-129;"JANAINA ALVES PASTORA";"";"095.879.124-46";"";1992-08-04T00:00:00.000Z;"(19) 98982-4823";Não;"";"";Ativo;13060-152;"Rua Cícero de Oliveira Silva";;"Jardim Novo Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-95;"JÉSSICA ALVES MACHADO";"";"461.796.288-31";"";1997-10-02T00:00:00.000Z;"(19) 98365-0380";Não;"";"";Ativo;13052114;"Rua Victório Pavan";;"Jardim Morumbi";"Campinas";SP;"";"";"";"";"";""
-67;"JOÃO NACHBAR BATISTA";"";"";"";2019-01-23T00:00:00.000Z;"(19) 99237-2998";Não;"";"";Ativo;13060043;"Rua Professor Jairo Ramos";169;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-196;"JOÃO PEDRO DA SILVA BASSAN";"";"";"";2018-12-18T00:00:00.000Z;"";Não;"";"";Ativo;13061-096;"Rua Alfredo Battibugli";109;"Jardim García";"Campinas";SP;"";"";"";"";"";""
-45;"JOAQUIM EMANUEL DE SOUZA CARVALHO";"";"";"";2022-06-08T00:00:00.000Z;"(19) 99137-1855";Não;"";"";Ativo;13060611;"Rua Doutor Jeber Juabre";146;"Jardim Márcia";"Campinas";SP;"";"";"";"";"";""
-162;"JOSEFA RODRIGUES SILVA DO NASCIMENTO";"";"092.687.718-61";"";1949-06-06T00:00:00.000Z;"(19) 99598-6981";Não;"";"";Ativo;13060-130;"Rua Danilo Tavolaro";817;"Jardim Novo Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-36;"JULIA FERNANDES DE SOUZA";"";"";"";0001-01-01T00:00:00.000Z;"(19) 98144-2464";Não;"";"";Ativo;13059660;"Rua Romeu Marinelli";780;"Cidade Satélite Íris";"Campinas";SP;"";"";"";"";"";""
-128;"JULIA SCHOBA ROMANO";"";"";"";2021-02-28T00:00:00.000Z;"(19) 98848-8300";Não;"";"";Ativo;13060-726;"Rua Paulo Vianna de Souza";1070;"Parque Residencial Vila União";"Campinas";SP;"";"";"";"";"";""
-13;"JUSSARA APARECIDA GONÇALVES";"";"083.800.468-70";"";1961-09-23T00:00:00.000Z;"(19) 98920-7592";Não;"";"";Ativo;13060766;"Rua Dona Neuza Goulart Brizola";101;"Parque Residencial Vila UniÃ£o";"Campinas";SP;"";"";"";"";"";""
-209;"LAIR DE OLIVEIRA DE PAULA";"";"280.122.628-94";"";1945-07-25T00:00:00.000Z;"(19) 3269-3049";Não;"";"";Ativo;13060-372;"Rua Maceió";41;"Vila Perseu Leite de Barros";"Campinas";SP;"";"";"";"";"";""
-100;"LARISSA GONÇALVES CRISTINA DA SILVA";"";"046.992.196-83";"";1996-11-18T00:00:00.000Z;"(19) 99152-3906";Não;"";"";Ativo;13050110;"Rua João Mezalira";58;"Jardim Santa Amália";"Campinas";SP;"";"";"";"";"";""
-97;"LARISSA GONÇALVES DA SILVA";"";"071.637.405-65";"";1993-10-19T00:00:00.000Z;"(19) 99991-7672";Não;"";"";Inativo;13060112;"Rua Francisco Bayardo";473;"Jardim Novo Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-142;"LARISSA GOULART CAVALLARI";"";"431.373.658-13";"";1998-03-02T00:00:00.000Z;"(19) 98104-0735";Não;"";"";Ativo;13060-392;"Rua Goiânia";117;"Vila Perseu Leite de Barros";"Campinas";SP;"";"";"";"";"";""
-62;"LAURA GODOI GALHARDO NASCIMENTO";"";"";"";2016-05-17T00:00:00.000Z;"(19) 98190-0653";Não;"";"";Ativo;13060866;"Avenida Marechal Juarez Távora";746;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-202;"LAURENTINO DOS SANTOS";"";"774.762.398-49";"";1953-09-20T00:00:00.000Z;"(19) 98855-0669";Não;"";"";Ativo;13050-434;"Rua Reverendo Constâncio Homero Omegna";637;"Cidade Jardim";"Campinas";SP;"";"";"";"";"";""
-91;"LEONARDO BLEY PENIDO";"";"";"";2017-10-27T00:00:00.000Z;"(19) 98829-8633";Não;"";"";Ativo;13060824;"Rua Júlio Tim";600;"Jardim Ipaussurama";"Campinas";SP;"";"";"";"";"";""
-109;"LEONARDO FERREIRA ALTES";"";"451.793.968-59";"";1996-09-19T00:00:00.000Z;"(19) 98999-6167";Não;"";"";Inativo;13061097;"Rua Etelvina de Sales Alves";;"Jardim García";"Campinas";SP;"";"";"";"";"";""
-188;"LEVI ELOU ALVARES";"";"";"";2023-04-23T00:00:00.000Z;"(16) 99727-9269";Não;"";"";Ativo;13060-567;"Rua Onésimo Antonio Palombo";385;"Residencial Parque da Fazenda";"Campinas";SP;"";"";"";"";"";""
-68;"LIDIA ALVES BUENO";"";"263.889.738-84";"";1957-10-24T00:00:00.000Z;"(19) 98287-3449";Não;"";"";Ativo;13060864;"Avenida Paulo Provenza Sobrinho";;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-106;"LIDIANE RAFAELA BRAGA PRADO BIZARRI";"";"343.738.848-70";"";1984-12-30T00:00:00.000Z;"(19) 99315-3874";Não;"";"";Inativo;13060823;"Rua Lysette Luz Regina Ferraz";34;"Jardim Ipaussurama";"Campinas";SP;"";"";"";"";"";""
-70;"LIVIA DE FREITAS SOUZA";"";"";"";2015-09-20T00:00:00.000Z;"(19) 99136-0046";Não;"";"";Ativo;13050522;"Rua Irídio";155;"Vila Rica";"Campinas";SP;"";"";"";"";"";""
-176;"LORENZO PUNCINELLI BRAGA";"";"";"";2018-05-12T00:00:00.000Z;"(19) 98171-9425";Não;"";"";Ativo;13060-056;"Rua Catarina";185;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-32;"LOURDES GOMES DE OLIVEIRA CARDOSO";"";"";"";1961-10-12T00:00:00.000Z;"(19) 98859-2427";Não;"";"";Ativo;13059646;"Rua Doutor Dante Erbolato";2424;"Cidade Satélite Íris";"Campinas";SP;"";"";"";"";"";""
-17;"LUARA MAGALHÃES ROCHA FERREIRA";"";"";"";2022-02-19T00:00:00.000Z;"(19) 99505-7900";Não;"";"";Inativo;13060151;"Rua Arlindo Gomes";344;"Jardim Novo Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-81;"LUCAS SANTOS VIANA";"";"";"";2016-01-23T00:00:00.000Z;"(19) 98237-5094";Não;"";"";Ativo;13060073;"Rua Antônio Rodrigues Moreira Neto";144;"Jardim Paulicéia";"Campinas";SP;"";"";"";"";"";""
-27;"LUCAS STEPHAN SILVA";"";"";"";2019-01-16T00:00:00.000Z;"(19) 97415-1341";Não;"";"";Ativo;13060564;"Rua Antonio de Souza Lima";25;"Residencial Parque da Fazenda";"Campinas";SP;"";"";"";"";"";""
-48;"LUCIA APARECIDA ARAGÃO DE LIMA";"";"137.510.688-05";"";1970-04-14T00:00:00.000Z;"(19) 99685-5727";Não;"";"";Inativo;13060059;"Rua Sílvia Leite de Godoy";221;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-34;"LUCIANA DE CASSIA DE OLIVEIRA";"";"217.659.868-77";"";1981-11-02T00:00:00.000Z;"(19) 99308-7605";Não;"";"";Ativo;13060123;"Rua São Francisco";81;"Jardim Novo Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-112;"LUCIA SANTOS NUNES";"";"";"";2000-04-04T00:00:00.000Z;"(19) 9 9105-153";Não;"";"";Ativo;13060-072;"Rua Jornalista Ernesto Napoli";;"Jardim Paulicéia";"Campinas";SP;"";"";"";"";"";""
-103;"LUCIENE LUZIA DE JESUS";"";"033.912.674-45";"";1979-05-10T00:00:00.000Z;"(19) 99845-7936";Não;"";"";Ativo;13060112;"Rua Francisco Bayardo";463;"Jardim Novo Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-77;"LUIZA ALVES VIEIRA";"";"";"";2020-03-31T00:00:00.000Z;"(19) 98190-7320";Não;"";"";Ativo;13060380;"Rua Belo Horizonte";250;"Vila Perseu Leite de Barros";"Campinas";SP;"";"";"";"";"";""
-64;"LUIZA GOMIDE LANA";"";"";"";2018-02-05T00:00:00.000Z;"(19) 97159-0331";Não;"";"";Ativo;13060358;"Avenida Homero Vasconcelos de Souza Camargo";1088;"Residencial Parque da Fazenda";"Campinas";SP;"";"";"";"";"";""
-213;"LUIZ ANTONIO DOS SANTOS";"";"217.342.608-74";"";1960-01-17T00:00:00.000Z;"(19) 99883-2110";Não;"";"";Ativo;13060-702;"Rua Célio dos Santos Ferreira";213;"Parque Residencial Vila União";"Campinas";SP;"";"";"";"";"";""
-2;"LUSIA SANTOS NUNES";"";"960.085.208-15";"";1951-10-30T00:00:00.000Z;"(19) 99105-1533";Não;"";"";Ativo;1060072;"Rua Jornalista Ernesto Napoli";353;"JD LONDRES";"Campinas";SP;"";"";"";"";"";""
-84;"LUZINEIDE BASILIO DE OLIVEIRA";"";"871.655.387-04";"";1964-07-19T00:00:00.000Z;"(19) 98207-1073";Não;"";"";Ativo;13060064;"Rua Luís Carlos Miami";283;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-4;"MAITE DIONIZIO DELLA COSTA";"";"";"";2023-01-04T00:00:00.000Z;"(19) 99598-0301";Não;"";"";Ativo;13105122;"Rua Soldado Paulo Augusto Andrele Silva";213;"Imperial Parque (Sousas)";"Campinas";SP;"";"";"";"";"";""
-43;"MARCIA ADRIANA TEODORO";"";"119.177.538-02";"";1968-07-13T00:00:00.000Z;"(19) 99312-8080";Não;"";"";Ativo;13061271;"Rua Godofredo Batista Carvalho";76;"Vila Castelo Branco";"Campinas";SP;"";"";"";"";"";""
-170;"MARCIA APARECIDA DOS SANTOS";"";"217.082.968-75";"";1978-01-22T00:00:00.000Z;"(19) 99530-0121";Não;"";"";Ativo;13057-501;"Rua Salvador Salmora";05;"Conjunto Habitacional Vida Nova";"Campinas";SP;"";"";"";"";"";""
-60;"MARCOS VINICIUS DOS SANTOS";"";"353.719.048-40";"";1988-02-28T00:00:00.000Z;"(19) 99140-9831";Não;"";"";Ativo;13050750;"Rua Agnaldo Saturnino Rocha";52;"Parque Ipiranga";"Campinas";SP;"";"";"";"";"";""
-165;"MARIA ALZENIR ALENCAR DA SILVA";"";"269.683.298-67";"";1948-06-16T00:00:00.000Z;"(19) 98194-2254";Não;"";"";Ativo;13059-704;"Rua Diamantino Pereira";315;"Jardim São Judas Tadeu";"Campinas";SP;"";"";"";"";"";""
-207;"MARIA ANGELICA P. DA SILVA";"";"031.139.266-02";"";1961-03-06T00:00:00.000Z;"(19) 98457-6209";Não;"";"";Ativo;13060-150;"Rua Cneo Pompeo de Camargo";1594;"Jardim Novo Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-57;"MARIA ANTONELA RABELO BEZERRA DE SOUZA";"";"";"";2018-11-07T00:00:00.000Z;"(11) 95833-3604";Não;"";"";Ativo;13060726;"Rua Paulo Vianna de Souza";270;"Parque Residencial Vila União";"Campinas";SP;"";"";"";"";"";""
-54;"MARIA ANTONIA SILVESTRINE GOMES";"";"155.757.148-10";"";0001-01-01T00:00:00.000Z;"(19) 99475-6844";Não;"";"";Ativo;13060380;"Rua Belo Horizonte";30;"Vila Perseu Leite de Barros";"Campinas";SP;"";"";"";"";"";""
-134;"MARIA APARECIDA ALEXANDRINO SILVA";"";"961.761.308-59";"";1956-09-27T00:00:00.000Z;"(19) 98199-6418";Não;"";"";Ativo;13060-034;"Rua Wilson Capellini";43;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-175;"MARIA APARECIDA FERREIRA DE SOUSA";"";"219.450.078-26";"";1977-10-02T00:00:00.000Z;"(19) 99336-9535";Não;"";"";Ativo;13059-619;"Rua Orlando Signorelli";158;"Cidade Satélite Íris";"Campinas";SP;"";"";"";"";"";""
-204;"MARIA ATILIA BENEDITO DOS SANTOS";"";"";"";1952-02-22T00:00:00.000Z;"(19) 99384-3081";Não;"";"";Ativo;13059-647;"Rua Doutor Mamed Hussein";1247;"Cidade Satélite Íris";"Campinas";SP;"";"";"";"";"";""
-135;"MARIA DE FATIMA ZACARIAS DA SILVA";"";"716.659.944-87";"";1969-06-17T00:00:00.000Z;"(19) 98954-8215";Não;"";"";Ativo;13060-471;"Rua Rafful Antônio Kanawati";187;"Jardim Santa Lúcia";"Campinas";SP;"";"";"";"";"";""
-141;"MARIA DE LOURDES ALVES DA SILVA";"";"111.247.358-01";"";1941-07-14T00:00:00.000Z;"(19) 99814-5422";Não;"";"";Ativo;13060-737;"Rua Marcelo Ferreira Albieri";256;"Parque Residencial Vila União";"Campinas";SP;"";"";"";"";"";""
-161;"MARIA DE LOURDES BRITO";"";"283.973.038-39";"";1956-01-31T00:00:00.000Z;"(19) 98740-1080";Não;"";"";Ativo;13059-712;"Rua Aguinaldo Lucas";641;"Jardim São Judas Tadeu";"Campinas";SP;"";"";"";"";"";""
-214;"MARIA DO CARMO DAS NEVES OLIVEIRA";"";"174.046.658-05";"";1963-05-14T00:00:00.000Z;"(19) 99301-6055";Não;"";"";Ativo;13060-720;"Rua Alzira Giacometti Girardi";69;"Parque Residencial Vila União";"Campinas";SP;"";"";"";"";"";""
-145;"MARIA EDUARDA VALADÃO RAMOS";"";"";"";2023-09-21T00:00:00.000Z;"(19) 99200-6669";Não;"";"";Ativo;13050-763;"Rua Raphael Camizão";190;"Parque Ipiranga";"Campinas";SP;"";"";"";"";"";""
-10;"MARIA FREIRE ANTONIO";"";"256.264.368-20";"";1961-08-24T00:00:00.000Z;"(19) 99133-4993";Não;"";"";Ativo;13060524;"Avenida Presidente Juscelino";2275;"Parque Tropical";"Campinas";SP;"";"";"";"";"";""
-92;"MARIAHA MARTA DE PAULA SILVA";"";"";"";2021-07-27T00:00:00.000Z;"(19) 98815-5109";Não;"";"";Inativo;13061324;"Rua Seriema";63;"Vila Padre Manoel de Nóbrega";"Campinas";SP;"";"";"";"";"";""
-110;"MARIA HELENA VITOR PINTO";"";"";"";1948-08-17T00:00:00.000Z;"19994299714";Não;"";"";Ativo;13060330;"RUA ODETE DE CAMARGO S. V. CECARELLI";96;"Jardim Roseira";"Campinas";SP;"";"";"";"";"";""
-86;"MARIA JOSÉ DE OLIVEIRA";"";"061.975.178-92";"";1962-10-03T00:00:00.000Z;"(11) 97550-1694";Não;"";"";Ativo;13060190;"Rua Domício Pacheco e Silva";88;"Jardim Novo Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-154;"MARIA JOSÉ RODRIGUES";"";"195.511.388-21";"";1944-02-27T00:00:00.000Z;"(19) 98801-0697";Não;"";"";Ativo;13060-077;"Rua Sílvio Rizzardo";1381;"Jardim Paulicéia";"Campinas";SP;"";"";"";"";"";""
-105;"MARIA LUIZA  BARBOSA STECA";"";"";"";2019-09-07T00:00:00.000Z;"(19) 98771-8740";Não;"";"";Ativo;13060733;"Rua Tito Augusto Alves de Araújo";121;"Parque Residencial Vila União";"Campinas";SP;"";"";"";"";"";""
-123;"MARIA LUIZA FACHIN";"";"465.845.718-07";"";2001-10-25T00:00:00.000Z;"(11) 97139-5173";Não;"";"";Inativo;13060-860;"Rua Doutor Sylvio Carvalhaes";170;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-136;"MARIA LUIZA SALLA";"";"489.451.368-80";"";2009-03-08T00:00:00.000Z;"(19) 99265-9710";Não;"";"";Ativo;13060-243;"Rua Rodolpho Liner";95;"Jardim Londres";"Campinas";SP;"";"";"";"";"";""
-152;"MARIA NAZARÉ DA SILVA";"";"158.376.488-79";"";1947-12-23T00:00:00.000Z;"(19) 99348-3939";Não;"";"";Ativo;13060-852;"Rua Francisco Ferreira Pires";57;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-177;"MARIA NAZARÉ FERREIRA DA SILVA";"";"158.422.648-03";"";1948-05-31T00:00:00.000Z;"(19) 99410-7335";Não;"";"";Ativo;13059-037;"Rua Marcílio de Oliveira";841;"Jardim Florence";"Campinas";SP;"";"";"";"";"";""
-157;"MARIANE DA SILVA SANTOS";"";"453.827.618-92";"";1996-03-20T00:00:00.000Z;"(19) 98318-5342";Não;"";"";Ativo;13060-345;"Rua Pastor Antonio Tiburtino da Silva";490;"Jardim Ibirapuera";"Campinas";SP;"";"";"";"";"";""
-160;"MARIA ROCHA DA SILVA";"";"137.377.123-2";"";1960-06-27T00:00:00.000Z;"";Não;"";"";Ativo;13060-052;"Rua União";75;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-171;"MARILCE BALTAZAR DOS SANTOS";"";"245.187.948-34";"";1944-08-11T00:00:00.000Z;"(19) 97412-9596";Não;"";"";Ativo;13030-500;"Rua Doutor Pinto Ferraz";833;"São Bernardo";"Campinas";SP;"";"";"";"";"";""
-89;"MARILDA MACEDO MACHADO";"";"182.150.558-18";"";1967-08-02T00:00:00.000Z;"(19) 98426-2888";Não;"";"";Ativo;13059658;"Rua Josepha Júlia Doval de Oliveira";325;"Cidade Satélite Íris";"Campinas";SP;"";"";"";"";"";""
-120;"MARILDA ROMÃO";"";"252.375.068-60";"";1976-07-23T00:00:00.000Z;"(19) 98367-6303";Não;"";"";Ativo;13059-194;"Rua Armando Pinareli";42;"Residencial Sírius";"Campinas";SP;"";"";"";"";"";""
-51;"MARILENE MACIEL";"";"257.448.381-2";"";1956-06-02T00:00:00.000Z;"(19) 92001-4815";Não;"";"";Ativo;13060744;"Rua Rúbens Roberto Ciolfi";452;"Parque Residencial Vila União";"Campinas";SP;"";"";"";"";"";""
-24;"MARTA REGINA G. DO PRADO";"";"316.227.108-86";"";1970-12-04T00:00:00.000Z;"(19) 98733-4749";Não;"";"";Ativo;13060061;"Rua Orestes Colombari";266;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-19;"MATHEO DE JESUS SILVA";"";"";"";2022-11-08T00:00:00.000Z;"(19) 97416-8311";Não;"";"";Ativo;13060006;"Rua Antônio Name Chaib";165;"Jardim Anchieta";"Campinas";SP;"";"";"";"";"";""
-35;"MATHEUS HENRIQUE F. MARTINS";"";"351.915.878-71";"";2019-07-17T00:00:00.000Z;"(19) 99506-4022";Não;"";"";Ativo;13060536;"Rua Laudo Vieira Rocha";236;"Parque Tropical";"Campinas";SP;"";"";"";"";"";""
-44;"MATHEUS VIAN BRAZ";"";"";"";2012-04-23T00:00:00.000Z;"(19) 99195-9198";Não;"";"";Ativo;13070751;"Avenida Governador Pedro de Toledo";442;"Bonfim";"Campinas";SP;"";"";"";"";"";""
-199;"MATTEO NUNES GUIMARÃES";"";"";"";2023-11-25T00:00:00.000Z;"(19) 99545-7445";Não;"";"";Ativo;13060-564;"Rua Antonio de Souza Lima";48;"Residencial Parque da Fazenda";"Campinas";SP;"";"";"";"";"";""
-158;"MEIRE SILVA COSTA OLIVEIRA";"";"320.551.818-74";"";1947-07-08T00:00:00.000Z;"(19) 99214-5480";Não;"";"";Ativo;13050-543;"Rua Mogi Mirim";26;"Jardim Novo Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-137;"MIGUEL DO SANTOS CAMARGO";"";"";"";2023-06-03T00:00:00.000Z;"(19) 99643-7395";Não;"";"";Ativo;13060-860;"Rua Doutor Sylvio Carvalhaes";758;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-178;"MIGUEL GARCIA DALL OCA";"";"";"";2020-06-10T00:00:00.000Z;"(19) 99589-8475";Não;"";"";Ativo;13060-192;"Avenida Ruy Rodriguez";643;"Jardim Novo Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-78;"MILENA APOLINARIO BUENO";"";"";"";2020-02-13T00:00:00.000Z;"(19) 98609-5620";Não;"";"";Ativo;13060380;"Rua Belo Horizonte";250;"Vila Perseu Leite de Barros";"Campinas";SP;"";"";"";"";"";""
-11;"MILENA MODESTO";"";"";"";0001-01-01T00:00:00.000Z;"(19) 99133-4993";Não;"";"";Ativo;13060524;"Avenida Presidente Juscelino";2275;"Parque Tropical";"Campinas";SP;"";"";"";"";"";""
-193;"MIRELLA DOS SANTOS";"";"";"";2011-09-05T00:00:00.000Z;"(19) 99942-0262";Não;"";"";Ativo;13059-603;"Rua Doutor Lázaro Pinto Barroso";84;"Cidade Satélite Íris";"Campinas";SP;"";"";"";"";"";""
-58;"MURILO DE LIMA SOFA";"";"";"";2023-05-22T00:00:00.000Z;"(19) 99685-5727";Não;"";"";Ativo;13060059;"Rua Sílvia Leite de Godoy";221;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-71;"NATAN ROSA DE OLIVEIRA";"";"";"";2019-10-14T00:00:00.000Z;"(19) 98837-9923";Não;"";"";Ativo;13060659;"Rua Alberto Carlos Dupas Valin";;"Vila Palácios";"Campinas";SP;"";"";"";"";"";""
-187;"NATIELI LIMA LEONCIO";"";"457.669.658-00";"";1999-07-28T00:00:00.000Z;"(19) 98344-1105";Não;"";"";Ativo;13059-698;"Rua Olivaldo Roncolatto";186;"Cidade Satélite Íris";"Campinas";SP;"";"";"";"";"";""
-72;"NEUSA APARECIDA PEREIRA DA SILVA";"";"795.538.081-9";"";1964-01-10T00:00:00.000Z;"(19) 99144-4204";Não;"";"";Ativo;13059192;"Rua Vera Lúcia Tognolo Aggio";64;"Residencial Sírius";"Campinas";SP;"";"";"";"";"";""
-26;"NICOLAS COSSU";"";"";"";2015-12-14T00:00:00.000Z;"(19) 99525-0038";Não;"";"";Ativo;13054107;"Avenida Jacaúna";2293;"Vila Aeroporto";"Campinas";SP;"";"";"";"";"";""
-98;"NILVA APARECIDA PAULINO";"";"068.913.728-10";"";1963-07-18T00:00:00.000Z;"(19) 98990-5603";Não;"";"";Ativo;13059001;"Avenida Nelson Ferreira de Souza";350;"Jardim Florence";"Campinas";SP;"";"";"";"";"";""
-181;"OTAVIO MAGALHÃES MIRANDA";"";"084.603.928-13";"";1964-10-27T00:00:00.000Z;"(19) 98124-8940";Não;"";"";Ativo;13058-580;"Rua Otto Lara Resende";100;"Parque Valença II";"Campinas";SP;"";"";"";"";"";""
-83;"PAULA REGINA DE CAMARGO";"";"264.207.808-61";"";1974-03-03T00:00:00.000Z;"(19) 98136-8422";Não;"";"";Ativo;13060721;"Rua Dona Esmeralda Oliveira Mathias";220;"Parque Residencial Vila União";"Campinas";SP;"";"";"";"";"";""
-23;"PETRUCIO FERREIRA DA SILVA";"";"240.827.674-87";"";1959-09-12T00:00:00.000Z;"(19) 97160-6137";Não;"";"";Ativo;13060702;"Rua Célio dos Santos Ferreira";285;"Parque Residencial Vila União";"Campinas";SP;"";"";"";"";"";""
-80;"PIETRO LORENZO DANTAS DOS SANTOS";"";"";"";2018-06-13T00:00:00.000Z;"(19) 99498-9855";Não;"";"";Ativo;13060067;"Rua Mário Ribeiro do Amaral";405;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-114;"RAFAEL ALCANTARA A. MEDEIROS";"";"365.700.498-01";"";1989-01-03T00:00:00.000Z;"(19) 98263-4941";Não;"";"";Ativo;13060-500;"Rua Augusto de Moraes Carvalho";133;"Jardim Santa Lúcia";"Campinas";SP;"";"";"";"";"";""
-116;"RAFAEL MARIANO MILAGRES";"";"";"";2015-03-16T00:00:00.000Z;"";Não;"";"";Ativo;13060-048;"Rua Ferreira Novo";197;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-118;"RAFAEL NASCIMENTO DOS SANTOS";"";"";"";1997-11-23T00:00:00.000Z;"(19) 98132-5609";Não;"";"";Inativo;13061-096;"Rua Alfredo Battibugli";;"Jardim García";"Campinas";SP;"";"";"";"";"";""
-111;"REBECA ALVES DE JESUS";"";"";"";2021-08-05T00:00:00.000Z;"(19) 98707-5215";Não;"";"";Ativo;13059660;"Rua Romeu Marinelli";780;"Cidade Satélite Íris";"Campinas";SP;"";"";"";"";"";""
-69;"REBECA FAUSTINO PEGORARI";"";"";"";0001-01-01T00:00:00.000Z;"(19) 98287-3449";Não;"";"";Ativo;13060864;"Avenida Paulo Provenza Sobrinho";563;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-155;"REGIANE DE SOUZA BUGATTI SANTOS";"";"217.109.618-08";"";1980-05-25T00:00:00.000Z;"(19) 99582-5623";Não;"";"";Ativo;13036-225;"Avenida das Amoreiras";633;"Parque Itália";"Campinas";SP;"";"";"";"";"";""
-183;"ROBERTA DANIELLE CORREA DOS SANTOS";"";"399.337.938-10";"";1996-01-17T00:00:00.000Z;"(19) 98150-4236";Não;"";"";Ativo;13060-515;"Rua Santa Maria Madalena Postel";135;"Jardim Santa Lúcia";"Campinas";SP;"";"";"";"";"";""
-82;"ROBERTA JANAINA CARNAUSKAS QUIONHA";"";"224.289.648-28";"";1982-01-06T00:00:00.000Z;"(19) 98319-5730";Não;"";"";Trancado;13061221;"Rua Curiango";61;"Vila Padre Manoel de Nóbrega";"Campinas";SP;"";"";"";"";"";""
-37;"ROBERTO CELESTINO ALMEIDA";"";"196.092.588-16";"";1976-07-29T00:00:00.000Z;"(19) 99814-1976";Não;"";"";Ativo;13061100;"Avenida Transamazônica";311;"Jardim García";"Campinas";SP;"";"";"";"";"";""
-99;"ROBSON DE OLIVEIRA";"";"079.994.385-61";"";1971-12-01T00:00:00.000Z;"(19) 97423-2453";Não;"";"";Ativo;13050110;"Rua João Mezalira";28;"Jardim Santa Amália";"Campinas";SP;"";"";"";"";"";""
-65;"RODRIGO LANA";"";"393.032.868-2";"";0001-01-01T00:00:00.000Z;"(19) 97139-0331";Não;"";"";Ativo;13060358;"Avenida Homero Vasconcelos de Souza Camargo";1088;"Residencial Parque da Fazenda";"Campinas";SP;"";"";"";"";"";""
-173;"ROMEU FARIA DOS SANTOS";"";"";"";2023-04-28T00:00:00.000Z;"(19) 99319-7081";Não;"";"";Ativo;13278-403;"Rua Doutor João Mendes Junior";426;"Vale do Itamaracá";"Valinhos";SP;"";"";"";"";"";""
-131;"ROSANGELA DE GODOY";"";"967.012.858-72";"";1958-11-15T00:00:00.000Z;"(19) 98817-9202";Não;"";"";Inativo;13050-462;"Rua Lutécia";105;"Vila Pompéia";"Campinas";SP;"";"";"";"";"";""
-59;"ROSANGELA SATURNINO DE OLIVEIRA";"";"367.857.798-98";"";1989-04-07T00:00:00.000Z;"(19) 97119-1312";Não;"["Zumba 1x Semana"]";"";Ativo;13060860;"Rua Doutor Sylvio Carvalhaes";170;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-166;"SANDRA MARIA PERA DE PAIVA";"";"119.228.718-50";"";0001-01-01T00:00:00.000Z;"(19) 98312-5661";Não;"";"";Inativo;13060-263;"Caminho União";165;"Jardim Nova Morada";"Campinas";SP;"";"";"";"";"";""
-93;"SARAH MARTA DE PAULA SILVA";"";"";"";2019-10-23T00:00:00.000Z;"(19) 98815-5109";Não;"";"";Inativo;13061324;"Rua Seriema";63;"Vila Padre Manoel de Nóbrega";"Campinas";SP;"";"";"";"";"";""
-153;"SEBASTIÃO BATISTA DE OLIVEIRA FILHO";"";"735.872.658-87";"";1947-08-24T00:00:00.000Z;"(19) 99214-5480";Não;"";"";Ativo;13050-543;"Rua Mogi Mirim";26;"Jardim Novo Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-104;"SELMA CRISTINA CANOVA";"";"172.042.818-29";"";1969-02-14T00:00:00.000Z;"(19) 99365-8363";Não;"";"";Ativo;13050814;"Rua Antônio Pires Barbosa";116;"Jardim Capivari";"Campinas";SP;"";"";"";"";"";""
-205;"SILVELI TEREZINHA G. FARIA";"";"201.648.888-40";"";1959-08-12T00:00:00.000Z;"(19) 98119-3192";Não;"";"";Ativo;13051-125;"Rua Manoel Militão de Melo";322;"Jardim das Bandeiras";"Campinas";SP;"";"";"";"";"";""
-107;"SONIA MARINA DOS SANTOS";"";"015.868.098-73";"";1959-11-12T00:00:00.000Z;"(19) 99516-3027";Não;"";"";Ativo;13020110;"Rua Doutor Antônio Álvares Lobo";432;"Botafogo";"Campinas";SP;"";"";"";"";"";""
-49;"SOPHIA DE SOUZA PAULO";"";"";"";2019-06-25T00:00:00.000Z;"(19) 98978-8175";Não;"";"";Ativo;13060161;"Rua Joaquim Lourenço de Godoy";138;"Jardim Novo Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-1;"TATIANE CENA DE MELLO";"";"224.083.788-85";"";1981-08-31T00:00:00.000Z;"(19) 99466-9980";Não;"";"";Inativo;13050191;"Rua Ângela Russo Tafner";155;"Loteamento Country Ville";"Campinas";SP;"";"";"";"";"";""
-52;"THEO DA SILVA ARARUNA";"";"";"";2023-09-23T00:00:00.000Z;"(19) 98955-9431";Não;"";"";Ativo;13060073;"Rua Antônio Rodrigues Moreira Neto";634;"Jardim Paulicéia";"Campinas";SP;"";"";"";"";"";""
-130;"THEO ORNELAS QUEIROZ SILVA";"";"";"";2020-05-04T00:00:00.000Z;"(19) 99371-0832";Não;"";"";Ativo;13050-006;"Avenida Dom Joaquim Mamede da Silva Leite";40;"Jardim do Lago";"Campinas";SP;"";"";"";"";"";""
-7;"VALENTINA SANTOS TACCO DA SILVA";"";"";"";0001-01-01T00:00:00.000Z;"(19) 99272-5188";Não;"";"";Ativo;13058533;"Rua Olindo Gardelin";90;"Parque Valença I";"Campinas";SP;"";"";"";"";"";""
-87;"VALKIRIA TEIXEIRA DE SOUZA";"";"187.786.438-21";"";1975-02-02T00:00:00.000Z;"(19) 98807-2093";Não;"";"";Ativo;13060045;"Rua Danilo Glauco Pereira Villagelin";504;"Jardim Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-16;"VERA LUCIA FELIX FRANQUI";"";"237.453.809-59";"";1954-12-11T00:00:00.000Z;"(19) 99186-5360";Não;"";"";Ativo;13060190;"Rua Domício Pacheco e Silva";88;"Jardim Novo Campos Elíseos";"Campinas";SP;"";"";"";"";"";""
-208;"VICENTINA AUXILIADORA DA SILVA PEREIRA";"";"267.141.158-81";"";1961-04-21T00:00:00.000Z;"(19) 99411-2015";Não;"";"";Ativo;13061-150;"Rua Professor Euclydes Vaz de Campos Filho";1656;"Jardim García";"Campinas";SP;"";"";"";"";"";""
-149;"VICTORIA PARDINHO CANCIO";"";"";"";2020-05-28T00:00:00.000Z;"(19) 99181-0119";Não;"";"";Ativo;13060-476;"Rua da Padroeira";429;"Jardim Santa Lúcia";"Campinas";SP;"";"";"";"";"";""
-46;"VINICIUS JOSE DE BRITO";"";"";"";2016-04-12T00:00:00.000Z;"(19) 99162-4560";Não;"";"";Ativo;13052601;"Rua Manoella Marcolino da Silva Derigo";;"Residencial Nova Bandeirante";"Campinas";SP;"";"";"";"";"";""
-102;"VITORIA RAFAELA M RODRIGUES";"";"";"";2018-03-08T00:00:00.000Z;"(19) 98590-7561";Não;"";"";Ativo;13031680;"Rua João Batista Alves de Souza";735;"Parque Industrial";"Campinas";SP;"";"";"";"";"";""
-159;"YASMIN TALENTINA DE MACEDO";"";"";"";2024-01-18T00:00:00.000Z;"(19) 99890-7819";Não;"";"";Ativo;13054-453;"Rua Helena Camargo Pereira";131;"Dic IV";"Campinas";SP;"";"";"";"";"";""
-190;"YOHANNA LILIAN MENDES MALHEIROS";"";"";"";2015-11-22T00:00:00.000Z;"(19) 98412-3112";Não;"";"";Ativo;13060-714;"Rua Hermantina Nucci Fabrício";151;"Parque Residencial Vila União";"Campinas";SP;"";"";"";"";"";""
-85;"ZELIA APARECIDA ARAUJO";"";"093.963.688-20";"";1958-07-03T00:00:00.000Z;"(19) 97403-8845";Não;"";"";Ativo;13060740;"Rua José Lourenço de Sá";921;"Parque Residencial Vila União";"Campinas";SP;"";"";"";"";"";""
-148;"ZILDA OLIVEIRA MARTINEZ";"";"163.300.548-86";"";1967-12-23T00:00:00.000Z;"(19) 98124-6090";Não;"";"";Ativo;13060-701;"Rua Professor Silvano Lopes Castro";;"Parque Residencial Vila União";"Campinas";SP;"";"";"";"";"";""
+ID;Nome;Email;CPF;RG;Data Nascimento;Telefone;Whatsapp;Plano;Modalidades;Status;CEP;Rua;Número;Bairro;Cidade;Estado;Complemento;Responsável Nome;Responsável CPF;Responsável Telefone;Relacionamento;Notas Médicas
+1;"TATIANE CENA DE MELLO";;"224.083.788-85";;1981-08-31T03:00:00.000Z;"(19) 99466-9980";Não;"Não";;Inativo;"13050191";"Rua Ângela Russo Tafner";"155";"Loteamento Country Ville";"Campinas";"SP";;;;;;
+2;"LUSIA SANTOS NUNES";;"960.085.208-15";;1951-10-30T03:00:00.000Z;"(19) 99105-1533";Não;"Não";;Ativo;"1060072";"Rua Jornalista Ernesto Napoli";"353";"JD LONDRES";"Campinas";"SP";;;;;;
+3;"DAVI GABRIEL PASSANI OLIVEIRA";;;;2023-09-01T03:00:00.000Z;;Não;"Não";;Ativo;"13052550";"Avenida Ary Rodrigues";"315";"Parque CamÃ©lias";"Campinas";"SP";;;;;;
+4;"MAITE DIONIZIO DELLA COSTA";;;;2023-01-04T03:00:00.000Z;"(19) 99598-0301";Não;"Não";;Ativo;"13105122";"Rua Soldado Paulo Augusto Andrele Silva";"213";"Imperial Parque (Sousas)";"Campinas";"SP";;;;;;
+5;"IRENE MARQUES DOS SANTOS";;"149.994.588-45";;1967-04-02T03:00:00.000Z;"(19) 99324-6654";Não;"Não";;Inativo;"13060702";"Rua Célio dos Santos Ferreira";"278";"Parque Residencial Vila União";"Campinas";"SP";;;;;;
+6;"EMANUELLY DUARTE SILVA TERRITO";;;;2021-12-27T03:00:00.000Z;"(19) 98602-1705";Não;"Não";;Ativo;"13058286";"Rua Professor Casemiro dos Reis Filho";"222";"Loteamento Residencial Novo Mundo";"Campinas";"SP";;;;;;
+7;"VALENTINA SANTOS TACCO DA SILVA";;;;0001-01-01T03:06:28.000Z;"(19) 99272-5188";Não;"Não";;Ativo;"13058533";"Rua Olindo Gardelin";"90";"Parque Valença I";"Campinas";"SP";;;;;;
+8;"GABRIELLE SANTOS DA COSTA";;;;2017-12-31T02:00:00.000Z;"(19) 99548-1538";Não;"Não";;Ativo;"13060511";"Rua Oswaldo Ims";;"Jardim Santa Lúcia";"Campinas";"SP";;;;;;
+9;"BEATRIZ MARTINS MANGIA COIMBRA";;;;2023-05-12T03:00:00.000Z;"(19) 98278-9610";Não;"Não";;Ativo;"13061125";"Rua Luís Pereira Barreto";"2";"Jardim García";"Campinas";"SP";;;;;;
+10;"MARIA FREIRE ANTONIO";;"256.264.368-20";;1961-08-24T03:00:00.000Z;"(19) 99133-4993";Não;"Não";;Ativo;"13060524";"Avenida Presidente Juscelino";"2275";"Parque Tropical";"Campinas";"SP";;;;;;
+11;"MILENA MODESTO";;;;0001-01-01T03:06:28.000Z;"(19) 99133-4993";Não;"Não";;Ativo;"13060524";"Avenida Presidente Juscelino";"2275";"Parque Tropical";"Campinas";"SP";;;;;;
+12;"APARECIDA CELIA ALVES";;"838.977.782-7";;1960-10-04T03:00:00.000Z;"(19) 93386-1509";Não;"Não";;Ativo;"13030720";"Rua Paulo Lacerda";"326";"São Bernardo";"Campinas";"SP";;;;;;
+13;"JUSSARA APARECIDA GONÇALVES";;"083.800.468-70";;1961-09-23T03:00:00.000Z;"(19) 98920-7592";Não;"Não";;Ativo;"13060766";"Rua Dona Neuza Goulart Brizola";"101";"Parque Residencial Vila UniÃ£o";"Campinas";"SP";;;;;;
+14;"BEATRIZ RODRIGUES ARAUJO";;;;2013-08-08T03:00:00.000Z;"(19) 99158-6070";Não;"Não";;Ativo;"13060744";"Rua Rúbens Roberto Ciolfi";"315";"Parque Residencial Vila União";"Campinas";"SP";;;;;;
+15;"ALICIA REZENDE SOUZA";;;;2019-03-29T03:00:00.000Z;"(19) 97418-3988";Não;"Não";;Ativo;"13050450";"Rua Mineiros do Tietê";"497";"Vila Pompéia";"Campinas";"SP";;;;;;
+16;"VERA LUCIA FELIX FRANQUI";;"237.453.809-59";;1954-12-11T03:00:00.000Z;"(19) 99186-5360";Não;"Não";;Ativo;"13060190";"Rua Domício Pacheco e Silva";"88";"Jardim Novo Campos Elíseos";"Campinas";"SP";;;;;;
+17;"LUARA MAGALHÃES ROCHA FERREIRA";;;;2022-02-19T03:00:00.000Z;"(19) 99505-7900";Não;"Não";;Inativo;"13060151";"Rua Arlindo Gomes";"344";"Jardim Novo Campos Elíseos";"Campinas";"SP";;;;;;
+18;"EDVALDA GISELE P.S. CAPURSSI";;"273.192.278-86";;1979-09-28T03:00:00.000Z;"(19) 98197-5283";Não;"Não";;Ativo;"13060223";"Rua Pelicano";"277";"Jardim Londres";"Campinas";"SP";;;;;;
+19;"MATHEO DE JESUS SILVA";;;;2022-11-08T03:00:00.000Z;"(19) 97416-8311";Não;"Não";;Ativo;"13060006";"Rua Antônio Name Chaib";"165";"Jardim Anchieta";"Campinas";"SP";;;;;;
+20;"ARTHUR LUIZ MOREIRA";;;;2019-04-10T03:00:00.000Z;"(19) 99166-4495";Não;"Não";;Ativo;"13051076";"Rua Professora Amália de Arruda Legendre Martini";"1115";"Jardim do Lago Continuação";"Campinas";"SP";;;;;;
+21;"HEITOR LUIZ MOREIRA";;;;2019-04-10T03:00:00.000Z;"(19) 99166-4495";Não;"Não";;Ativo;"13051076";"Rua Professora Amália de Arruda Legendre Martini";"1115";"Jardim do Lago Continuação";"Campinas";"SP";;;;;;
+22;"HERMINIA SABINO";;"15496418836";;1959-11-07T03:00:00.000Z;"(19) 97160-6137";Não;"Não";;Inativo;"13060702";"Rua Célio dos Santos Ferreira";"285";"Parque Residencial Vila União";"Campinas";"SP";;;;;;
+23;"PETRUCIO FERREIRA DA SILVA";;"240.827.674-87";;1959-09-12T03:00:00.000Z;"(19) 97160-6137";Não;"Não";;Ativo;"13060702";"Rua Célio dos Santos Ferreira";"285";"Parque Residencial Vila União";"Campinas";"SP";;;;;;
+24;"MARTA REGINA G. DO PRADO";;"316.227.108-86";;1970-12-04T03:00:00.000Z;"(19) 98733-4749";Não;"Não";;Ativo;"13060061";"Rua Orestes Colombari";"266";"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+25;"DIOGO RIBEIRO DO PRADO";;;;2018-08-05T03:00:00.000Z;"(19) 98733-4749";Não;"Não";;Ativo;"13060061";"Rua Orestes Colombari";"266";"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+26;"NICOLAS COSSU";;;;2015-12-14T02:00:00.000Z;"(19) 99525-0038";Não;"Não";;Ativo;"13054107";"Avenida Jacaúna";"2293";"Vila Aeroporto";"Campinas";"SP";;;;;;
+27;"LUCAS STEPHAN SILVA";;;;2019-01-16T02:00:00.000Z;"(19) 97415-1341";Não;"Não";;Ativo;"13060564";"Rua Antonio de Souza Lima";"25";"Residencial Parque da Fazenda";"Campinas";"SP";;;;;;
+28;"ANA JULIA MESSIAS DO NASCIMENTO SANTOS";;"541.100.718-60";;2006-03-31T03:00:00.000Z;"(19) 99499-8629";Não;"Não";;Ativo;"13060-325";"Rua Doutor Antônio Sylvio Cunha Bueno";;"Jardim Roseira";"Campinas";"SP";;;;;;
+29;"CRISTIANA MESSIAS DO NASCIMENTO";;"324.295.198-01";;1984-11-11T03:00:00.000Z;"(19) 99334-7806";Não;"Não";;Inativo;"13060325";"Rua Doutor Antônio Sylvio Cunha Bueno";;"Jardim Roseira";"Campinas";"SP";;;;;;
+30;"ARTHUR PEREIRA DE OLIVEIRA CARDOSO";;;;2021-02-14T03:00:00.000Z;"(19) 99474-1974";Não;"Não";;Ativo;"13059780";"Rua Henrique Thoni Filho";"208";"Jardim Ouro Preto";"Campinas";"SP";;;;;;
+31;"ALICIA PEREIRA DE OLIVEIRA CARDOSO";;;;2021-02-14T03:00:00.000Z;"(19) 99474-1974";Não;"Não";;Ativo;"13059780";"Rua Henrique Thoni Filho";"208";"Jardim Ouro Preto";"Campinas";"SP";;;;;;
+32;"LOURDES GOMES DE OLIVEIRA CARDOSO";;;;1961-10-12T03:00:00.000Z;"(19) 98859-2427";Não;"Não";;Ativo;"13059646";"Rua Doutor Dante Erbolato";"2424";"Cidade Satélite Íris";"Campinas";"SP";;;;;;
+33;"ELAINE CRISTINA LUPI CHIOTTI";;"311.940.238-94";;1981-12-15T03:00:00.000Z;"(19) 99179-2370";Não;"Não";;Ativo;"13060746";"Rua Manoel Arthur Cavalcante Lacombe";"156";"Parque Residencial Vila União";"Campinas";"SP";;;;;;
+34;"LUCIANA DE CASSIA DE OLIVEIRA";;"217.659.868-77";;1981-11-02T03:00:00.000Z;"(19) 99308-7605";Não;"Não";;Ativo;"13060123";"Rua São Francisco";"81";"Jardim Novo Campos Elíseos";"Campinas";"SP";;;;;;
+35;"MATHEUS HENRIQUE F. MARTINS";;"351.915.878-71";;2019-07-17T03:00:00.000Z;"(19) 99506-4022";Não;"Não";;Ativo;"13060536";"Rua Laudo Vieira Rocha";"236";"Parque Tropical";"Campinas";"SP";;;;;;
+36;"JULIA FERNANDES DE SOUZA";;;;0001-01-01T03:06:28.000Z;"(19) 98144-2464";Não;"Não";;Ativo;"13059660";"Rua Romeu Marinelli";"780";"Cidade Satélite Íris";"Campinas";"SP";;;;;;
+37;"ROBERTO CELESTINO ALMEIDA";;"196.092.588-16";;1976-07-29T03:00:00.000Z;"(19) 99814-1976";Não;"Não";;Ativo;"13061100";"Avenida Transamazônica";"311";"Jardim García";"Campinas";"SP";;;;;;
+38;"ANA LUCIA BARBOSA DE SOUZA SILVA";;"120.796.538-30";;1964-05-27T03:00:00.000Z;"(19) 98710-9269";Não;"Não";;Ativo;"13060533";"Rua Laércio Monzani";"312";"Parque Tropical";"Campinas";"SP";;;;;;
+39;"BENJAMIN LINS NORONHA";;;;2016-09-02T03:00:00.000Z;"(19) 99217-9381";Não;"Não";;Inativo;"13050420";"Rua Araçoiaba da Serra";"704";"Cidade Jardim";"Campinas";"SP";;;;;;
+40;"BENJAMIN PRINCE OLIVEIRA DIAS";;;;2019-11-25T03:00:00.000Z;"(19) 99138-7811";Não;"Não";;Ativo;"13051076";"Rua Professora Amália de Arruda Legendre Martini";"1115";"Jardim do Lago Continuação";"Campinas";"SP";;;;;;
+41;"BELLA TEOFILO RIBEIRO";;;;2023-07-11T03:00:00.000Z;"(19) 98894-1478";Não;"Não";;Ativo;"13060055";"Rua da Solidariedade";"25";"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+42;"INGRID BUGATTI ROCHA PEREIRA";;"452.260.578-14";;1995-10-25T02:00:00.000Z;"(19) 99146-4117";Não;"Não";;Ativo;"13060854";"Rua Sílvio Rizzardo";"400";"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+43;"MARCIA ADRIANA TEODORO";;"119.177.538-02";;1968-07-13T03:00:00.000Z;"(19) 99312-8080";Não;"Não";;Ativo;"13061271";"Rua Godofredo Batista Carvalho";"76";"Vila Castelo Branco";"Campinas";"SP";;;;;;
+44;"MATHEUS VIAN BRAZ";;;;2012-04-23T03:00:00.000Z;"(19) 99195-9198";Não;"Não";;Ativo;"13070751";"Avenida Governador Pedro de Toledo";"442";"Bonfim";"Campinas";"SP";;;;;;
+45;"JOAQUIM EMANUEL DE SOUZA CARVALHO";;;;2022-06-08T03:00:00.000Z;"(19) 99137-1855";Não;"Não";;Ativo;"13060611";"Rua Doutor Jeber Juabre";"146";"Jardim Márcia";"Campinas";"SP";;;;;;
+46;"VINICIUS JOSE DE BRITO";;;;2016-04-12T03:00:00.000Z;"(19) 99162-4560";Não;"Não";;Ativo;"13052601";"Rua Manoella Marcolino da Silva Derigo";;"Residencial Nova Bandeirante";"Campinas";"SP";;;;;;
+47;"GRACELI ALVES DE ARRUDA";;"173.887.538-50";;1968-08-01T03:00:00.000Z;"(19) 99315-4787";Não;"Não";;Inativo;"13060063";"Rua Ruy Pupo Campos Ferreira";;"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+48;"LUCIA APARECIDA ARAGÃO DE LIMA";;"137.510.688-05";;1970-04-14T03:00:00.000Z;"(19) 99685-5727";Não;"Não";;Inativo;"13060059";"Rua Sílvia Leite de Godoy";"221";"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+49;"SOPHIA DE SOUZA PAULO";;;;2019-06-25T03:00:00.000Z;"(19) 98978-8175";Não;"Não";;Ativo;"13060161";"Rua Joaquim Lourenço de Godoy";"138";"Jardim Novo Campos Elíseos";"Campinas";"SP";;;;;;
+50;"ARTHUR DE SOUZA PAULO";;;;2022-12-10T03:00:00.000Z;"(19) 98978-8175";Não;"Não";;Ativo;"13060161";"Rua Joaquim Lourenço de Godoy";"138";"Jardim Novo Campos Elíseos";"Campinas";"SP";;;;;;
+51;"MARILENE MACIEL";;"257.448.381-2";;1956-06-02T03:00:00.000Z;"(19) 92001-4815";Não;"Não";;Ativo;"13060744";"Rua Rúbens Roberto Ciolfi";"452";"Parque Residencial Vila União";"Campinas";"SP";;;;;;
+52;"THEO DA SILVA ARARUNA";;;;2023-09-23T03:00:00.000Z;"(19) 98955-9431";Não;"Não";;Ativo;"13060073";"Rua Antônio Rodrigues Moreira Neto";"634";"Jardim Paulicéia";"Campinas";"SP";;;;;;
+53;"GABRIELA DE SOUZA MATHIAS";;;;2018-11-05T02:00:00.000Z;"(19) 98838-9030";Não;"Não";;Ativo;"13060502";"Rua Domingos Marciano";"82";"Jardim Santa Lúcia";"Campinas";"SP";;;;;;
+54;"MARIA ANTONIA SILVESTRINE GOMES";;"155.757.148-10";;0001-01-01T03:06:28.000Z;"(19) 99475-6844";Não;"Não";;Ativo;"13060380";"Rua Belo Horizonte";"30";"Vila Perseu Leite de Barros";"Campinas";"SP";;;;;;
+55;"CLAUDIO OLAVO DA SILVA JUNIOR";;"222.590.958-01";;1981-12-05T03:00:00.000Z;"(19) 99570-7739";Não;"Não";;Inativo;"13050435";"Rua Padre Donizete Tavares de Lima";"1055";"Cidade Jardim";"Campinas";"SP";;;;;;
+56;"FABIANA NASCIMENTO DA SILVA";;"319.091.008-11";;1985-01-18T03:00:00.000Z;"(19) 99570-7039";Não;"Não";;Ativo;"13050435";"Rua Padre Donizete Tavares de Lima";"1055";"Cidade Jardim";"Campinas";"SP";;;;;;
+57;"MARIA ANTONELA RABELO BEZERRA DE SOUZA";;;;2018-11-07T02:00:00.000Z;"(11) 95833-3604";Não;"Não";;Ativo;"13060726";"Rua Paulo Vianna de Souza";"270";"Parque Residencial Vila União";"Campinas";"SP";;;;;;
+58;"MURILO DE LIMA SOFA";;;;2023-05-22T03:00:00.000Z;"(19) 99685-5727";Não;"Não";;Ativo;"13060059";"Rua Sílvia Leite de Godoy";"221";"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+59;"ROSANGELA SATURNINO DE OLIVEIRA";;"367.857.798-98";;1989-04-07T03:00:00.000Z;"(19) 97119-1312";Não;"[""Zumba 1x Semana""]";;Ativo;"13060860";"Rua Doutor Sylvio Carvalhaes";"170";"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+60;"MARCOS VINICIUS DOS SANTOS";;"353.719.048-40";;1988-02-28T03:00:00.000Z;"(19) 99140-9831";Não;"Não";;Ativo;"13050750";"Rua Agnaldo Saturnino Rocha";"52";"Parque Ipiranga";"Campinas";"SP";;;;;;
+61;"CAIO DA SILVA";;;;2020-06-25T03:00:00.000Z;"(19) 98917-6562";Não;"Não";;Ativo;"13060734";"Rua Albert Sabin";"84";"Parque Residencial Vila União";"Campinas";"SP";;;;;;
+62;"LAURA GODOI GALHARDO NASCIMENTO";;;;2016-05-17T03:00:00.000Z;"(19) 98190-0653";Não;"Não";;Ativo;"13060866";"Avenida Marechal Juarez Távora";"746";"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+63;"HELOISE RAPELA PIGA ROQUE";;;;2022-12-11T03:00:00.000Z;"(19) 99598-6488";Não;"Não";;Ativo;"13052444";"Rua Corumbataí";"215";"Jardim Itatinga";"Campinas";"SP";;;;;;
+64;"LUIZA GOMIDE LANA";;;;2018-02-05T02:00:00.000Z;"(19) 97159-0331";Não;"Não";;Ativo;"13060358";"Avenida Homero Vasconcelos de Souza Camargo";"1088";"Residencial Parque da Fazenda";"Campinas";"SP";;;;;;
+65;"RODRIGO LANA";;"393.032.868-2";;0001-01-01T03:06:28.000Z;"(19) 97139-0331";Não;"Não";;Ativo;"13060358";"Avenida Homero Vasconcelos de Souza Camargo";"1088";"Residencial Parque da Fazenda";"Campinas";"SP";;;;;;
+66;"ELIZABETH FRANCISCA DE OLIVEIRA CASTRO";;"220.901.848-09";;1957-11-08T03:00:00.000Z;"(19) 98296-2875";Não;"Não";;Ativo;"13060063";"Rua Ruy Pupo Campos Ferreira";;"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+67;"JOÃO NACHBAR BATISTA";;;;2019-01-23T02:00:00.000Z;"(19) 99237-2998";Não;"Não";;Ativo;"13060043";"Rua Professor Jairo Ramos";"169";"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+68;"LIDIA ALVES BUENO";;"263.889.738-84";;1957-10-24T03:00:00.000Z;"(19) 98287-3449";Não;"Não";;Ativo;"13060864";"Avenida Paulo Provenza Sobrinho";;"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+69;"REBECA FAUSTINO PEGORARI";;;;0001-01-01T03:06:28.000Z;"(19) 98287-3449";Não;"Não";;Ativo;"13060864";"Avenida Paulo Provenza Sobrinho";"563";"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+70;"LIVIA DE FREITAS SOUZA";;;;2015-09-20T03:00:00.000Z;"(19) 99136-0046";Não;"Não";;Ativo;"13050522";"Rua Irídio";"155";"Vila Rica";"Campinas";"SP";;;;;;
+71;"NATAN ROSA DE OLIVEIRA";;;;2019-10-14T03:00:00.000Z;"(19) 98837-9923";Não;"Não";;Ativo;"13060659";"Rua Alberto Carlos Dupas Valin";;"Vila Palácios";"Campinas";"SP";;;;;;
+72;"NEUSA APARECIDA PEREIRA DA SILVA";;"795.538.081-9";;1964-01-10T02:00:00.000Z;"(19) 99144-4204";Não;"Não";;Ativo;"13059192";"Rua Vera Lúcia Tognolo Aggio";"64";"Residencial Sírius";"Campinas";"SP";;;;;;
+73;"ALDETE IZIDORO";;"278.302.238-90";;1977-08-27T03:00:00.000Z;"(19) 97162-5982";Não;"Não";;Ativo;"13060-012";"Rua Umberto Vetoratto";"124";"Jardim Ipiranga";"Campinas";"SP";;;;;;
+74;"HELOISA FREITAS ROCHA";;;;2022-05-28T03:00:00.000Z;"(19) 97419-9799";Não;"Não";;Ativo;"13060314";"Avenida Brasília";"1156";"Jardim Roseira";"Campinas";"SP";;;;;;
+75;"CECILIA FREITAS ROCHA";;;;2015-06-03T03:00:00.000Z;"(19) 97419-9799";Não;"Não";;Ativo;"13060314";"Avenida Brasília";"1156";"Jardim Roseira";"Campinas";"SP";;;;;;
+76;"ICARO JOSÉ MORAES FELIZBERTO";;;;2020-03-24T03:00:00.000Z;"(19) 97419-9799";Não;"Não";;Inativo;"13053240";"Avenida Joaquim Olavo Sampaio";"150";"Vila Palmeiras I";"Campinas";"SP";;;;;;
+77;"LUIZA ALVES VIEIRA";;;;2020-03-31T03:00:00.000Z;"(19) 98190-7320";Não;"Não";;Ativo;"13060380";"Rua Belo Horizonte";"250";"Vila Perseu Leite de Barros";"Campinas";"SP";;;;;;
+78;"MILENA APOLINARIO BUENO";;;;2020-02-13T03:00:00.000Z;"(19) 98609-5620";Não;"Não";;Ativo;"13060380";"Rua Belo Horizonte";"250";"Vila Perseu Leite de Barros";"Campinas";"SP";;;;;;
+79;"ANA PAULA MESSIAS NASCIMENTO";;"230.182.348-20";;1987-04-28T03:00:00.000Z;"(19) 98890-0520";Não;"Não";;Ativo;"13060228";"Rua José Amâncio Cucatti";"312";"Jardim Londres";"Campinas";"SP";;;;;;
+80;"PIETRO LORENZO DANTAS DOS SANTOS";;;;2018-06-13T03:00:00.000Z;"(19) 99498-9855";Não;"Não";;Ativo;"13060067";"Rua Mário Ribeiro do Amaral";"405";"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+81;"LUCAS SANTOS VIANA";;;;2016-01-23T02:00:00.000Z;"(19) 98237-5094";Não;"Não";;Ativo;"13060073";"Rua Antônio Rodrigues Moreira Neto";"144";"Jardim Paulicéia";"Campinas";"SP";;;;;;
+82;"ROBERTA JANAINA CARNAUSKAS QUIONHA";;"224.289.648-28";;1982-01-06T03:00:00.000Z;"(19) 98319-5730";Não;"Não";;Trancado;"13061221";"Rua Curiango";"61";"Vila Padre Manoel de Nóbrega";"Campinas";"SP";;;;;;
+83;"PAULA REGINA DE CAMARGO";;"264.207.808-61";;1974-03-03T03:00:00.000Z;"(19) 98136-8422";Não;"Não";;Ativo;"13060721";"Rua Dona Esmeralda Oliveira Mathias";"220";"Parque Residencial Vila União";"Campinas";"SP";;;;;;
+84;"LUZINEIDE BASILIO DE OLIVEIRA";;"871.655.387-04";;1964-07-19T03:00:00.000Z;"(19) 98207-1073";Não;"Não";;Ativo;"13060064";"Rua Luís Carlos Miami";"283";"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+85;"ZELIA APARECIDA ARAUJO";;"093.963.688-20";;1958-07-03T03:00:00.000Z;"(19) 97403-8845";Não;"Não";;Ativo;"13060740";"Rua José Lourenço de Sá";"921";"Parque Residencial Vila União";"Campinas";"SP";;;;;;
+86;"MARIA JOSÉ DE OLIVEIRA";;"061.975.178-92";;1962-10-03T03:00:00.000Z;"(11) 97550-1694";Não;"Não";;Ativo;"13060190";"Rua Domício Pacheco e Silva";"88";"Jardim Novo Campos Elíseos";"Campinas";"SP";;;;;;
+87;"VALKIRIA TEIXEIRA DE SOUZA";;"187.786.438-21";;1975-02-02T03:00:00.000Z;"(19) 98807-2093";Não;"Não";;Ativo;"13060045";"Rua Danilo Glauco Pereira Villagelin";"504";"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+88;"ESTER ARARUNA NUNES";;;;2019-08-05T03:00:00.000Z;"(19) 98829-8633";Não;"Não";;Ativo;"13060489";"Rua Madre Tereza de Calcutá";"360";"Jardim Santa Lúcia";"Campinas";"SP";;;;;;
+89;"MARILDA MACEDO MACHADO";;"182.150.558-18";;1967-08-02T03:00:00.000Z;"(19) 98426-2888";Não;"Não";;Ativo;"13059658";"Rua Josepha Júlia Doval de Oliveira";"325";"Cidade Satélite Íris";"Campinas";"SP";;;;;;
+90;"BERNARDO SOARES ANDREO";;;;2022-04-29T03:00:00.000Z;"(19) 97153-8181";Não;"Não";;Ativo;"13050-411";"Rua Joanópolis";"96";"Cidade Jardim";"Campinas";"SP";;;;;;
+91;"LEONARDO BLEY PENIDO";;;;2017-10-27T02:00:00.000Z;"(19) 98829-8633";Não;"Não";;Ativo;"13060824";"Rua Júlio Tim";"600";"Jardim Ipaussurama";"Campinas";"SP";;;;;;
+92;"MARIAHA MARTA DE PAULA SILVA";;;;2021-07-27T03:00:00.000Z;"(19) 98815-5109";Não;"Não";;Inativo;"13061324";"Rua Seriema";"63";"Vila Padre Manoel de Nóbrega";"Campinas";"SP";;;;;;
+93;"SARAH MARTA DE PAULA SILVA";;;;2019-10-23T03:00:00.000Z;"(19) 98815-5109";Não;"Não";;Inativo;"13061324";"Rua Seriema";"63";"Vila Padre Manoel de Nóbrega";"Campinas";"SP";;;;;;
+94;"ENZO GABRIEL MACHADO PIRES";;;;2020-10-21T03:00:00.000Z;"(19) 98365-0380";Não;"Não";;Ativo;"13052114";"Rua Victório Pavan";;"Jardim Morumbi";"Campinas";"SP";;;;;;
+95;"JÉSSICA ALVES MACHADO";;"461.796.288-31";;1997-10-02T03:00:00.000Z;"(19) 98365-0380";Não;"Não";;Ativo;"13052114";"Rua Victório Pavan";;"Jardim Morumbi";"Campinas";"SP";;;;;;
+96;"BENICIO DE OLIVEIRA GUIRALDI";;;;2022-06-12T03:00:00.000Z;"(19) 99217-9381";Não;"Não";;Ativo;"13056005";"Rua Izabel Lopes Ventura";"485";"Jardim Planalto de Viracopos";"Campinas";"SP";;;;;;
+97;"LARISSA GONÇALVES DA SILVA";;"071.637.405-65";;1993-10-19T02:00:00.000Z;"(19) 99991-7672";Não;"Não";;Inativo;"13060112";"Rua Francisco Bayardo";"473";"Jardim Novo Campos Elíseos";"Campinas";"SP";;;;;;
+98;"NILVA APARECIDA PAULINO";;"068.913.728-10";;1963-07-18T03:00:00.000Z;"(19) 98990-5603";Não;"Não";;Ativo;"13059001";"Avenida Nelson Ferreira de Souza";"350";"Jardim Florence";"Campinas";"SP";;;;;;
+99;"ROBSON DE OLIVEIRA";;"079.994.385-61";;1971-12-01T03:00:00.000Z;"(19) 97423-2453";Não;"Não";;Ativo;"13050110";"Rua João Mezalira";"28";"Jardim Santa Amália";"Campinas";"SP";;;;;;
+100;"LARISSA GONÇALVES CRISTINA DA SILVA";;"046.992.196-83";;1996-11-18T02:00:00.000Z;"(19) 99152-3906";Não;"Não";;Ativo;"13050110";"Rua João Mezalira";"58";"Jardim Santa Amália";"Campinas";"SP";;;;;;
+101;"EDNALDA PINHEIRO DE ALMEIDA GARCIA";;"271.334.338-00";;1976-12-20T03:00:00.000Z;"(19) 99184-7261";Não;"Não";;Ativo;"13060254";"Rua José Campos Filho";"281";"Jardim Londres";"Campinas";"SP";;;;;;
+102;"VITORIA RAFAELA M RODRIGUES";;;;2018-03-08T03:00:00.000Z;"(19) 98590-7561";Não;"Não";;Ativo;"13031680";"Rua João Batista Alves de Souza";"735";"Parque Industrial";"Campinas";"SP";;;;;;
+103;"LUCIENE LUZIA DE JESUS";;"033.912.674-45";;1979-05-10T03:00:00.000Z;"(19) 99845-7936";Não;"Não";;Ativo;"13060112";"Rua Francisco Bayardo";"463";"Jardim Novo Campos Elíseos";"Campinas";"SP";;;;;;
+104;"SELMA CRISTINA CANOVA";;"172.042.818-29";;1969-02-14T03:00:00.000Z;"(19) 99365-8363";Não;"Não";;Ativo;"13050814";"Rua Antônio Pires Barbosa";"116";"Jardim Capivari";"Campinas";"SP";;;;;;
+105;"MARIA LUIZA  BARBOSA STECA";;;;2019-09-07T03:00:00.000Z;"(19) 98771-8740";Não;"Não";;Ativo;"13060733";"Rua Tito Augusto Alves de Araújo";"121";"Parque Residencial Vila União";"Campinas";"SP";;;;;;
+106;"LIDIANE RAFAELA BRAGA PRADO BIZARRI";;"343.738.848-70";;1984-12-30T03:00:00.000Z;"(19) 99315-3874";Não;"Não";;Inativo;"13060823";"Rua Lysette Luz Regina Ferraz";"34";"Jardim Ipaussurama";"Campinas";"SP";;;;;;
+107;"SONIA MARINA DOS SANTOS";;"015.868.098-73";;1959-11-12T03:00:00.000Z;"(19) 99516-3027";Não;"Não";;Ativo;"13020110";"Rua Doutor Antônio Álvares Lobo";"432";"Botafogo";"Campinas";"SP";;;;;;
+108;"DANIELLE RIBEIRO AZEVEDO PITARELLO";;;;1991-11-27T02:00:00.000Z;"(19) 99957-9832";Não;"Não";;Inativo;"13050621";"Rua Carlos Roberto Caetano de Souza";"150";"Conjunto Residencial Souza Queiroz";"Campinas";"SP";;;;;;
+109;"LEONARDO FERREIRA ALTES";;"451.793.968-59";;1996-09-19T03:00:00.000Z;"(19) 98999-6167";Não;"Não";;Inativo;"13061097";"Rua Etelvina de Sales Alves";;"Jardim García";"Campinas";"SP";;;;;;
+110;"MARIA HELENA VITOR PINTO";;;;1948-08-17T03:00:00.000Z;"19994299714";Não;"Não";;Ativo;"13060330";"RUA ODETE DE CAMARGO S. V. CECARELLI";"96";"Jardim Roseira";"Campinas";"SP";;;;;;
+111;"REBECA ALVES DE JESUS";;;;2021-08-05T03:00:00.000Z;"(19) 98707-5215";Não;"Não";;Ativo;"13059660";"Rua Romeu Marinelli";"780";"Cidade Satélite Íris";"Campinas";"SP";;;;;;
+112;"LUCIA SANTOS NUNES";;;;2000-04-04T03:00:00.000Z;"(19) 9 9105-153";Não;"Não";;Ativo;"13060-072";"Rua Jornalista Ernesto Napoli";;"Jardim Paulicéia";"Campinas";"SP";;;;;;
+113;"CECILIA APARECIDA FERRETI SOUZA";;"154.678.188-89";;1968-06-29T03:00:00.000Z;"(19) 99691-4602";Não;"Não";;Ativo;"13060-410";"Rua Michael Robert Kaan";"377";"Jardim Novo Campos Elíseos";"Campinas";"SP";;;;;;
+114;"RAFAEL ALCANTARA A. MEDEIROS";;"365.700.498-01";;1989-01-03T02:00:00.000Z;"(19) 98263-4941";Não;"Não";;Ativo;"13060-500";"Rua Augusto de Moraes Carvalho";"133";"Jardim Santa Lúcia";"Campinas";"SP";;;;;;
+115;"HELENA MARIA COSTA";;"061.916.898-61";;0001-01-01T03:06:28.000Z;"(19) 98451-9838";Não;"Não";;Ativo;"13060-008";"Rua Antônio Menito";"256";"Jardim Anchieta";"Campinas";"SP";;;;;;
+116;"RAFAEL MARIANO MILAGRES";;;;2015-03-16T03:00:00.000Z;;Não;"Não";;Ativo;"13060-048";"Rua Ferreira Novo";"197";"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+117;"BRUNA DIAS ARAUJO";;"463.474.858-42";;2000-06-20T03:00:00.000Z;;Não;"Não";;Ativo;"13060-735";"Rua Euclides Arruda de Almeida";"195";"Parque Residencial Vila União";"Campinas";"SP";;;;;;
+118;"RAFAEL NASCIMENTO DOS SANTOS";;;;1997-11-23T02:00:00.000Z;"(19) 98132-5609";Não;"Não";;Inativo;"13061-096";"Rua Alfredo Battibugli";;"Jardim García";"Campinas";"SP";;;;;;
+119;"HEITOR DE OLIVEIRA NASCIMENTO";;;;2019-04-13T03:00:00.000Z;"(19) 97415-8836";Não;"Não";;Ativo;"13059-641";"Rua Chrispim Gomes";"518";"Cidade Satélite Íris";"Campinas";"SP";;;;;;
+120;"MARILDA ROMÃO";;"252.375.068-60";;1976-07-23T03:00:00.000Z;"(19) 98367-6303";Não;"Não";;Ativo;"13059-194";"Rua Armando Pinareli";"42";"Residencial Sírius";"Campinas";"SP";;;;;;
+121;"ALEXANDRE PESTANA";;;;2019-03-13T03:00:00.000Z;"(19) 99512-5259";Não;"Não";;Ativo;"13059-848";"Avenida Deputado Luís Eduardo Magalhães";"543";"Jardim Uruguai";"Campinas";"SP";;;;;;
+122;"GUSTAVO DA SILVA CAMPOS";;;;2016-01-10T02:00:00.000Z;"(19) 99331-4463";Não;"Não";;Ativo;"13056-524";"Rua Leonor Santos";"80";"Jardim Vista Alegre";"Campinas";"SP";;;;;;
+123;"MARIA LUIZA FACHIN";;"465.845.718-07";;2001-10-25T02:00:00.000Z;"(11) 97139-5173";Não;"Não";;Inativo;"13060-860";"Rua Doutor Sylvio Carvalhaes";"170";"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+124;"HEITOR TOBIAS";;;;2020-10-15T03:00:00.000Z;"(19) 99173-2206";Não;"Não";;Ativo;"13060-779";"Rua João Cavoto";"208";"Parque Residencial Vila União";"Campinas";"SP";;;;;;
+125;"IAN ROCHA PEREIRA";;"440.662.828-22";;1996-06-06T03:00:00.000Z;"(19) 97419-0797";Não;"Não";;Inativo;"13060-854";"Rua Sílvio Rizzardo";"400";"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+126;"EMANUELLE ROCHA ";;;;2021-01-15T03:00:00.000Z;"(19) 97405-1677";Não;"Não";;Ativo;"13040-725";"Rua Visconde de Congonhas do Campo";"1161";"Loteamento Parque São Martinho";"Campinas";"SP";;;;;;
+127;"ALICE MIRELLA MONTEIRO";;;;2018-05-05T03:00:00.000Z;"(19) 98916-1577";Não;"Não";;Ativo;"13058-488";"Rua Che Guevara";"71";"Jardim Nova Esperança";"Campinas";"SP";;;;;;
+128;"JULIA SCHOBA ROMANO";;;;2021-02-28T03:00:00.000Z;"(19) 98848-8300";Não;"Não";;Ativo;"13060-726";"Rua Paulo Vianna de Souza";"1070";"Parque Residencial Vila União";"Campinas";"SP";;;;;;
+129;"JANAINA ALVES PASTORA";;"095.879.124-46";;1992-08-04T03:00:00.000Z;"(19) 98982-4823";Não;"Não";;Ativo;"13060-152";"Rua Cícero de Oliveira Silva";;"Jardim Novo Campos Elíseos";"Campinas";"SP";;;;;;
+130;"THEO ORNELAS QUEIROZ SILVA";;;;2020-05-04T03:00:00.000Z;"(19) 99371-0832";Não;"Não";;Ativo;"13050-006";"Avenida Dom Joaquim Mamede da Silva Leite";"40";"Jardim do Lago";"Campinas";"SP";;;;;;
+131;"ROSANGELA DE GODOY";;"967.012.858-72";;1958-11-15T03:00:00.000Z;"(19) 98817-9202";Não;"Não";;Inativo;"13050-462";"Rua Lutécia";"105";"Vila Pompéia";"Campinas";"SP";;;;;;
+132;"ISIS VALENTINA GOULART DE CAMPOS HENRIQUE";;;;2023-11-30T03:00:00.000Z;"(19) 98901-3172";Não;"Não";;Ativo;"13061-311";"Rua Juriti";"59";"Vila Padre Manoel de Nóbrega";"Campinas";"SP";;;;;;
+133;"BRAYAN HENRIQUE GOMES INACIO";;;;2024-07-04T03:00:00.000Z;"(19) 99573-9896";Não;"Não";;Ativo;"13050-520";"Rua Antimônio";"38";"Vila Rica";"Campinas";"SP";;;;;;
+134;"MARIA APARECIDA ALEXANDRINO SILVA";;"961.761.308-59";;1956-09-27T03:00:00.000Z;"(19) 98199-6418";Não;"Não";;Ativo;"13060-034";"Rua Wilson Capellini";"43";"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+135;"MARIA DE FATIMA ZACARIAS DA SILVA";;"716.659.944-87";;1969-06-17T03:00:00.000Z;"(19) 98954-8215";Não;"Não";;Ativo;"13060-471";"Rua Rafful Antônio Kanawati";"187";"Jardim Santa Lúcia";"Campinas";"SP";;;;;;
+136;"MARIA LUIZA SALLA";;"489.451.368-80";;2009-03-08T03:00:00.000Z;"(19) 99265-9710";Não;"Não";;Ativo;"13060-243";"Rua Rodolpho Liner";"95";"Jardim Londres";"Campinas";"SP";;;;;;
+137;"MIGUEL DO SANTOS CAMARGO";;;;2023-06-03T03:00:00.000Z;"(19) 99643-7395";Não;"Não";;Ativo;"13060-860";"Rua Doutor Sylvio Carvalhaes";"758";"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+138;"ENZO GABRIEL SANTOS";;;;2019-04-05T03:00:00.000Z;"(19) 98194-2303";Não;"Não";;Inativo;"13050-814";"Rua Antônio Pires Barbosa";"15";"Jardim Capivari";"Campinas";"SP";;;;;;
+139;"ISABELLA DOS SANTOS NUNES";;"424.930.638-05";;2021-02-16T03:00:00.000Z;"(19) 98194-2303";Não;"Não";;Inativo;"13050-814";"Rua Antônio Pires Barbosa";"15";"Jardim Capivari";"Campinas";"SP";;;;;;
+140;"HENRIQUE GABRIEL DE SOUZA SIMENES";;;;2021-02-01T03:00:00.000Z;"(19) 99718-7490";Não;"Não";;Ativo;"13060-719";"Rua Pedro Diogo";"135";"Parque Residencial Vila União";"Campinas";"SP";;;;;;
+141;"MARIA DE LOURDES ALVES DA SILVA";;"111.247.358-01";;1941-07-14T03:00:00.000Z;"(19) 99814-5422";Não;"Não";;Ativo;"13060-737";"Rua Marcelo Ferreira Albieri";"256";"Parque Residencial Vila União";"Campinas";"SP";;;;;;
+142;"LARISSA GOULART CAVALLARI";;"431.373.658-13";;1998-03-02T03:00:00.000Z;"(19) 98104-0735";Não;"Não";;Ativo;"13060-392";"Rua Goiânia";"117";"Vila Perseu Leite de Barros";"Campinas";"SP";;;;;;
+143;"ARUNA MOREA SILVA SANTOS";;;;0001-01-01T03:06:28.000Z;"(19) 98115-1915";Não;"Não";;Ativo;"13060-858";"Avenida Presidente Juscelino";"1290";"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+144;"ISABELA BRUNELLI DISTASSI";;;;2024-07-08T03:00:00.000Z;"(19) 99308-5858";Não;"Não";;Ativo;"13050-050";"Rua Dionísio Cazotti";"617";"Vila Mimosa";"Campinas";"SP";;;;;;
+145;"MARIA EDUARDA VALADÃO RAMOS";;;;2023-09-21T03:00:00.000Z;"(19) 99200-6669";Não;"Não";;Ativo;"13050-763";"Rua Raphael Camizão";"190";"Parque Ipiranga";"Campinas";"SP";;;;;;
+148;"ZILDA OLIVEIRA MARTINEZ";;"163.300.548-86";;1967-12-23T02:00:00.000Z;"(19) 98124-6090";Não;"Não";;Ativo;"13060-701";"Rua Professor Silvano Lopes Castro";;"Parque Residencial Vila União";"Campinas";"SP";;;;;;
+149;"VICTORIA PARDINHO CANCIO";;;;2020-05-28T03:00:00.000Z;"(19) 99181-0119";Não;"Não";;Ativo;"13060-476";"Rua da Padroeira";"429";"Jardim Santa Lúcia";"Campinas";"SP";;;;;;
+150;"DANIELE FERREIRA DA SILVA";;"412.714.938-88";;2000-03-23T03:00:00.000Z;"(19) 98766-1209";Não;"Não";;Inativo;"13059-619";"Rua Orlando Signorelli";"170";"Cidade Satélite Íris";"Campinas";"SP";;;;;;
+151;"IVANIR FERREIRA";;"068.893.218-55";;1965-08-04T03:00:00.000Z;"(19) 99167-3794";Não;"Não";;Ativo;"13059-619";"Rua Orlando Signorelli";"170";"Cidade Satélite Íris";"Campinas";"SP";;;;;;
+152;"MARIA NAZARÉ DA SILVA";;"158.376.488-79";;1947-12-23T03:00:00.000Z;"(19) 99348-3939";Não;"Não";;Ativo;"13060-852";"Rua Francisco Ferreira Pires";"57";"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+153;"SEBASTIÃO BATISTA DE OLIVEIRA FILHO";;"735.872.658-87";;1947-08-24T03:00:00.000Z;"(19) 99214-5480";Não;"Não";;Ativo;"13050-543";"Rua Mogi Mirim";"26";"Jardim Novo Campos Elíseos";"Campinas";"SP";;;;;;
+154;"MARIA JOSÉ RODRIGUES";;"195.511.388-21";;1944-02-27T03:00:00.000Z;"(19) 98801-0697";Não;"Não";;Ativo;"13060-077";"Rua Sílvio Rizzardo";"1381";"Jardim Paulicéia";"Campinas";"SP";;;;;;
+155;"REGIANE DE SOUZA BUGATTI SANTOS";;"217.109.618-08";;1980-05-25T03:00:00.000Z;"(19) 99582-5623";Não;"Não";;Ativo;"13036-225";"Avenida das Amoreiras";"633";"Parque Itália";"Campinas";"SP";;;;;;
+156;"ALICE BUENO";;;;2018-08-06T03:00:00.000Z;"(19) 98228-5594";Não;"Não";;Ativo;"13060-024";"Rua Conselheiro Antônio Carlos";"1881";"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+157;"MARIANE DA SILVA SANTOS";;"453.827.618-92";;1996-03-20T03:00:00.000Z;"(19) 98318-5342";Não;"Não";;Ativo;"13060-345";"Rua Pastor Antonio Tiburtino da Silva";"490";"Jardim Ibirapuera";"Campinas";"SP";;;;;;
+158;"MEIRE SILVA COSTA OLIVEIRA";;"320.551.818-74";;1947-07-08T03:00:00.000Z;"(19) 99214-5480";Não;"Não";;Ativo;"13050-543";"Rua Mogi Mirim";"26";"Jardim Novo Campos Elíseos";"Campinas";"SP";;;;;;
+159;"YASMIN TALENTINA DE MACEDO";;;;2024-01-18T03:00:00.000Z;"(19) 99890-7819";Não;"Não";;Ativo;"13054-453";"Rua Helena Camargo Pereira";"131";"Dic IV";"Campinas";"SP";;;;;;
+160;"MARIA ROCHA DA SILVA";;"137.377.123-2";;1960-06-27T03:00:00.000Z;;Não;"Não";;Ativo;"13060-052";"Rua União";"75";"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+161;"MARIA DE LOURDES BRITO";;"283.973.038-39";;1956-01-31T03:00:00.000Z;"(19) 98740-1080";Não;"Não";;Ativo;"13059-712";"Rua Aguinaldo Lucas";"641";"Jardim São Judas Tadeu";"Campinas";"SP";;;;;;
+162;"JOSEFA RODRIGUES SILVA DO NASCIMENTO";;"092.687.718-61";;1949-06-06T03:00:00.000Z;"(19) 99598-6981";Não;"Não";;Ativo;"13060-130";"Rua Danilo Tavolaro";"817";"Jardim Novo Campos Elíseos";"Campinas";"SP";;;;;;
+163;"CARMELUCE RODRIGUES SANTANA";;"017.033.388-20";;1952-04-25T03:00:00.000Z;"(19) 99287-2823";Não;"Não";;Ativo;"13058-224";"Rua Maria Eunice Flausino Barbosa";"349";"Conjunto Residencial Parque São Bento";"Campinas";"SP";;;;;;
+164;"ARIETE PEREIRA ANDRÉ";;"158.376.488-79";;1952-03-11T02:00:00.000Z;"(19) 99348-3939";Não;"Não";;Ativo;"13051-105";"Rua João Tonoli";"235";"Jardim das Bandeiras";"Campinas";"SP";;;;;;
+165;"MARIA ALZENIR ALENCAR DA SILVA";;"269.683.298-67";;1948-06-16T03:00:00.000Z;"(19) 98194-2254";Não;"Não";;Ativo;"13059-704";"Rua Diamantino Pereira";"315";"Jardim São Judas Tadeu";"Campinas";"SP";;;;;;
+166;"SANDRA MARIA PERA DE PAIVA";;"119.228.718-50";;0001-01-01T03:06:28.000Z;"(19) 98312-5661";Não;"Não";;Inativo;"13060-263";"Caminho União";"165";"Jardim Nova Morada";"Campinas";"SP";;;;;;
+167;"CRISTIANA ROCHA DE ALMEIDA";;"282.195.558-58";;1980-03-16T03:00:00.000Z;"(19) 9710-113";Não;"Não";;Ativo;"13060-562";"Rua Alzira Marcondes";"160";"Residencial Parque da Fazenda";"Campinas";"SP";;;;;;
+168;"CLODOALDO PURIFICAÇÃO SOUZA";;;;2018-04-23T03:00:00.000Z;"(19) 97416-4222";Não;"Não";;Ativo;"13050-576";"Rua Beatriz Pacheco Pompeo de Camargo";"12";"Jardim Novo Campos Elíseos";"Campinas";"SP";;;;;;
+169;"FRANCELI FERREIRA LIMA";;"273.387.408-14";;1973-05-26T03:00:00.000Z;"(19) 98412-7905";Não;"Não";;Ativo;"13060-254";"Rua José Campos Filho";"242";"Jardim Londres";"Campinas";"SP";;;;;;
+170;"MARCIA APARECIDA DOS SANTOS";;"217.082.968-75";;1978-01-22T03:00:00.000Z;"(19) 99530-0121";Não;"Não";;Ativo;"13057-501";"Rua Salvador Salmora";"05";"Conjunto Habitacional Vida Nova";"Campinas";"SP";;;;;;
+171;"MARILCE BALTAZAR DOS SANTOS";;"245.187.948-34";;1944-08-11T03:00:00.000Z;"(19) 97412-9596";Não;"Não";;Ativo;"13030-500";"Rua Doutor Pinto Ferraz";"833";"São Bernardo";"Campinas";"SP";;;;;;
+172;"ISIS SOUZA CHAVES";;;;2024-06-16T03:00:00.000Z;"(19) 99102-4037";Não;"Não";;Ativo;"13054-371";"Rua Itália Fausta";"458";"Parque Vista Alegre";"Campinas";"SP";;;;;;
+173;"ROMEU FARIA DOS SANTOS";;;;2023-04-28T03:00:00.000Z;"(19) 99319-7081";Não;"Não";;Ativo;"13278-403";"Rua Doutor João Mendes Junior";"426";"Vale do Itamaracá";"Valinhos";"SP";;;;;;
+174;"ADEMIR JOSÉ DA SILVA";;"721.186.288-20";;1952-02-19T02:00:00.000Z;"(19) 98168-4948";Não;"Não";;Ativo;"13060-530";"Rua José Ramos Catarino";"332";"Parque Tropical";"Campinas";"SP";;;;;;
+175;"MARIA APARECIDA FERREIRA DE SOUSA";;"219.450.078-26";;1977-10-02T03:00:00.000Z;"(19) 99336-9535";Não;"Não";;Ativo;"13059-619";"Rua Orlando Signorelli";"158";"Cidade Satélite Íris";"Campinas";"SP";;;;;;
+176;"LORENZO PUNCINELLI BRAGA";;;;2018-05-12T03:00:00.000Z;"(19) 98171-9425";Não;"Não";;Ativo;"13060-056";"Rua Catarina";"185";"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+177;"MARIA NAZARÉ FERREIRA DA SILVA";;"158.422.648-03";;1948-05-31T03:00:00.000Z;"(19) 99410-7335";Não;"Não";;Ativo;"13059-037";"Rua Marcílio de Oliveira";"841";"Jardim Florence";"Campinas";"SP";;;;;;
+178;"MIGUEL GARCIA DALL OCA";;;;2020-06-10T03:00:00.000Z;"(19) 99589-8475";Não;"Não";;Ativo;"13060-192";"Avenida Ruy Rodriguez";"643";"Jardim Novo Campos Elíseos";"Campinas";"SP";;;;;;
+179;"IVANICE SILVA MATEUS";;"375.163.295-68";;1965-03-01T02:00:00.000Z;"(79) 99650-0226";Não;"Não";;Ativo;"13060-414";"Rua Adolpho Guimarães Barros";"920";"Jardim Novo Campos Elíseos";"Campinas";"SP";;;;;;
+180;"ARISTOTELES BISPO MATEUS";;"005.644.938-05";;1955-05-28T03:00:00.000Z;"(79) 99650-0226";Não;"Não";;Ativo;"13060-414";"Rua Adolpho Guimarães Barros";"414";"Jardim Novo Campos Elíseos";"Campinas";"SP";;;;;;
+181;"OTAVIO MAGALHÃES MIRANDA";;"084.603.928-13";;1964-10-27T03:00:00.000Z;"(19) 98124-8940";Não;"Não";;Ativo;"13058-580";"Rua Otto Lara Resende";"100";"Parque Valença II";"Campinas";"SP";;;;;;
+182;"HELENA GONÇALVES OLIVEIRA";;"470.629.325-15";;1973-04-08T03:00:00.000Z;"(19) 98124-8940";Não;"Não";;Ativo;"13058-580";"Rua Otto Lara Resende";"100";"Parque Valença II";"Campinas";"SP";;;;;;
+183;"ROBERTA DANIELLE CORREA DOS SANTOS";;"399.337.938-10";;1996-01-17T02:00:00.000Z;"(19) 98150-4236";Não;"Não";;Ativo;"13060-515";"Rua Santa Maria Madalena Postel";"135";"Jardim Santa Lúcia";"Campinas";"SP";;;;;;
+184;"GUSTAVO PRATES DOS SANTOS";;"403.066.988-38";;1994-09-13T03:00:00.000Z;"(19) 99988-7477";Não;"Não";;Ativo;"13060-515";"Rua Santa Maria Madalena Postel";"135";"Jardim Santa Lúcia";"Campinas";"SP";;;;;;
+185;"BRAYAN MAXIMIANO OLIVEIRA";;"393.841.438-39";;1995-12-06T02:00:00.000Z;"(19) 97420-7075";Não;"Não";;Ativo;"13060-281";"Rua Flor do Maracujá";"375B";"Jardim Nova Morada";"Campinas";"SP";;;;;;
+186;"CESAR LUCENA SILVA";;;;2024-05-08T03:00:00.000Z;"(19) 99430-7879";Não;"Não";;Ativo;"13059-054";"Rua Comendador João Guilhen Garcia";;"Jardim Florence";"Campinas";"SP";;;;;;
+187;"NATIELI LIMA LEONCIO";;"457.669.658-00";;1999-07-28T03:00:00.000Z;"(19) 98344-1105";Não;"Não";;Ativo;"13059-698";"Rua Olivaldo Roncolatto";"186";"Cidade Satélite Íris";"Campinas";"SP";;;;;;
+188;"LEVI ELOU ALVARES";;;;2023-04-23T03:00:00.000Z;"(16) 99727-9269";Não;"Não";;Ativo;"13060-567";"Rua Onésimo Antonio Palombo";"385";"Residencial Parque da Fazenda";"Campinas";"SP";;;;;;
+189;"CAIO ANDRADE GONÇALVES DA SILVA";;"423.374.778-19";;1995-06-09T03:00:00.000Z;"(19) 99335-5693";Não;"Não";;Ativo;"13051-079";"Rua Emerson da Silva Berton";"411";"Jardim do Lago Continuação";"Campinas";"SP";;;;;;
+190;"YOHANNA LILIAN MENDES MALHEIROS";;;;2015-11-22T02:00:00.000Z;"(19) 98412-3112";Não;"Não";;Ativo;"13060-714";"Rua Hermantina Nucci Fabrício";"151";"Parque Residencial Vila União";"Campinas";"SP";;;;;;
+191;"ANA PAULA PAZINI DE AVILA";;"457.211.748-97";;1998-12-23T02:00:00.000Z;"(19) 98611-3993";Não;"Não";;Ativo;"13060-562";"Rua Alzira Marcondes";"160";"Residencial Parque da Fazenda";"Campinas";"SP";;;;;;
+192;"HELENA MARIA RABELO";;"082.127.138-57";;1963-04-28T03:00:00.000Z;"(19) 99830-1195";Não;"Não";;Ativo;"13060-113";"Rua Ozorino Ribeiro de Melo";"457";"Jardim Novo Campos Elíseos";"Campinas";"SP";;;;;;
+193;"MIRELLA DOS SANTOS";;;;2011-09-05T03:00:00.000Z;"(19) 99942-0262";Não;"Não";;Ativo;"13059-603";"Rua Doutor Lázaro Pinto Barroso";"84";"Cidade Satélite Íris";"Campinas";"SP";;;;;;
+194;"HILARY DAGNE DE OLIVEIRA";;"526.124.958-94";;2002-09-03T03:00:00.000Z;"(19) 98989-1468";Não;"Não";;Ativo;"13059-450";"Ruela Tainha";"193";"Núcleo Residencial Princesa D'Oeste";"Campinas";"SP";;;;;;
+195;"GABRIELA DA SILVA DOS SANTOS";;"453.148.418-51";;1998-02-01T02:00:00.000Z;"(19) 98214-7000";Não;"Não";;Ativo;"13059-626";"Rua Elpídio Nivoloni";"626";"Cidade Satélite Íris";"Campinas";"SP";;;;;;
+196;"JOÃO PEDRO DA SILVA BASSAN";;;;2018-12-18T02:00:00.000Z;;Não;"Não";;Ativo;"13061-096";"Rua Alfredo Battibugli";"109";"Jardim García";"Campinas";"SP";;;;;;
+197;"APARECIDA DE LOURDES VALENTE";;"312.999.138-73";;1959-08-26T03:00:00.000Z;"(19) 99283-8430";Não;"Não";;Ativo;"13060-151";"Rua Arlindo Gomes";"39";"Jardim Novo Campos Elíseos";"Campinas";"SP";;;;;;
+198;"HARRISON HENRIQUE CORREIA DA SILVA";;"452.700.938-98";;1996-03-05T03:00:00.000Z;"(19) 98309-8695";Não;"Não";;Ativo;"13059-028";"Rua Doutora Libia Hermisa Grandinetti Tortina";"495";"Jardim Florence";"Campinas";"SP";;;;;;
+199;"MATTEO NUNES GUIMARÃES";;;;2023-11-25T03:00:00.000Z;"(19) 99545-7445";Não;"Não";;Ativo;"13060-564";"Rua Antonio de Souza Lima";"48";"Residencial Parque da Fazenda";"Campinas";"SP";;;;;;
+200;"GENY BOSA GOMES";;"002.035.788-56";;1959-02-13T03:00:00.000Z;"(19) 99123-0863";Não;"Não";;Ativo;"13054-109";"Rua Jurura";"443";"Vila Aeroporto";"Campinas";"SP";;;;;;
+201;"FABIO FERREIRA DA SILVA";;;;2013-08-08T03:00:00.000Z;"(19) 98324-8876";Não;"Não";;Ativo;"13059-647";"Rua Doutor Mamed Hussein";"1027";"Cidade Satélite Íris";"Campinas";"SP";;;;;;
+202;"LAURENTINO DOS SANTOS";;"774.762.398-49";;1953-09-20T03:00:00.000Z;"(19) 98855-0669";Não;"Não";;Ativo;"13050-434";"Rua Reverendo Constâncio Homero Omegna";"637";"Cidade Jardim";"Campinas";"SP";;;;;;
+203;"EDNA FORTUNATO DE SOUZA";;"217.482.578-38";;1954-10-14T03:00:00.000Z;"(19) 99117-5340";Não;"Não";;Ativo;"13060-534";"Rua José Faccioni";"390";"Parque Tropical";"Campinas";"SP";;;;;;
+204;"MARIA ATILIA BENEDITO DOS SANTOS";;;;1952-02-22T02:00:00.000Z;"(19) 99384-3081";Não;"Não";;Ativo;"13059-647";"Rua Doutor Mamed Hussein";"1247";"Cidade Satélite Íris";"Campinas";"SP";;;;;;
+205;"SILVELI TEREZINHA G. FARIA";;"201.648.888-40";;1959-08-12T03:00:00.000Z;"(19) 98119-3192";Não;"Não";;Ativo;"13051-125";"Rua Manoel Militão de Melo";"322";"Jardim das Bandeiras";"Campinas";"SP";;;;;;
+206;"ISAEL FARIA";;"825.552.068-68";;1958-05-09T03:00:00.000Z;"(19) 98119-3192";Não;"Não";;Ativo;"13051-125";"Rua Manoel Militão de Melo";"322";"Jardim das Bandeiras";"Campinas";"SP";;;;;;
+207;"MARIA ANGELICA P. DA SILVA";;"031.139.266-02";;1961-03-06T03:00:00.000Z;"(19) 98457-6209";Não;"Não";;Ativo;"13060-150";"Rua Cneo Pompeo de Camargo";"1594";"Jardim Novo Campos Elíseos";"Campinas";"SP";;;;;;
+208;"VICENTINA AUXILIADORA DA SILVA PEREIRA";;"267.141.158-81";;1961-04-21T03:00:00.000Z;"(19) 99411-2015";Não;"Não";;Ativo;"13061-150";"Rua Professor Euclydes Vaz de Campos Filho";"1656";"Jardim García";"Campinas";"SP";;;;;;
+209;"LAIR DE OLIVEIRA DE PAULA";;"280.122.628-94";;1945-07-25T03:00:00.000Z;"(19) 3269-3049";Não;"Não";;Ativo;"13060-372";"Rua Maceió";"41";"Vila Perseu Leite de Barros";"Campinas";"SP";;;;;;
+210;"IDELVINA SIMONETTO";;"078.761.141-72";;1952-01-20T02:00:00.000Z;"(19) 98360-5729";Não;"Não";;Ativo;"13060-534";"Rua José Faccioni";"226";"Parque Tropical";"Campinas";"SP";;;;;;
+211;"HELOISA LOPES LODDO";;;;2018-10-04T03:00:00.000Z;"(19) 97414-4439";Não;"Não";;Ativo;"13060-058";"Rua Orlando Silva";"29";"Jardim Campos Elíseos";"Campinas";"SP";;;;;;
+212;"ANDREIA CRISTINA DE FARIA";;"148.793.728-89";;1971-07-20T03:00:00.000Z;"(19) 99124-3167";Não;"Não";;Ativo;"13061-900";"Rua Albatroz";"65";"Vila Padre Manoel de Nóbrega";"Campinas";"SP";;;;;;
+213;"LUIZ ANTONIO DOS SANTOS";;"217.342.608-74";;1960-01-17T03:00:00.000Z;"(19) 99883-2110";Não;"Não";;Ativo;"13060-702";"Rua Célio dos Santos Ferreira";"213";"Parque Residencial Vila União";"Campinas";"SP";;;;;;
+214;"MARIA DO CARMO DAS NEVES OLIVEIRA";;"174.046.658-05";;1963-05-14T03:00:00.000Z;"(19) 99301-6055";Não;"Não";;Ativo;"13060-720";"Rua Alzira Giacometti Girardi";"69";"Parque Residencial Vila União";"Campinas";"SP";;;;;;
