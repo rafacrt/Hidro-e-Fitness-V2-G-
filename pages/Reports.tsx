@@ -131,29 +131,75 @@ const Reports: React.FC = () => {
       }
       case 'acad_aniversariantes': {
         const students = await fetchStudents();
-        const start = new Date(dateRange.start);
-        const end = new Date(dateRange.end);
+        const start = new Date(dateRange.start + 'T00:00:00'); // Force start of day in local time
+        const end = new Date(dateRange.end + 'T23:59:59');     // Force end of day in local time
 
         // Filter: check if birthday (month/day) falls in range
         const birthdays = students.filter(s => {
           if (!s.birthDate) return false;
-          const bdate = new Date(s.birthDate);
-          // Check this year birthday
-          const thisYearBday = new Date(new Date().getFullYear(), bdate.getUTCMonth(), bdate.getUTCDate());
-          const startNoTime = new Date(start.setHours(0, 0, 0, 0));
-          const endNoTime = new Date(end.setHours(23, 59, 59, 999));
 
-          return thisYearBday >= startNoTime && thisYearBday <= endNoTime;
+          let bdate: Date;
+          if (s.birthDate.includes('T')) {
+            bdate = new Date(s.birthDate);
+          } else if (s.birthDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            // Handle YYYY-MM-DD explicitly as local time to avoid timezone shift
+            const [y, m, d] = s.birthDate.split('-').map(Number);
+            bdate = new Date(y, m - 1, d);
+          } else {
+            return false; // Unknown format
+          }
+
+          // Check if valid date
+          if (isNaN(bdate.getTime())) return false;
+          // If year is invalid (e.g. year 1), treat as invalid
+          if (bdate.getFullYear() < 1900) return false;
+
+          // Normalize birthday to this year for comparison
+          const thisYear = new Date().getFullYear();
+          const thisYearBday = new Date(thisYear, bdate.getMonth(), bdate.getDate());
+
+          // Handle range spanning across years (e.g. Dec to Jan)
+          // For simplicity in this specific report logical, we assume range is within a year or handled linearly
+          // But strict comparison:
+          return thisYearBday >= start && thisYearBday <= end;
         });
 
         return {
-          headers: ['Nome', 'Data Nascimento', 'Telefone', 'Status'],
-          data: birthdays.map(s => ([
-            s.name,
-            s.birthDate ? new Date(s.birthDate).toLocaleDateString() : '-',
-            s.phone || '-',
-            s.status
-          ]))
+          headers: ['Nome', 'Data Nascimento', 'Idade', 'Telefone', 'Status'],
+          data: birthdays.map(s => {
+            if (!s.birthDate) {
+              return [s.name, 'Sem data preenchida', '-', s.phone || '-', s.status];
+            }
+
+            let bdate: Date;
+            // Robust parsing
+            if (s.birthDate.includes('T')) {
+              bdate = new Date(s.birthDate);
+            } else {
+              const [y, m, d] = s.birthDate.split('-').map(Number);
+              bdate = new Date(y, m - 1, d);
+            }
+
+            // Check for invalid years (like year 1)
+            if (bdate.getFullYear() < 1900) {
+              return [s.name, 'Sem data preenchida', '-', s.phone || '-', s.status];
+            }
+
+            const today = new Date();
+            let age = today.getFullYear() - bdate.getFullYear();
+            const m = today.getMonth() - bdate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < bdate.getDate())) {
+              age--;
+            }
+
+            return [
+              s.name,
+              bdate.toLocaleDateString(),
+              age.toString() + ' anos',
+              s.phone || '-',
+              s.status
+            ];
+          })
         };
       }
       case 'fin_receita': {
