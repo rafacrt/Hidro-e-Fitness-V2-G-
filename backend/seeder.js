@@ -59,62 +59,92 @@ const seedDatabase = async (pool) => {
 
             // 3. STUDENTS
             const studentsPath = path.join(__dirname, 'seed_data/alunos.csv');
+            console.log(`[SEEDER] Checking for students file at: ${studentsPath}`);
+
             if (fs.existsSync(studentsPath)) {
-                console.log("Seeding Students...");
-                const lines = fs.readFileSync(studentsPath, 'utf-8').split('\n').slice(1).filter(l => l.trim());
+                console.log("[SEEDER] File found. Reading content...");
+                const fileContent = fs.readFileSync(studentsPath, 'utf-8');
+                console.log(`[SEEDER] File content length: ${fileContent.length} bytes`);
+                const lines = fileContent.split('\n').filter(l => l.trim().length > 0);
+                console.log(`[SEEDER] Total lines found: ${lines.length}`);
+
+                // Log header and first row for debugging
+                if (lines.length > 0) console.log(`[SEEDER] Header: ${lines[0]}`);
+                if (lines.length > 1) console.log(`[SEEDER] First Row: ${lines[1]}`);
+
+                const dataLines = lines.slice(1); // Skip header
                 let inserted = 0;
                 let skipped = 0;
-                for (const line of lines) {
+
+                for (let i = 0; i < dataLines.length; i++) {
+                    const line = dataLines[i];
                     try {
+                        // Regex to split by semicolon, respecting quotes
                         const regex = /;(?=(?:(?:[^"]*"){2})*[^"]*$)/;
                         const values = line.split(regex).map(val => val.trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
+
                         if (values.length < 5) {
+                            console.warn(`[SEEDER] Skipping line ${i + 2}: Insufficient columns (${values.length})`);
                             skipped++;
                             continue;
                         }
 
                         // Date Parsing Strategy
                         let birthDate = null;
-                        if (values[5]) {
+                        if (values[5] && values[5] !== 'null') {
+                            const rawDate = values[5];
                             // Try ISO (YYYY-MM-DD or ISO string)
-                            if (values[5].includes('T')) birthDate = values[5].split('T')[0];
-                            else if (values[5].match(/^\d{4}-\d{2}-\d{2}$/)) birthDate = values[5];
+                            if (rawDate.includes('T')) birthDate = rawDate.split('T')[0];
+                            else if (rawDate.match(/^\d{4}-\d{2}-\d{2}$/)) birthDate = rawDate;
                             // Try PT-BR (DD/MM/YYYY)
-                            else if (values[5].match(/^\d{2}\/\d{2}\/\d{4}$/)) {
-                                const [d, m, y] = values[5].split('/');
+                            else if (rawDate.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+                                const [d, m, y] = rawDate.split('/');
                                 birthDate = `${y}-${m}-${d}`;
                             }
                         }
 
+                        // Sanitize empty strings to null for optional fields
+                        const sanitize = (val) => (!val || val === '' || val === 'null' ? null : val);
+
                         const student = {
-                            id: values[0],
+                            id: parseInt(values[0]),
                             name: values[1],
-                            email: values[2],
-                            cpf: values[3],
-                            rg: values[4],
+                            email: sanitize(values[2]),
+                            cpf: sanitize(values[3]),
+                            rg: sanitize(values[4]),
                             birth_date: birthDate,
-                            phone: values[6],
-                            is_whatsapp: values[7]?.toLowerCase() === 'sim',
-                            plan_name: values[8] === 'Não' ? null : values[8],
-                            modality_name: values[9],
+                            phone: sanitize(values[6]),
+                            is_whatsapp: values[7]?.toLowerCase() === 'sim' || values[7]?.toLowerCase() === 'true',
+                            plan_name: values[8] === 'Não' || values[8] === 'null' ? null : values[8],
+                            modality_name: sanitize(values[9]),
                             status: values[10] || 'Ativo',
-                            addr_cep: values[11],
-                            addr_street: values[12],
-                            addr_number: values[13],
-                            addr_neighborhood: values[14],
-                            addr_city: values[15],
-                            addr_state: values[16],
-                            addr_complement: values[17],
-                            guardian_name: values[18],
-                            guardian_cpf: values[19],
-                            guardian_phone: values[20],
-                            guardian_relationship: values[21],
-                            medical_notes: values[22]
+                            addr_cep: sanitize(values[11]),
+                            addr_street: sanitize(values[12]),
+                            addr_number: sanitize(values[13]),
+                            addr_neighborhood: sanitize(values[14]),
+                            addr_city: sanitize(values[15]),
+                            addr_state: sanitize(values[16]),
+                            addr_complement: sanitize(values[17]),
+                            guardian_name: sanitize(values[18]),
+                            guardian_cpf: sanitize(values[19]),
+                            guardian_phone: sanitize(values[20]),
+                            guardian_relationship: sanitize(values[21]),
+                            medical_notes: sanitize(values[22])
                         };
 
-                        // Validate Status Enums to match Schema Check
+                        // Enforce numeric ID
+                        if (isNaN(student.id)) {
+                            console.warn(`[SEEDER] Skipping line ${i + 2}: Invalid ID (${values[0]})`);
+                            skipped++;
+                            continue;
+                        }
+
+                        // Validate Status Enums
                         const validStatus = ['Ativo', 'Inativo', 'Trancado'];
-                        if (!validStatus.includes(student.status)) student.status = 'Ativo';
+                        if (!validStatus.includes(student.status)) {
+                            // Try to fuzzy match or default
+                            student.status = 'Ativo';
+                        }
 
                         await client.query(`
                             INSERT INTO students (
@@ -131,23 +161,31 @@ const seedDatabase = async (pool) => {
                             ON CONFLICT (id) DO UPDATE SET
                                 name = EXCLUDED.name,
                                 status = EXCLUDED.status,
-                                plan_name = EXCLUDED.plan_name
+                                plan_name = EXCLUDED.plan_name,
+                                modality_name = EXCLUDED.modality_name
                         `, [
-                            parseInt(student.id), student.name, student.email || null, student.cpf || null, student.rg || null, student.birth_date, student.phone || null, student.is_whatsapp,
-                            student.plan_name || null, student.modality_name || null, student.status,
-                            student.addr_cep || null, student.addr_street || null, student.addr_number || null, student.addr_neighborhood || null, student.addr_city || null, student.addr_state || null, student.addr_complement || null,
-                            student.guardian_name || null, student.guardian_cpf || null, student.guardian_phone || null, student.guardian_relationship || null, student.medical_notes || null
+                            student.id, student.name, student.email, student.cpf, student.rg, student.birth_date, student.phone, student.is_whatsapp,
+                            student.plan_name, student.modality_name, student.status,
+                            student.addr_cep, student.addr_street, student.addr_number, student.addr_neighborhood, student.addr_city, student.addr_state, student.addr_complement,
+                            student.guardian_name, student.guardian_cpf, student.guardian_phone, student.guardian_relationship, student.medical_notes
                         ]);
                         inserted++;
                     } catch (rowErr) {
-                        console.error(`Failed to seed student (Line in CSV):`, rowErr.message);
+                        console.error(`[SEEDER] ERROR on line ${i + 2}: ${rowErr.message}`);
+                        console.error(`[SEEDER] Validating Row Data: ${line}`);
                         skipped++;
                     }
                 }
 
-                // Update sequence
                 await client.query("SELECT setval('students_id_seq', (SELECT MAX(id) FROM students))");
-                console.log(`Students seeded: ${inserted} (Skipped/Errors: ${skipped})`);
+                console.log(`[SEEDER] Student seeding finished. Inserted: ${inserted}, Skipped/Failed: ${skipped}`);
+            } else {
+                console.error(`[SEEDER] Students file NOT FOUND at ${studentsPath}`);
+                // List directory to help debug
+                try {
+                    const dir = path.dirname(studentsPath);
+                    console.log(`[SEEDER] Directory contents of ${dir}:`, fs.readdirSync(dir));
+                } catch (e) { console.log("Could not list dir"); }
             }
 
             await client.query('COMMIT');
