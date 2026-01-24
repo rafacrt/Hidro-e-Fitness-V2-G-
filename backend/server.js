@@ -192,6 +192,14 @@ const connectWithRetry = async () => {
         console.error("Schema update failed:", err.message);
     }
 
+    // AUTO-SEEDER: If database is empty, load data from CSVs
+    try {
+        const { seedDatabase } = require('./seeder');
+        await seedDatabase(pool);
+    } catch (e) {
+        console.error("Auto-seeder error:", e);
+    }
+
     let retries = 5;
     while (retries > 0) {
         try {
