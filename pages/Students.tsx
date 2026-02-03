@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Plus, Search, FileText, MoreVertical, Loader2, MapPin,
@@ -121,6 +121,25 @@ const Students: React.FC = () => {
     return calculateAge(formData.birthDate) < 18;
   }, [formData.birthDate]);
 
+  // --- Derived State ---
+  const filteredPlansOptions = useMemo(() => {
+    let result = [...plans];
+
+    // Filter by selected modalities if any
+    if (formData.modalities && formData.modalities.length > 0) {
+      const selectedModalityIds = modalities
+        .filter(m => formData.modalities?.includes(m.name))
+        .map(m => m.id);
+
+      if (selectedModalityIds.length > 0) {
+        result = result.filter(p => selectedModalityIds.includes(p.modalityId));
+      }
+    }
+
+    // Sort alphabetically
+    return result.sort((a, b) => a.name.localeCompare(b.name));
+  }, [plans, modalities, formData.modalities]);
+
   // --- Handlers ---
 
   const maskCPF = (value: string) => {
@@ -179,7 +198,7 @@ const Students: React.FC = () => {
       birthDate: s.birthDate,
       phone: s.phone,
       isWhatsapp: s.isWhatsapp ? 'Sim' : 'Não',
-      plan: s.plan,
+      plan: parsePlans(s.plan).join('; '),
       modalities: s.modalities ? s.modalities.join('; ') : s.modality,
       status: s.status,
       cep: s.address?.cep,
@@ -665,7 +684,7 @@ const Students: React.FC = () => {
                 </td>
                 <td className="px-6 py-4">
                   <div className="text-sm font-medium text-slate-700">
-                    {(!student.plan || student.plan === '[]' || student.plan === 'Sem Plano') ? (student.modalities?.[0] || 'Sem Plano') : student.plan}
+                    {(!student.plan || student.plan === '[]' || student.plan === 'Sem Plano') ? (student.modalities?.[0] || 'Sem Plano') : parsePlans(student.plan).join(', ')}
                   </div>
                   <div className="text-xs text-slate-500">{student.modalities?.join(', ') || student.modality}</div>
                 </td>
@@ -793,7 +812,7 @@ const Students: React.FC = () => {
                         </button>
                         <div>
                           <p className="font-medium text-slate-800">{student.name}</p>
-                          <p className="text-xs text-slate-500">{student.plan || 'Sem Plano'}</p>
+                          <p className="text-xs text-slate-500">{parsePlans(student.plan).join(', ') || 'Sem Plano'}</p>
                         </div>
                       </div>
                     ))}
@@ -1091,7 +1110,7 @@ const Students: React.FC = () => {
                             className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
                           >
                             <option value="">Selecione um plano...</option>
-                            {plans.map(p => (
+                            {filteredPlansOptions.map(p => (
                               <option key={p.id} value={p.name}>
                                 {p.name} - R$ {Number(p.price).toFixed(2)} - {p.frequency}
                               </option>
@@ -1279,7 +1298,7 @@ const Students: React.FC = () => {
                     <p className="font-bold text-primary-800">
                       {(!showDetailsModal.plan || showDetailsModal.plan === '[]' || showDetailsModal.plan === 'Sem Plano')
                         ? (showDetailsModal.modalities?.[0] || 'Sem Plano')
-                        : showDetailsModal.plan}
+                        : parsePlans(showDetailsModal.plan).join(', ')}
                     </p>
                     <p className="text-xs text-primary-600 mt-1">
                       {showDetailsModal.modalities?.join(', ') || showDetailsModal.modality}

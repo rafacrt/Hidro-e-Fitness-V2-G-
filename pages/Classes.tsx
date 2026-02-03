@@ -801,7 +801,7 @@ const Classes: React.FC = () => {
     }
 
     try {
-      await Promise.all(updates.map(async ([idStr, changes]) => {
+      await Promise.all(updates.map(async ([idStr, changes]: [string, { price: string }]) => {
         const id = parseInt(idStr);
         const originalPlan = plans.find(p => p.id === id);
         if (!originalPlan) return;
@@ -809,7 +809,7 @@ const Classes: React.FC = () => {
         // Merge original data with changes to respect required fields
         const updatedPlan = {
           ...originalPlan,
-          price: changes.price,
+          price: parseFloat(changes.price),
           // Ensure we send all required fields for update
           modalityId: originalPlan.modalityId || null
         };

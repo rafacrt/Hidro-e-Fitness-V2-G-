@@ -42,7 +42,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ user, children, restric
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(() => {
     // 1. Check for DEVMODE
-    if (import.meta.env.VITE_DEVMODE === 'ENABLED') {
+    if ((import.meta as any).env.VITE_DEVMODE === 'ENABLED') {
       console.log('DEVMODE ENABLED: Logging in as Developer');
       return {
         id: 'dev-user',
