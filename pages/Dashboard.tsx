@@ -127,7 +127,10 @@ const Dashboard: React.FC = () => {
           <h2 className="text-2xl font-bold text-slate-800">Visão Geral</h2>
           <p className="text-slate-500 text-sm">Acompanhe os indicadores principais da academia.</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+        <button
+          onClick={() => alert('Personalização de indicadores em desenvolvimento!')}
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+        >
           <Settings size={16} />
           Personalizar Indicadores
         </button>
@@ -276,7 +279,7 @@ const Dashboard: React.FC = () => {
                 </div>
               ))}
               <div className="pt-2 border-t border-slate-100">
-                <button 
+                <button
                   onClick={() => navigate('/reports', { state: { openReport: 'acad_cancelamentos' } })}
                   className="text-sm text-primary-600 font-medium hover:underline flex items-center gap-1"
                 >
