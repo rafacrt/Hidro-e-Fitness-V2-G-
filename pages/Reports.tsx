@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   FileBarChart,
   DollarSign,
@@ -107,8 +108,23 @@ const reports: ReportDef[] = [
   },
 ];
 
+
+
 const Reports: React.FC = () => {
+  const location = useLocation();
   const [selectedReport, setSelectedReport] = useState<ReportDef | null>(null);
+
+  useEffect(() => {
+    if (location.state?.openReport) {
+      const reportToOpen = reports.find(r => r.id === location.state.openReport);
+      if (reportToOpen) {
+        setSelectedReport(reportToOpen);
+        // Optional: clear state to prevent reopening on refresh? 
+        // Actually refresh clears state usually, but navigating back might re-trigger. 
+        // Ideally we consume it. But useEffect dependency array [] handles mount only.
+      }
+    }
+  }, [location.state]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [format, setFormat] = useState<'PDF' | 'SCREEN'>('SCREEN');
   const [reportResult, setReportResult] = useState<any>(null);

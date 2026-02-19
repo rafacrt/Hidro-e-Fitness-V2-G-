@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
   BarChart, Bar, PieChart, Pie, Cell
@@ -47,6 +48,7 @@ const KpiCard: React.FC<{ kpi: KPI }> = ({ kpi }) => {
 };
 
 const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
   const [kpis, setKpis] = useState<KPI[]>([]);
   const [chartsData, setChartsData] = useState<any>({ frequency: [], occupation: [], status: [] });
   const [birthdays, setBirthdays] = useState<any[]>([]);
@@ -178,7 +180,10 @@ const Dashboard: React.FC = () => {
             <p className="text-sm text-slate-400 italic text-center mt-10">Nenhum alerta pendente.</p>
           </div>
 
-          <button className="w-full mt-4 py-2 text-sm text-primary-600 font-medium border border-primary-100 rounded-lg hover:bg-primary-50 transition-colors">
+          <button
+            onClick={() => alert('Central de Notificações em desenvolvimento!')}
+            className="w-full mt-4 py-2 text-sm text-primary-600 font-medium border border-primary-100 rounded-lg hover:bg-primary-50 transition-colors"
+          >
             Ver Central de Notificações
           </button>
         </div>
@@ -219,7 +224,10 @@ const Dashboard: React.FC = () => {
               ))
             )}
           </div>
-          <button className="w-full mt-4 py-2 text-sm text-pink-600 font-medium border border-pink-200 rounded-lg hover:bg-pink-50 transition-colors flex items-center justify-center gap-2">
+          <button
+            onClick={() => navigate('/reports', { state: { openReport: 'acad_aniversariantes' } })}
+            className="w-full mt-4 py-2 text-sm text-pink-600 font-medium border border-pink-200 rounded-lg hover:bg-pink-50 transition-colors flex items-center justify-center gap-2"
+          >
             Ver lista completa <ArrowRight size={14} />
           </button>
         </div>
@@ -268,7 +276,10 @@ const Dashboard: React.FC = () => {
                 </div>
               ))}
               <div className="pt-2 border-t border-slate-100">
-                <button className="text-sm text-primary-600 font-medium hover:underline flex items-center gap-1">
+                <button 
+                  onClick={() => navigate('/reports', { state: { openReport: 'acad_cancelamentos' } })}
+                  className="text-sm text-primary-600 font-medium hover:underline flex items-center gap-1"
+                >
                   Ver relatório de retenção <ArrowRight size={14} />
                 </button>
               </div>
