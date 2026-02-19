@@ -13,7 +13,9 @@ import {
   TrendingDown,
   Wrench,
   Settings,
-  ArrowRight
+  ArrowRight,
+  X,
+  Check
 } from 'lucide-react';
 import { KPI } from '../types';
 import { fetchDashboardKPIs, fetchDashboardCharts, fetchStudents } from '../services/api';
@@ -24,7 +26,10 @@ const iconMap: any = {
   Users,
   CreditCard,
   Calendar,
-  Activity
+  Activity,
+  AlertTriangle,
+  TrendingDown,
+  Wrench
 };
 
 const KpiCard: React.FC<{ kpi: KPI }> = ({ kpi }) => {
@@ -53,6 +58,25 @@ const Dashboard: React.FC = () => {
   const [chartsData, setChartsData] = useState<any>({ frequency: [], occupation: [], status: [] });
   const [birthdays, setBirthdays] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // KPIs Customization State
+  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
+  const [visibleKpis, setVisibleKpis] = useState<string[]>(() => {
+    const saved = localStorage.getItem('hidro_fitness_kpis');
+    if (saved) return JSON.parse(saved);
+    // Default selection
+    return ['kpi_ativos', 'kpi_ocupacao', 'kpi_receita', 'kpi_aulas_hoje'];
+  });
+
+  const toggleKpiVisibility = (kpiId: string) => {
+    setVisibleKpis(prev => {
+      const isVisible = prev.includes(kpiId);
+      const newSelection = isVisible ? prev.filter(id => id !== kpiId) : [...prev, kpiId];
+      if (newSelection.length === 0) return prev; // Previne esconder todos deixando vazio!
+      localStorage.setItem('hidro_fitness_kpis', JSON.stringify(newSelection));
+      return newSelection;
+    });
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -128,7 +152,7 @@ const Dashboard: React.FC = () => {
           <p className="text-slate-500 text-sm">Acompanhe os indicadores principais da academia.</p>
         </div>
         <button
-          onClick={() => alert('Personalização de indicadores em desenvolvimento!')}
+          onClick={() => setIsConfigModalOpen(true)}
           className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
         >
           <Settings size={16} />
@@ -136,11 +160,73 @@ const Dashboard: React.FC = () => {
         </button>
       </div>
 
-      {/* KPIs */}
+      {/* KPI Configuration Modal */}
+      {isConfigModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-4 border-b border-slate-100 flex justify-between items-center text-slate-800">
+              <h3 className="text-lg font-bold flex items-center gap-2">
+                <Settings size={20} className="text-slate-400" />
+                Mostrar/Ocultar Indicadores
+              </h3>
+              <button onClick={() => setIsConfigModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-4 space-y-2 max-h-96 overflow-y-auto">
+              <p className="text-sm text-slate-500 mb-4 inline-block font-medium">Selecione quais cartões você quer enxergar na home:</p>
+
+              {kpis.map((kpi) => {
+                // Ensure there is an ID available (from backend or generated via label)
+                const kpiId = kpi.id || kpi.label;
+                const isActive = visibleKpis.includes(kpiId);
+
+                return (
+                  <label
+                    key={kpiId}
+                    className={`flex items-center justify-between p-3 rounded-lg border-2 cursor-pointer transition-all ${isActive ? 'border-primary-500 bg-primary-50/30' : 'border-slate-100 bg-white hover:border-slate-200'
+                      }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-lg bg-opacity-10 ${kpi.color.replace('text-', 'bg-')}`}>
+                        {/* Fallback pattern to render dynamic icon inside list */}
+                        {typeof kpi.icon === 'string' && iconMap[kpi.icon] ?
+                          React.createElement(iconMap[kpi.icon], { size: 18, className: kpi.color }) :
+                          <Activity size={18} />
+                        }
+                      </div>
+                      <span className="font-semibold text-slate-700 text-sm">
+                        {kpi.label} <span className="text-xs text-slate-400 block font-normal">{kpi.value}</span>
+                      </span>
+                    </div>
+
+                    <div className={`w-5 h-5 rounded flex items-center justify-center border transition-colors ${isActive ? 'bg-primary-600 border-primary-600 text-white' : 'border-slate-300 bg-slate-50'
+                      }`}>
+                      {isActive && <Check size={14} strokeWidth={3} />}
+                    </div>
+
+                    {/* Hidden actual checkbox */}
+                    <input
+                      type="checkbox"
+                      className="hidden"
+                      checked={isActive}
+                      onChange={() => toggleKpiVisibility(kpiId)}
+                    />
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* KPIs Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {kpis.map((kpi, idx) => (
-          <KpiCard key={idx} kpi={kpi} />
-        ))}
+        {kpis
+          .filter(kpi => visibleKpis.includes(kpi.id || kpi.label))
+          .map((kpi, idx) => (
+            <KpiCard key={idx} kpi={kpi} />
+          ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

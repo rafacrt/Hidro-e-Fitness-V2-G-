@@ -89,6 +89,7 @@ export interface Student {
 }
 
 export interface KPI {
+  id?: string;
   label: string;
   value: string | number;
   trend: number; // percentage

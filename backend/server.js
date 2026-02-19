@@ -259,17 +259,39 @@ app.get('/api/dashboard/kpis', async (req, res) => {
         `);
         const revenue = parseFloat(revenueResult.rows[0].sum) || 0;
 
+        // Pending Revenue
+        const pendingRevenueResult = await pool.query(`
+            SELECT SUM(amount) 
+            FROM transactions 
+            WHERE type = 'INCOME' 
+            AND status IN ('PENDING', 'LATE')
+            AND date_part('month', date) = date_part('month', CURRENT_DATE)
+            AND date_part('year', date) = date_part('year', CURRENT_DATE)
+        `);
+        const pendingRevenue = parseFloat(pendingRevenueResult.rows[0].sum) || 0;
+
+        // Total Students (not just active)
+        const totalStudentsResult = await pool.query("SELECT COUNT(*) FROM students");
+        const totalStudents = parseInt(totalStudentsResult.rows[0].count);
+
         const daysMap = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
         const today = daysMap[new Date().getDay()];
 
         const classesTodayResult = await pool.query("SELECT COUNT(*) FROM classes WHERE $1 = ANY(days) AND status != 'Cancelled'", [today]);
         const classesToday = parseInt(classesTodayResult.rows[0].count);
 
+        // Cancelled classes in general for awareness
+        const cancelledClassesResult = await pool.query("SELECT COUNT(*) FROM classes WHERE status = 'Cancelled'");
+        const cancelledClasses = parseInt(cancelledClassesResult.rows[0].count);
+
         res.json([
-            { label: 'Total Alunos Ativos', value: activeStudents, trend: 0, icon: 'Users', color: 'text-blue-600' },
-            { label: 'Ocupação Média', value: `${occupationRate}%`, trend: 0, icon: 'Activity', color: 'text-teal-600' },
-            { label: 'Receita Mensal', value: `R$ ${revenue.toLocaleString('pt-BR')}`, trend: 0, icon: 'CreditCard', color: 'text-green-600' },
-            { label: 'Aulas Hoje', value: classesToday, trend: 0, icon: 'Calendar', color: 'text-purple-600' },
+            { id: 'kpi_ativos', label: 'Total Alunos Ativos', value: activeStudents, trend: 0, icon: 'Users', color: 'text-blue-600' },
+            { id: 'kpi_total_alunos', label: 'Alunos Matriculados (Total)', value: totalStudents, trend: 0, icon: 'Users', color: 'text-slate-600' },
+            { id: 'kpi_ocupacao', label: 'Ocupação Média', value: `${occupationRate}%`, trend: 0, icon: 'Activity', color: 'text-teal-600' },
+            { id: 'kpi_receita', label: 'Receita Mensal', value: `R$ ${revenue.toLocaleString('pt-BR')}`, trend: 0, icon: 'CreditCard', color: 'text-green-600' },
+            { id: 'kpi_pendente', label: 'Receita Pendente/Atrasada', value: `R$ ${pendingRevenue.toLocaleString('pt-BR')}`, trend: 0, icon: 'AlertTriangle', color: 'text-orange-500' },
+            { id: 'kpi_aulas_hoje', label: 'Aulas Hoje', value: classesToday, trend: 0, icon: 'Calendar', color: 'text-purple-600' },
+            { id: 'kpi_cancelamentos', label: 'Turmas Canceladas', value: cancelledClasses, trend: 0, icon: 'TrendingDown', color: 'text-red-500' },
         ]);
     } catch (err) {
         console.error(err);
