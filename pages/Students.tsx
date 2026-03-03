@@ -541,8 +541,22 @@ const Students: React.FC = () => {
 
   const handleOpenEdit = (student: Student) => {
     setIsEditing(true);
+
+    // Convert birthDate to YYYY-MM-DD format if it contains time 'T'
+    let formattedBirthDate = student.birthDate || '';
+    if (formattedBirthDate && formattedBirthDate.includes('T')) {
+      formattedBirthDate = formattedBirthDate.split('T')[0];
+    } else if (formattedBirthDate && formattedBirthDate.includes('/')) {
+      // Handle potential DD/MM/YYYY
+      const parts = formattedBirthDate.split('/');
+      if (parts.length === 3) {
+        formattedBirthDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+      }
+    }
+
     setFormData({
       ...student,
+      birthDate: formattedBirthDate,
       plans: parsePlans(student.plan),
       modalities: student.modalities || (student.modality ? [student.modality] : [])
     });
@@ -1107,32 +1121,25 @@ const Students: React.FC = () => {
                         <div className="flex gap-2 mb-4">
                           <select
                             id="plan-selector"
+                            value=""
+                            onChange={(e) => {
+                              const planName = e.target.value;
+                              if (planName && !formData.plans?.includes(planName)) {
+                                setFormData({
+                                  ...formData,
+                                  plans: [...(formData.plans || []), planName]
+                                });
+                              }
+                            }}
                             className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
                           >
-                            <option value="">Selecione um plano...</option>
+                            <option value="">Selecione um plano para adicionar...</option>
                             {filteredPlansOptions.map(p => (
                               <option key={p.id} value={p.name}>
                                 {p.name} - R$ {Number(p.price).toFixed(2)} - {p.frequency}
                               </option>
                             ))}
                           </select>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const select = document.getElementById('plan-selector') as HTMLSelectElement;
-                              const planName = select.value;
-                              if (planName && !formData.plans?.includes(planName)) {
-                                setFormData({
-                                  ...formData,
-                                  plans: [...(formData.plans || []), planName]
-                                });
-                                select.value = '';
-                              }
-                            }}
-                            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium flex items-center gap-2"
-                          >
-                            <Plus size={18} /> Adicionar
-                          </button>
                         </div>
 
                         <div className="space-y-2">
