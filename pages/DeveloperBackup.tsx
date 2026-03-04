@@ -35,11 +35,20 @@ const DeveloperBackup: React.FC = () => {
                 const dRows = [['Student ID', 'Doc ID', 'Nome Arquivo', 'Tipo', 'Data Upload'].join(';')]; // Header for Documents
 
                 students.forEach((s: any) => {
-                    // Fix: Handle plan field correctly. If it's "[]" string or empty array, output empty string.
-                    let planVal = s.plan;
-                    if (Array.isArray(planVal)) planVal = planVal.length ? planVal.join(', ') : '';
-                    if (planVal === '[]') planVal = '';
-                    if (!planVal) planVal = '';
+                    const safeParseJoin = (val: any): string => {
+                        if (!val || val === '[]' || val === '[""]') return '';
+                        if (Array.isArray(val)) return val.join(', ');
+                        try {
+                            const parsed = JSON.parse(val);
+                            if (Array.isArray(parsed)) return parsed.join(', ');
+                            return val;
+                        } catch {
+                            return val;
+                        }
+                    };
+
+                    const planVal = safeParseJoin(s.plan);
+                    const modVal = safeParseJoin(s.modalities || s.modality);
 
                     const row = [
                         s.id,
@@ -51,7 +60,7 @@ const DeveloperBackup: React.FC = () => {
                         `"${s.phone || ''}"`,
                         s.isWhatsapp ? 'Sim' : 'Não',
                         `"${planVal}"`,
-                        `"${Array.isArray(s.modalities) ? s.modalities.join(', ') : (s.modalities || '')}"`,
+                        `"${modVal}"`,
                         s.status || '',
                         s.address?.cep || '',
                         `"${s.address?.street || ''}"`,

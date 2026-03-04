@@ -89,7 +89,7 @@ const Students: React.FC = () => {
       // Ensure modalities array is populated for backward compatibility
       const processedStudents = studentsData.map(s => ({
         ...s,
-        modalities: s.modalities && s.modalities.length > 0 ? s.modalities : (s.modality ? [s.modality] : [])
+        modalities: s.modalities && s.modalities.length > 0 ? s.modalities : parsePlans(s.modality)
       }));
 
       setStudents(processedStudents);
@@ -199,7 +199,7 @@ const Students: React.FC = () => {
       phone: s.phone,
       isWhatsapp: s.isWhatsapp ? 'Sim' : 'Não',
       plan: parsePlans(s.plan).join('; '),
-      modalities: s.modalities ? s.modalities.join('; ') : s.modality,
+      modalities: s.modalities && s.modalities.length > 0 ? s.modalities.join('; ') : parsePlans(s.modality).join('; '),
       status: s.status,
       cep: s.address?.cep,
       street: s.address?.street,
@@ -257,7 +257,7 @@ const Students: React.FC = () => {
               phone: row.phone,
               isWhatsapp: row.isWhatsapp === 'Sim' || row.isWhatsapp === 'TRUE' || row.isWhatsapp === 'true',
               plan: row.plan,
-              modalities: row.modalities ? row.modalities.split(';') : (row.modality ? [row.modality] : []),
+              modality: JSON.stringify(row.modalities ? row.modalities.split(';').map((m: string) => m.trim()).filter(Boolean) : (row.modality ? [row.modality] : [])),
               status: row.status || 'Ativo',
               address: {
                 cep: row.cep,
@@ -376,8 +376,8 @@ const Students: React.FC = () => {
         ...formData,
         // Serialize plans array to JSON string for storage
         plan: JSON.stringify(formData.plans || []),
-        // Ensure backward compatibility if needed, or just send modalities
-        modality: formData.modalities && formData.modalities.length > 0 ? formData.modalities[0] : ''
+        // Serialize modalities to JSON string for storage
+        modality: JSON.stringify(formData.modalities || [])
       };
 
       if (isEditing && formData.id) {
@@ -558,7 +558,7 @@ const Students: React.FC = () => {
       ...student,
       birthDate: formattedBirthDate,
       plans: parsePlans(student.plan),
-      modalities: student.modalities || (student.modality ? [student.modality] : [])
+      modalities: student.modalities && student.modalities.length > 0 ? student.modalities : parsePlans(student.modality)
     });
     setOpenMenuId(null);
     setShowDetailsModal(null); // Close details if open
@@ -698,9 +698,11 @@ const Students: React.FC = () => {
                 </td>
                 <td className="px-6 py-4">
                   <div className="text-sm font-medium text-slate-700">
-                    {(!student.plan || student.plan === '[]' || student.plan === 'Sem Plano') ? (student.modalities?.[0] || 'Sem Plano') : parsePlans(student.plan).join(', ')}
+                    {student.modalities && student.modalities.length > 0 ? student.modalities.join(', ') : (student.modality || 'Sem Modalidade')}
                   </div>
-                  <div className="text-xs text-slate-500">{student.modalities?.join(', ') || student.modality}</div>
+                  <div className="text-xs text-slate-500">
+                    {(!student.plan || student.plan === '[]' || student.plan === 'Sem Plano') ? 'Sem Plano' : parsePlans(student.plan).join(', ')}
+                  </div>
                 </td>
                 <td className="px-6 py-4">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
@@ -1300,15 +1302,15 @@ const Students: React.FC = () => {
             <div className="p-6 overflow-y-auto space-y-6">
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <h4 className="text-xs font-bold text-slate-400 uppercase mb-2">Plano Atual</h4>
+                  <h4 className="text-xs font-bold text-slate-400 uppercase mb-2">Modalidade / Plano Atual</h4>
                   <div className="p-3 bg-primary-50 rounded-lg border border-primary-100">
                     <p className="font-bold text-primary-800">
-                      {(!showDetailsModal.plan || showDetailsModal.plan === '[]' || showDetailsModal.plan === 'Sem Plano')
-                        ? (showDetailsModal.modalities?.[0] || 'Sem Plano')
-                        : parsePlans(showDetailsModal.plan).join(', ')}
+                      {showDetailsModal.modalities && showDetailsModal.modalities.length > 0 ? showDetailsModal.modalities.join(', ') : (showDetailsModal.modality || 'Sem Modalidade')}
                     </p>
                     <p className="text-xs text-primary-600 mt-1">
-                      {showDetailsModal.modalities?.join(', ') || showDetailsModal.modality}
+                      {(!showDetailsModal.plan || showDetailsModal.plan === '[]' || showDetailsModal.plan === 'Sem Plano')
+                        ? 'Sem Plano'
+                        : parsePlans(showDetailsModal.plan).join(', ')}
                     </p>
                   </div>
                 </div>
