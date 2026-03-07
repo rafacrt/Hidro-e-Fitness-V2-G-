@@ -185,6 +185,10 @@ const connectWithRetry = async () => {
                 -- Add new constraint with Semanal
                 ALTER TABLE plans ADD CONSTRAINT plans_frequency_check 
                 CHECK (frequency IN ('Semanal', 'Mensal', 'Bimestral', 'Trimestral', 'Semestral', 'Anual'));
+
+                -- Alter columns to TEXT to avoid truncation issues with JSON array
+                ALTER TABLE students ALTER COLUMN plan_name TYPE TEXT;
+                ALTER TABLE students ALTER COLUMN modality_name TYPE TEXT;
             END $$;
         `);
         console.log("Schema constraints updated.");
@@ -368,13 +372,15 @@ app.get('/api/students', async (req, res) => {
                 id, name, email, cpf, rg, birth_date as "birthDate", phone, is_whatsapp as "isWhatsapp",
                 addr_cep as "cep", addr_street as "street", addr_number as "number", 
                 addr_neighborhood as "neighborhood", addr_city as "city", addr_state as "state",
+                addr_complement as "complement",
                 status, plan_name as "plan", modality_name as "modality", 
                 enrollment_date as "enrollmentDate", payment_status as "paymentStatus",
-                guardian_name, guardian_cpf, guardian_phone, guardian_relationship
+                guardian_name, guardian_cpf, guardian_phone, guardian_relationship,
+                medical_notes as "medicalNotes"
             FROM students ORDER BY name
         `);
 
-        // Transform address structure to match frontend expectation if needed
+        // Transform address and guardian structure to match frontend expectation
         const students = result.rows.map(s => ({
             ...s,
             address: {
@@ -383,7 +389,14 @@ app.get('/api/students', async (req, res) => {
                 number: s.number,
                 neighborhood: s.neighborhood,
                 city: s.city,
-                state: s.state
+                state: s.state,
+                complement: s.complement || ''
+            },
+            guardian: {
+                name: s.guardian_name || '',
+                cpf: s.guardian_cpf || '',
+                phone: s.guardian_phone || '',
+                relationship: s.guardian_relationship || ''
             }
         }));
 
@@ -412,10 +425,10 @@ app.post('/api/students', async (req, res) => {
         const result = await pool.query(`
             INSERT INTO students (
                 name, email, cpf, birth_date, phone, is_whatsapp,
-                addr_cep, addr_street, addr_number, addr_neighborhood, addr_city, addr_state,
+                addr_cep, addr_street, addr_number, addr_neighborhood, addr_city, addr_state, addr_complement,
                 guardian_name, guardian_cpf, guardian_phone, guardian_relationship,
                 plan_name, modality_name, status, medical_notes
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
             RETURNING id
         `, [
             name,
@@ -430,6 +443,7 @@ app.post('/api/students', async (req, res) => {
             toNull(address?.neighborhood),
             toNull(address?.city),
             toNull(address?.state),
+            toNull(address?.complement),
             toNull(guardian?.name),
             toNull(guardian?.cpf),
             toNull(guardian?.phone),
@@ -458,10 +472,10 @@ app.put('/api/students/:id', async (req, res) => {
         await pool.query(`
             UPDATE students SET
                 name = $1, email = $2, cpf = $3, birth_date = $4, phone = $5, is_whatsapp = $6,
-                addr_cep = $7, addr_street = $8, addr_number = $9, addr_neighborhood = $10, addr_city = $11, addr_state = $12,
-                guardian_name = $13, guardian_cpf = $14, guardian_phone = $15, guardian_relationship = $16,
-                plan_name = $17, modality_name = $18, status = $19, medical_notes = $20
-            WHERE id = $21
+                addr_cep = $7, addr_street = $8, addr_number = $9, addr_neighborhood = $10, addr_city = $11, addr_state = $12, addr_complement = $13,
+                guardian_name = $14, guardian_cpf = $15, guardian_phone = $16, guardian_relationship = $17,
+                plan_name = $18, modality_name = $19, status = $20, medical_notes = $21
+            WHERE id = $22
         `, [
             name,
             toNull(email),
@@ -475,6 +489,7 @@ app.put('/api/students/:id', async (req, res) => {
             toNull(address?.neighborhood),
             toNull(address?.city),
             toNull(address?.state),
+            toNull(address?.complement),
             toNull(guardian?.name),
             toNull(guardian?.cpf),
             toNull(guardian?.phone),
