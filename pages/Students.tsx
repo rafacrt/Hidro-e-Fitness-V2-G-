@@ -198,7 +198,10 @@ const Students: React.FC = () => {
       birthDate: s.birthDate,
       phone: s.phone,
       isWhatsapp: s.isWhatsapp ? 'Sim' : 'Não',
-      plan: parsePlans(s.plan).join('; '),
+      plan: parsePlans(s.plan).map(pStr => {
+        const pMatch = plans.find(p => String(p.id) === String(pStr) || p.name === pStr);
+        return pMatch ? `${pMatch.name} (${pMatch.frequency})` : pStr;
+      }).join('; '),
       modalities: s.modalities && s.modalities.length > 0 ? s.modalities.join('; ') : parsePlans(s.modality).join('; '),
       status: s.status,
       cep: s.address?.cep,
@@ -450,8 +453,8 @@ const Students: React.FC = () => {
           const studentPlans = parsePlans(student.plan);
           if (studentPlans.length === 0) continue;
 
-          for (const planName of studentPlans) {
-            const plan = plans.find(p => p.name === planName);
+          for (const planIdentifier of studentPlans) {
+            const plan = plans.find(p => String(p.id) === String(planIdentifier) || p.name === planIdentifier);
             if (!plan) continue;
 
             const today = new Date();
@@ -701,7 +704,10 @@ const Students: React.FC = () => {
                     {student.modalities && student.modalities.length > 0 ? student.modalities.join(', ') : (student.modality || 'Sem Modalidade')}
                   </div>
                   <div className="text-xs text-slate-500">
-                    {(!student.plan || student.plan === '[]' || student.plan === 'Sem Plano') ? 'Sem Plano' : parsePlans(student.plan).join(', ')}
+                    {(!student.plan || student.plan === '[]' || student.plan === 'Sem Plano') ? 'Sem Plano' : parsePlans(student.plan).map(pStr => {
+                      const pMatch = plans.find(p => String(p.id) === String(pStr) || p.name === pStr);
+                      return pMatch ? `${pMatch.name} (${pMatch.frequency})` : pStr;
+                    }).join(', ')}
                   </div>
                 </td>
                 <td className="px-6 py-4">
@@ -1125,11 +1131,11 @@ const Students: React.FC = () => {
                             id="plan-selector"
                             value=""
                             onChange={(e) => {
-                              const planName = e.target.value;
-                              if (planName && !formData.plans?.includes(planName)) {
+                              const planIdOrName = e.target.value;
+                              if (planIdOrName && !formData.plans?.includes(planIdOrName)) {
                                 setFormData({
                                   ...formData,
-                                  plans: [...(formData.plans || []), planName]
+                                  plans: [...(formData.plans || []), planIdOrName]
                                 });
                               }
                             }}
@@ -1137,7 +1143,7 @@ const Students: React.FC = () => {
                           >
                             <option value="">Selecione um plano para adicionar...</option>
                             {filteredPlansOptions.map(p => (
-                              <option key={p.id} value={p.name}>
+                              <option key={p.id} value={String(p.id)}>
                                 {p.name} - R$ {Number(p.price).toFixed(2)} - {p.frequency}
                               </option>
                             ))}
@@ -1145,8 +1151,8 @@ const Students: React.FC = () => {
                         </div>
 
                         <div className="space-y-2">
-                          {formData.plans?.map((planName, index) => {
-                            const planDetails = plans.find(p => p.name === planName);
+                          {formData.plans?.map((planIdentifier, index) => {
+                            const planDetails = plans.find(p => String(p.id) === String(planIdentifier) || p.name === planIdentifier);
                             return (
                               <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
                                 <div className="flex items-center gap-3">
@@ -1154,7 +1160,7 @@ const Students: React.FC = () => {
                                     <CheckSquare size={18} />
                                   </div>
                                   <div>
-                                    <p className="text-sm font-medium text-slate-700">{planName}</p>
+                                    <p className="text-sm font-medium text-slate-700">{planDetails ? planDetails.name : planIdentifier}</p>
                                     {planDetails && (
                                       <p className="text-xs text-slate-500">
                                         R$ {Number(planDetails.price).toFixed(2)} - {planDetails.frequency}

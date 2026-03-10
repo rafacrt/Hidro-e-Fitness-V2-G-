@@ -2,6 +2,10 @@ const fs = require('fs');
 const path = require('path');
 
 const seedDatabase = async (pool) => {
+    // SECURITY OVERRIDE: SEEDING DISABLED GLOBALLY
+    console.log("[SEEDER] Automatic seeding has been permanently disabled.");
+    return;
+
     if (!pool) return;
 
     try {
@@ -38,8 +42,11 @@ const seedDatabase = async (pool) => {
             }
 
             // 2. PLANS
+            const checkPlans = await client.query('SELECT COUNT(*) FROM plans');
             const plansPath = path.join(__dirname, 'seed_data/planos.csv');
-            if (fs.existsSync(plansPath)) {
+            if (parseInt(checkPlans.rows[0].count) > 0) {
+                console.log("[SEEDER] Plans already exist, skipping.");
+            } else if (fs.existsSync(plansPath)) {
                 console.log("Seeding Plans...");
                 const lines = fs.readFileSync(plansPath, 'utf-8').split('\n').slice(1).filter(l => l.trim());
                 for (const line of lines) {
@@ -58,10 +65,13 @@ const seedDatabase = async (pool) => {
             }
 
             // 3. STUDENTS
+            const checkStudents = await client.query('SELECT COUNT(*) FROM students');
             const studentsPath = path.join(__dirname, 'seed_data/alunos.csv');
             console.log(`[SEEDER] Checking for students file at: ${studentsPath}`);
 
-            if (fs.existsSync(studentsPath)) {
+            if (parseInt(checkStudents.rows[0].count) > 0) {
+                console.log("[SEEDER] Students already exist, skipping.");
+            } else if (fs.existsSync(studentsPath)) {
                 console.log("[SEEDER] File found. Reading content...");
                 const fileContent = fs.readFileSync(studentsPath, 'utf-8');
                 console.log(`[SEEDER] File content length: ${fileContent.length} bytes`);
@@ -184,10 +194,13 @@ const seedDatabase = async (pool) => {
             }
 
             // 4. FINANCE (TRANSACTIONS)
+            const checkFinance = await client.query('SELECT COUNT(*) FROM transactions');
             const financePath = path.join(__dirname, 'seed_data/financeiro.csv');
             console.log(`[SEEDER] Checking for finance file at: ${financePath}`);
 
-            if (fs.existsSync(financePath)) {
+            if (parseInt(checkFinance.rows[0].count) > 0) {
+                console.log("[SEEDER] Finance records already exist, skipping.");
+            } else if (fs.existsSync(financePath)) {
                 console.log("[SEEDER] Reading Finance content...");
                 const fileContent = fs.readFileSync(financePath, 'utf-8');
                 const lines = fileContent.split('\n').filter(l => l.trim().length > 0);
