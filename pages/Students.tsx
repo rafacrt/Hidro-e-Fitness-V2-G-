@@ -377,8 +377,10 @@ const Students: React.FC = () => {
     try {
       const studentData = {
         ...formData,
-        // Serialize plans array to JSON string for storage
-        plan: JSON.stringify(formData.plans || []),
+        // Serialize plans array to JSON string; use null when empty to avoid overwriting with []
+        plan: formData.plans && formData.plans.length > 0
+          ? JSON.stringify(formData.plans)
+          : null,
         // Serialize modalities to JSON string for storage
         modality: JSON.stringify(formData.modalities || [])
       };
@@ -557,10 +559,16 @@ const Students: React.FC = () => {
       }
     }
 
+    // Resolve any plan IDs to names for consistent storage
+    const resolvedPlans = parsePlans(student.plan).map(pStr => {
+      const found = plans.find(p => String(p.id) === String(pStr));
+      return found ? found.name : pStr;
+    });
+
     setFormData({
       ...student,
       birthDate: formattedBirthDate,
-      plans: parsePlans(student.plan),
+      plans: resolvedPlans,
       modalities: student.modalities && student.modalities.length > 0 ? student.modalities : parsePlans(student.modality)
     });
     setOpenMenuId(null);
@@ -1143,7 +1151,7 @@ const Students: React.FC = () => {
                           >
                             <option value="">Selecione um plano para adicionar...</option>
                             {filteredPlansOptions.map(p => (
-                              <option key={p.id} value={String(p.id)}>
+                              <option key={p.id} value={p.name}>
                                 {p.name} - R$ {Number(p.price).toFixed(2)} - {p.frequency}
                               </option>
                             ))}
