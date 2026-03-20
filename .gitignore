@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 log/
 alunos.csv
+
+/backup/
+/backup2/
