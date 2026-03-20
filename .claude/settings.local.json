@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(for f:*)",
+      "Bash(do echo:*)",
+      "Bash(gunzip -c \"$f\")",
+      "Bash(done)",
+      "Bash(gunzip -c \"hidro_2026-03-04_18-18.sql.gz\")",
+      "Bash(grep -v \"^$\")",
+      "Bash(gunzip -c \"hidro_2026-03-19_02-00.sql.gz\")",
+      "Bash(__NEW_LINE_f7d120fa7e357177__ echo:*)",
+      "Bash(sort -t'|' -k3)",
+      "Bash(__NEW_LINE_de2d1199b9f66026__ TARGET_IDS=\"245 225 273 285 260 286 261 247 262 276 248 45 277 289 244 25 250 12 9 8 220 38 75 63 76 91 70 266 101 74 267 234 241 121 127 143 117 126 119 124 115 128 242 281 133 223 132 231 282 67 224 168 283 284 211\" __NEW_LINE_de2d1199b9f66026__ echo \"=== hidro_hidro.sql - dados dos 55 alunos \\(responsável + plano\\) ===\" awk '/^COPY public\\\\.students/,/^\\\\\\\\\\\\\\\\./' hidro_hidro.sql)",
+      "Bash(__NEW_LINE_81022699e272bfea__ gunzip:*)",
+      "Bash(__NEW_LINE_a6b9b1c7eb37cc50__ gunzip:*)"
+    ]
+  }
+}
