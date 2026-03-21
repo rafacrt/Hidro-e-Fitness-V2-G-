@@ -4,7 +4,7 @@ import {
   Plus, Search, FileText, MoreVertical, Loader2, MapPin,
   Upload, Download, User, Shield, Activity, Trash2, File,
   MessageCircle, Phone, Mail, AlertTriangle, Calendar, X, Edit, Printer, DollarSign,
-  Users, CheckSquare, Square, Clock
+  Users, CheckSquare, Square, Clock, ArrowUpDown, ChevronUp, ChevronDown
 } from 'lucide-react';
 import {
   fetchStudents, createStudent, updateStudent, deleteStudent,
@@ -47,6 +47,9 @@ const Students: React.FC = () => {
 
   // Editing State
   const [isEditing, setIsEditing] = useState(false);
+
+  type SortKey = 'name' | 'plan' | 'status' | 'contact';
+  const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: 'asc' | 'desc' } | null>(null);
 
   const [loadingCep, setLoadingCep] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('registration');
@@ -180,6 +183,47 @@ const Students: React.FC = () => {
       student.id.toString().includes(searchLower)
     );
   });
+
+  const handleSort = (key: SortKey) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedStudents = useMemo(() => {
+    let sortableStudents = [...filteredStudents];
+    if (sortConfig !== null) {
+      sortableStudents.sort((a, b) => {
+        let aValue: any = a[sortConfig.key as keyof Student];
+        let bValue: any = b[sortConfig.key as keyof Student];
+
+        if (sortConfig.key === 'plan') {
+           aValue = a.modalities?.join(',') || a.modality || '';
+           bValue = b.modalities?.join(',') || b.modality || '';
+        } else if (sortConfig.key === 'contact') {
+           aValue = a.phone || a.email || '';
+           bValue = b.phone || b.email || '';
+        } else if (sortConfig.key === 'name') {
+           aValue = a.name.toLowerCase();
+           bValue = b.name.toLowerCase();
+        } else if (sortConfig.key === 'status') {
+           aValue = a.status;
+           bValue = b.status;
+        }
+
+        if (aValue < bValue) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableStudents;
+  }, [filteredStudents, sortConfig]);
 
   const handleExportCSV = () => {
     const headers = [
@@ -559,11 +603,8 @@ const Students: React.FC = () => {
       }
     }
 
-    // Resolve any plan IDs to names for consistent storage
-    const resolvedPlans = parsePlans(student.plan).map(pStr => {
-      const found = plans.find(p => String(p.id) === String(pStr));
-      return found ? found.name : pStr;
-    });
+    // Keep plan identifiers (IDs or names from legacy data)
+    const resolvedPlans = parsePlans(student.plan).map(pStr => String(pStr));
 
     setFormData({
       ...student,
@@ -682,15 +723,55 @@ const Students: React.FC = () => {
         <table className="w-full text-left">
           <thead className="bg-slate-50 border-b border-slate-100">
             <tr>
-              <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Aluno</th>
-              <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Plano / Modalidade</th>
-              <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Status</th>
-              <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Contato</th>
+              <th 
+                className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase cursor-pointer select-none hover:bg-slate-100 transition-colors"
+                onClick={() => handleSort('name')}
+              >
+                <div className="flex items-center gap-2">
+                  Aluno 
+                  {sortConfig?.key === 'name' ? (
+                    sortConfig.direction === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
+                  ) : <ArrowUpDown size={14} className="text-slate-300" />}
+                </div>
+              </th>
+              <th 
+                className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase cursor-pointer select-none hover:bg-slate-100 transition-colors"
+                onClick={() => handleSort('plan')}
+              >
+                <div className="flex items-center gap-2">
+                  Plano / Modalidade 
+                  {sortConfig?.key === 'plan' ? (
+                    sortConfig.direction === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
+                  ) : <ArrowUpDown size={14} className="text-slate-300" />}
+                </div>
+              </th>
+              <th 
+                className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase cursor-pointer select-none hover:bg-slate-100 transition-colors"
+                onClick={() => handleSort('status')}
+              >
+                <div className="flex items-center gap-2">
+                  Status 
+                  {sortConfig?.key === 'status' ? (
+                    sortConfig.direction === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
+                  ) : <ArrowUpDown size={14} className="text-slate-300" />}
+                </div>
+              </th>
+              <th 
+                className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase cursor-pointer select-none hover:bg-slate-100 transition-colors"
+                onClick={() => handleSort('contact')}
+              >
+                <div className="flex items-center gap-2">
+                  Contato 
+                  {sortConfig?.key === 'contact' ? (
+                    sortConfig.direction === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
+                  ) : <ArrowUpDown size={14} className="text-slate-300" />}
+                </div>
+              </th>
               <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase text-right no-print">Ações</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {filteredStudents.map((student) => (
+            {sortedStudents.map((student) => (
               <tr
                 key={student.id}
                 className="hover:bg-slate-50 transition-colors cursor-pointer"
@@ -1151,7 +1232,7 @@ const Students: React.FC = () => {
                           >
                             <option value="">Selecione um plano para adicionar...</option>
                             {filteredPlansOptions.map(p => (
-                              <option key={p.id} value={p.name}>
+                              <option key={p.id} value={String(p.id)}>
                                 {p.name} - R$ {Number(p.price).toFixed(2)} - {p.frequency}
                               </option>
                             ))}
