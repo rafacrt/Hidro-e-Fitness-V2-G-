@@ -383,38 +383,69 @@ app.post('/api/login', async (req, res) => {
 // Students
 app.get('/api/students', async (req, res) => {
     try {
-        const result = await pool.query(`
-            SELECT 
-                id, name, email, cpf, rg, birth_date as "birthDate", phone, is_whatsapp as "isWhatsapp",
-                addr_cep as "cep", addr_street as "street", addr_number as "number", 
-                addr_neighborhood as "neighborhood", addr_city as "city", addr_state as "state",
-                addr_complement as "complement",
-                status, plan_name as "plan", modality_name as "modality", 
-                enrollment_date as "enrollmentDate", payment_status as "paymentStatus",
-                guardian_name, guardian_cpf, guardian_phone, guardian_relationship,
-                medical_notes as "medicalNotes"
-            FROM students ORDER BY name
-        `);
+        const [studentsResult, plansResult] = await Promise.all([
+            pool.query(`
+                SELECT
+                    id, name, email, cpf, rg, birth_date as "birthDate", phone, is_whatsapp as "isWhatsapp",
+                    addr_cep as "cep", addr_street as "street", addr_number as "number",
+                    addr_neighborhood as "neighborhood", addr_city as "city", addr_state as "state",
+                    addr_complement as "complement",
+                    status, plan_name as "planRaw", modality_name as "modalityRaw",
+                    enrollment_date as "enrollmentDate", payment_status as "paymentStatus",
+                    guardian_name, guardian_cpf, guardian_phone, guardian_relationship,
+                    medical_notes as "medicalNotes"
+                FROM students ORDER BY name
+            `),
+            pool.query('SELECT id, name FROM plans')
+        ]);
 
-        // Transform address and guardian structure to match frontend expectation
-        const students = result.rows.map(s => ({
-            ...s,
-            address: {
-                cep: s.cep,
-                street: s.street,
-                number: s.number,
-                neighborhood: s.neighborhood,
-                city: s.city,
-                state: s.state,
-                complement: s.complement || ''
-            },
-            guardian: {
-                name: s.guardian_name || '',
-                cpf: s.guardian_cpf || '',
-                phone: s.guardian_phone || '',
-                relationship: s.guardian_relationship || ''
-            }
-        }));
+        // Build plan ID → name lookup map
+        const planIdToName = {};
+        plansResult.rows.forEach(p => { planIdToName[String(p.id)] = p.name; });
+
+        // Parse JSON array stored in plan_name / modality_name,
+        // resolving any numeric IDs to actual plan names
+        const resolvePlans = (raw) => {
+            if (!raw) return [];
+            let arr;
+            try { arr = typeof raw === 'string' ? JSON.parse(raw) : raw; } catch { arr = [raw]; }
+            if (!Array.isArray(arr)) arr = [arr];
+            return arr.map(v => {
+                const s = String(v).trim();
+                // If it looks like a numeric ID, resolve to plan name
+                if (/^\d+$/.test(s)) return planIdToName[s] || s;
+                return s;
+            }).filter(Boolean);
+        };
+
+        const resolveModalities = (raw) => {
+            if (!raw) return [];
+            let arr;
+            try { arr = typeof raw === 'string' ? JSON.parse(raw) : raw; } catch { arr = [raw]; }
+            if (!Array.isArray(arr)) arr = [arr];
+            return arr.map(v => String(v).trim()).filter(Boolean);
+        };
+
+        const students = studentsResult.rows.map(s => {
+            const plans = resolvePlans(s.planRaw);
+            const modalities = resolveModalities(s.modalityRaw);
+            return {
+                ...s,
+                plan: plans[0] || '',
+                plans,
+                modality: modalities[0] || '',
+                modalities,
+                address: {
+                    cep: s.cep, street: s.street, number: s.number,
+                    neighborhood: s.neighborhood, city: s.city, state: s.state,
+                    complement: s.complement || ''
+                },
+                guardian: {
+                    name: s.guardian_name || '', cpf: s.guardian_cpf || '',
+                    phone: s.guardian_phone || '', relationship: s.guardian_relationship || ''
+                }
+            };
+        });
 
         res.json(students);
     } catch (err) {
