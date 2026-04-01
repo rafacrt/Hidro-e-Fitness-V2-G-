@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { fetchStudents, fetchTransactions } from '../services/api';
+import { fetchStudents, fetchTransactions, fetchPlans, fetchClasses } from '../services/api';
 
 interface ReportDef {
   id: string;
@@ -129,129 +129,307 @@ const Reports: React.FC = () => {
   const [format, setFormat] = useState<'PDF' | 'SCREEN'>('SCREEN');
   const [reportResult, setReportResult] = useState<any>(null);
   const [dateRange, setDateRange] = useState({ start: new Date().toISOString().split('T')[0], end: new Date().toISOString().split('T')[0] });
+  const [birthdaySortBy, setBirthdaySortBy] = useState<'dia_mes' | 'nome' | 'idade_asc' | 'idade_desc' | 'data'>('dia_mes');
 
   const fetchReportData = async (reportId: string) => {
+    // --- Helpers ---
+    const CATEGORY_LABELS: Record<string, string> = {
+      TUITION: 'Mensalidade', SALARY: 'Salário', MAINTENANCE: 'Manutenção',
+      RENT: 'Aluguel', EQUIPMENT: 'Equipamento', REGISTRATION: 'Matrícula', OTHER: 'Outro',
+    };
+    const STATUS_LABELS: Record<string, string> = {
+      PAID: 'Pago', PENDING: 'Pendente', LATE: 'Atrasado', CANCELLED: 'Cancelado',
+    };
+    const PM_LABELS: Record<string, string> = {
+      DINHEIRO: 'Dinheiro', PIX: 'Pix', DEBITO: 'Débito', CREDITO: 'Crédito', CHEQUE: 'Cheque',
+    };
+    const FREQ_MONTHS: Record<string, number> = {
+      Mensal: 1, Bimestral: 2, Trimestral: 3, Semestral: 6, Anual: 12,
+    };
+    const fmtDate = (dateStr: string) => {
+      if (!dateStr) return '-';
+      let d: Date;
+      if (dateStr.includes('T')) d = new Date(dateStr);
+      else { const [y, m, day] = dateStr.split('-').map(Number); d = new Date(y, m - 1, day); }
+      return isNaN(d.getTime()) ? '-' : d.toLocaleDateString('pt-BR');
+    };
+    const fmtMoney = (v: number) => `R$ ${Number(v).toFixed(2).replace('.', ',')}`;
+    const parseDateLocal = (s: string): Date => {
+      if (s.includes('T')) return new Date(s);
+      const [y, m, d] = s.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    };
+
+    const rangeStart = parseDateLocal(dateRange.start);
+    const rangeEnd = parseDateLocal(dateRange.end);
+    rangeStart.setHours(0, 0, 0, 0);
+    rangeEnd.setHours(23, 59, 59, 999);
+
+    // Reference month = start date's month
+    const refYear = rangeStart.getFullYear();
+    const refMonth = rangeStart.getMonth(); // 0-indexed
+
     switch (reportId) {
-      case 'acad_alunos_ativos': {
-        const students = await fetchStudents();
-        const active = students.filter(s => s.status === 'Ativo');
+
+      // ── FINANCEIRO ──────────────────────────────────────────────
+      case 'fin_receita': {
+        const trans = await fetchTransactions();
+        const filtered = trans.filter(t => {
+          const d = parseDateLocal(t.date);
+          return d >= rangeStart && d <= rangeEnd;
+        }).sort((a, b) => parseDateLocal(a.date).getTime() - parseDateLocal(b.date).getTime());
+
+        const totalIncome = filtered.filter(t => t.type === 'INCOME').reduce((s, t) => s + Number(t.amount), 0);
+        const totalExpense = filtered.filter(t => t.type === 'EXPENSE').reduce((s, t) => s + Number(t.amount), 0);
+
+        const rows = filtered.map(t => ([
+          fmtDate(t.date),
+          t.description,
+          CATEGORY_LABELS[t.category] ?? t.category,
+          t.type === 'INCOME' ? 'Entrada' : 'Saída',
+          fmtMoney(Number(t.amount)),
+          STATUS_LABELS[t.status] ?? t.status,
+          t.paymentMethod ? (PM_LABELS[t.paymentMethod] ?? t.paymentMethod) : '-',
+        ]));
+
+        // Summary footer
+        rows.push(['', '', '', 'Total Entradas', fmtMoney(totalIncome), '', '']);
+        rows.push(['', '', '', 'Total Saídas', fmtMoney(totalExpense), '', '']);
+        rows.push(['', '', '', 'Saldo', fmtMoney(totalIncome - totalExpense), '', '']);
+
         return {
-          headers: ['Nome', 'Telefone', 'Plano', 'Data Início'],
-          data: active.map(s => ([
-            s.name,
-            s.phone || '-',
-            s.plan || '-',
-            s.enrollmentDate ? new Date(s.enrollmentDate).toLocaleDateString() : '-'
-          ]))
+          headers: ['Data', 'Descrição', 'Categoria', 'Tipo', 'Valor', 'Status', 'Pagamento'],
+          data: rows,
         };
       }
+
+      case 'fin_inadimplencia': {
+        const [students, trans, plans] = await Promise.all([fetchStudents(), fetchTransactions(), fetchPlans()]);
+        const active = students.filter(s => s.status === 'Ativo');
+
+        const planMap: Record<string, any> = {};
+        plans.forEach((p: any) => { planMap[p.name] = p; });
+
+        const delinquent = active.filter(s => {
+          const studentPlans = Array.isArray(s.plans) && s.plans.length > 0 ? s.plans : (s.plan ? [s.plan] : []);
+          if (studentPlans.length === 0) return false;
+          // Check if any plan covers this month via a paid transaction
+          return studentPlans.every(planName => {
+            const plan = planMap[planName];
+            const freqMonths = plan ? (FREQ_MONTHS[plan.frequency] ?? 1) : 1;
+            const hasPaid = trans.some(t => {
+              if (t.type !== 'INCOME') return false;
+              if (t.status !== 'PAID') return false;
+              if (t.relatedEntity !== s.name) return false;
+              const tDate = parseDateLocal(t.date);
+              const tYear = tDate.getFullYear();
+              const tMonth = tDate.getMonth();
+              const diff = (refYear - tYear) * 12 + (refMonth - tMonth);
+              return diff >= 0 && diff < freqMonths;
+            });
+            return !hasPaid;
+          });
+        });
+
+        return {
+          headers: ['Nome', 'Telefone', 'Plano', 'Status Pgto', 'Desde'],
+          data: delinquent.map(s => ([
+            s.name,
+            s.phone || '-',
+            Array.isArray(s.plans) && s.plans.length > 0 ? s.plans.join(', ') : (s.plan || '-'),
+            s.paymentStatus,
+            fmtDate(s.enrollmentDate),
+          ])),
+        };
+      }
+
+      case 'fin_mensalidades': {
+        const [students, trans, plans] = await Promise.all([fetchStudents(), fetchTransactions(), fetchPlans()]);
+        const active = students.filter(s => s.status === 'Ativo');
+
+        const planMap: Record<string, any> = {};
+        plans.forEach((p: any) => { planMap[p.name] = p; });
+
+        const today = new Date();
+        const isPast = refYear < today.getFullYear() || (refYear === today.getFullYear() && refMonth < today.getMonth());
+
+        const rows = active.map(s => {
+          const studentPlans = Array.isArray(s.plans) && s.plans.length > 0 ? s.plans : (s.plan ? [s.plan] : []);
+          const planName = studentPlans[0] || '-';
+          const plan = planMap[planName];
+          const freqMonths = plan ? (FREQ_MONTHS[plan.frequency] ?? 1) : 1;
+          const planPrice = plan ? fmtMoney(plan.price) : '-';
+
+          const paidTx = trans.find(t => {
+            if (t.type !== 'INCOME' || t.status !== 'PAID' || t.relatedEntity !== s.name) return false;
+            const tDate = parseDateLocal(t.date);
+            const diff = (refYear - tDate.getFullYear()) * 12 + (refMonth - tDate.getMonth());
+            return diff >= 0 && diff < freqMonths;
+          });
+
+          let statusLabel: string;
+          if (paidTx) statusLabel = 'Pago';
+          else if (isPast) statusLabel = 'Atrasado';
+          else statusLabel = 'Pendente';
+
+          return [
+            s.name,
+            planName,
+            plan?.frequency ?? '-',
+            planPrice,
+            statusLabel,
+            paidTx ? fmtDate(paidTx.date) : '-',
+            paidTx?.paymentMethod ? (PM_LABELS[paidTx.paymentMethod] ?? paidTx.paymentMethod) : '-',
+          ];
+        });
+
+        const paid = rows.filter(r => r[4] === 'Pago').length;
+        const pending = rows.filter(r => r[4] === 'Pendente').length;
+        const late = rows.filter(r => r[4] === 'Atrasado').length;
+        rows.push(['', `Pagos: ${paid}`, `Pendentes: ${pending}`, `Atrasados: ${late}`, '', '', '']);
+
+        return {
+          headers: ['Nome', 'Plano', 'Periodicidade', 'Valor', 'Status', 'Data Pgto', 'Forma'],
+          data: rows,
+        };
+      }
+
+      // ── ACADÊMICO ─────────────────────────────────────────────────
+      case 'acad_alunos_ativos': {
+        const students = await fetchStudents();
+        const active = students.filter(s => s.status === 'Ativo')
+          .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+        return {
+          headers: ['Nome', 'Modalidades', 'Plano', 'Telefone', 'Data Matrícula'],
+          data: active.map(s => ([
+            s.name,
+            Array.isArray(s.modalities) && s.modalities.length > 0 ? s.modalities.join(', ') : '-',
+            Array.isArray(s.plans) && s.plans.length > 0 ? s.plans.join(', ') : (s.plan || '-'),
+            s.phone || '-',
+            fmtDate(s.enrollmentDate),
+          ])),
+        };
+      }
+
+      case 'acad_novas_matriculas': {
+        const students = await fetchStudents();
+        const newStudents = students.filter(s => {
+          if (!s.enrollmentDate) return false;
+          const d = parseDateLocal(s.enrollmentDate);
+          return d >= rangeStart && d <= rangeEnd;
+        }).sort((a, b) => parseDateLocal(a.enrollmentDate).getTime() - parseDateLocal(b.enrollmentDate).getTime());
+        return {
+          headers: ['Nome', 'Data Matrícula', 'Plano', 'Modalidades', 'Telefone'],
+          data: newStudents.map(s => ([
+            s.name,
+            fmtDate(s.enrollmentDate),
+            Array.isArray(s.plans) && s.plans.length > 0 ? s.plans.join(', ') : (s.plan || '-'),
+            Array.isArray(s.modalities) && s.modalities.length > 0 ? s.modalities.join(', ') : '-',
+            s.phone || '-',
+          ])),
+        };
+      }
+
+      case 'acad_cancelamentos': {
+        const students = await fetchStudents();
+        const inactive = students.filter(s => s.status === 'Inativo' || s.status === 'Trancado')
+          .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+        return {
+          headers: ['Nome', 'Status', 'Plano', 'Modalidades', 'Telefone'],
+          data: inactive.map(s => ([
+            s.name,
+            s.status,
+            Array.isArray(s.plans) && s.plans.length > 0 ? s.plans.join(', ') : (s.plan || '-'),
+            Array.isArray(s.modalities) && s.modalities.length > 0 ? s.modalities.join(', ') : '-',
+            s.phone || '-',
+          ])),
+        };
+      }
+
       case 'acad_aniversariantes': {
         const students = await fetchStudents();
-        const start = new Date(dateRange.start + 'T00:00:00'); // Force start of day in local time
-        const end = new Date(dateRange.end + 'T23:59:59');     // Force end of day in local time
+        const start = new Date(dateRange.start + 'T00:00:00');
+        const end = new Date(dateRange.end + 'T23:59:59');
 
-        // Filter: check if birthday (month/day) falls in range
+        const parseBirthDate = (s: any): Date | null => {
+          if (!s.birthDate) return null;
+          const bdate = parseDateLocal(s.birthDate);
+          if (isNaN(bdate.getTime()) || bdate.getFullYear() < 1900) return null;
+          return bdate;
+        };
+
         const birthdays = students.filter(s => {
-          if (!s.birthDate) return false;
-
-          let bdate: Date;
-          if (s.birthDate.includes('T')) {
-            bdate = new Date(s.birthDate);
-          } else if (s.birthDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
-            // Handle YYYY-MM-DD explicitly as local time to avoid timezone shift
-            const [y, m, d] = s.birthDate.split('-').map(Number);
-            bdate = new Date(y, m - 1, d);
-          } else {
-            return false; // Unknown format
-          }
-
-          // Check if valid date
-          if (isNaN(bdate.getTime())) return false;
-          // If year is invalid (e.g. year 1), treat as invalid
-          if (bdate.getFullYear() < 1900) return false;
-
-          // Normalize birthday to this year for comparison
+          const bdate = parseBirthDate(s);
+          if (!bdate) return false;
           const thisYear = new Date().getFullYear();
           const thisYearBday = new Date(thisYear, bdate.getMonth(), bdate.getDate());
-
-          // Handle range spanning across years (e.g. Dec to Jan)
-          // For simplicity in this specific report logical, we assume range is within a year or handled linearly
-          // But strict comparison:
           return thisYearBday >= start && thisYearBday <= end;
+        });
+
+        const sortedBirthdays = [...birthdays].sort((a, b) => {
+          const da = parseBirthDate(a);
+          const db = parseBirthDate(b);
+          if (!da && !db) return 0;
+          if (!da) return 1;
+          if (!db) return -1;
+          switch (birthdaySortBy) {
+            case 'nome': return a.name.localeCompare(b.name, 'pt-BR');
+            case 'idade_asc': return db.getFullYear() - da.getFullYear();
+            case 'idade_desc': return da.getFullYear() - db.getFullYear();
+            case 'data':
+            case 'dia_mes':
+            default:
+              if (da.getMonth() !== db.getMonth()) return da.getMonth() - db.getMonth();
+              return da.getDate() - db.getDate();
+          }
         });
 
         return {
           headers: ['Nome', 'Data Nascimento', 'Idade', 'Telefone', 'Status'],
-          data: birthdays.map(s => {
-            if (!s.birthDate) {
-              return [s.name, 'Sem data preenchida', '-', s.phone || '-', s.status];
-            }
-
-            let bdate: Date;
-            // Robust parsing
-            if (s.birthDate.includes('T')) {
-              bdate = new Date(s.birthDate);
-            } else {
-              const [y, m, d] = s.birthDate.split('-').map(Number);
-              bdate = new Date(y, m - 1, d);
-            }
-
-            // Check for invalid years (like year 1)
-            if (bdate.getFullYear() < 1900) {
-              return [s.name, 'Sem data preenchida', '-', s.phone || '-', s.status];
-            }
-
+          data: sortedBirthdays.map(s => {
+            const bdate = parseBirthDate(s);
+            if (!bdate) return [s.name, 'Sem data', '-', s.phone || '-', s.status];
             const today = new Date();
             let age = today.getFullYear() - bdate.getFullYear();
-            const m = today.getMonth() - bdate.getMonth();
-            if (m < 0 || (m === 0 && today.getDate() < bdate.getDate())) {
-              age--;
-            }
-
-            return [
-              s.name,
-              bdate.toLocaleDateString(),
-              age.toString() + ' anos',
-              s.phone || '-',
-              s.status
-            ];
-          })
+            const mDiff = today.getMonth() - bdate.getMonth();
+            if (mDiff < 0 || (mDiff === 0 && today.getDate() < bdate.getDate())) age--;
+            return [s.name, fmtDate(s.birthDate), age + ' anos', s.phone || '-', s.status];
+          }),
         };
       }
-      case 'fin_receita': {
-        const trans = await fetchTransactions();
-        const start = new Date(dateRange.start);
-        const end = new Date(dateRange.end);
-        start.setHours(0, 0, 0, 0);
-        end.setHours(23, 59, 59, 999);
 
-        const filtered = trans.filter(t => {
-          if (t.type !== 'INCOME') return false;
-          let tDate;
-          if (t.date.includes('T')) tDate = new Date(t.date);
-          else {
-            const [y, m, d] = t.date.split('-').map(Number);
-            tDate = new Date(y, m - 1, d);
-          }
-          return tDate >= start && tDate <= end;
-        });
-
+      // ── OPERACIONAL ───────────────────────────────────────────────
+      case 'op_ocupacao': {
+        const classes = await fetchClasses();
         return {
-          headers: ['Data', 'Descrição', 'Categoria', 'Valor', 'Status'],
-          data: filtered.map(t => ([
-            t.date,
-            t.description,
-            t.category,
-            `R$ ${Number(t.amount).toFixed(2)}`,
-            t.status === 'PAID' ? 'Pago' : t.status
-          ]))
+          headers: ['Turma', 'Horário', 'Dias', 'Instrutor', 'Inscritos', 'Vagas', 'Ocupação', 'Status'],
+          data: classes.map((c: any) => {
+            const pct = c.capacity > 0 ? Math.round((c.enrolled / c.capacity) * 100) : 0;
+            return [
+              c.name,
+              `${c.time} – ${c.endTime}`,
+              Array.isArray(c.days) ? c.days.join(', ') : c.days,
+              c.instructor,
+              String(c.enrolled),
+              String(c.capacity),
+              `${pct}%`,
+              c.status === 'Full' ? 'Lotado' : c.status === 'Cancelled' ? 'Cancelado' : 'Aberto',
+            ];
+          }),
         };
       }
-      // Implement others or default
+
+      case 'op_frequencia': {
+        return {
+          headers: ['Informação'],
+          data: [['Módulo de frequência ainda não implementado. Os dados de presença por aluno serão disponibilizados em versão futura.']],
+        };
+      }
+
       default:
         return {
           headers: ['Mensagem'],
-          data: [['Relatório ainda não implementado (Mock)']]
+          data: [['Relatório desconhecido.']],
         };
     }
   };
@@ -407,6 +585,23 @@ const Reports: React.FC = () => {
                 </div>
               </div>
 
+              {selectedReport.id === 'acad_aniversariantes' && (
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-slate-700">Ordenação</label>
+                  <select
+                    value={birthdaySortBy}
+                    onChange={e => setBirthdaySortBy(e.target.value as typeof birthdaySortBy)}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                  >
+                    <option value="dia_mes">Dia do aniversário</option>
+                    <option value="nome">Nome (A-Z)</option>
+                    <option value="idade_asc">Idade (mais novo primeiro)</option>
+                    <option value="idade_desc">Idade (mais velho primeiro)</option>
+                    <option value="data">Data completa (mês/dia)</option>
+                  </select>
+                </div>
+              )}
+
               <div className="space-y-3">
                 <label className="block text-sm font-medium text-slate-700">Formato de Saída</label>
                 <div className="grid grid-cols-2 gap-3">
@@ -483,25 +678,31 @@ const Reports: React.FC = () => {
             </div>
 
             <div className="p-6 overflow-auto">
-              {/* Mock Table Render */}
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-100">
-                    {Object.keys(reportResult.data[0] || {}).map((header) => (
-                      <th key={header} className="p-3 text-xs font-bold text-slate-600 uppercase border-b border-slate-200">{header}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {reportResult.data.map((row: any, idx: number) => (
-                    <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50">
-                      {Object.values(row).map((val: any, vIdx: number) => (
-                        <td key={vIdx} className="p-3 text-sm text-slate-700">{val}</td>
+              {reportResult.data.length === 0 ? (
+                <div className="text-center py-12 text-slate-400">
+                  <p className="text-lg font-medium">Nenhum resultado encontrado</p>
+                  <p className="text-sm mt-1">Tente ajustar o período de análise.</p>
+                </div>
+              ) : (
+                <table className="w-full text-left border-collapse text-sm">
+                  <thead>
+                    <tr className="bg-slate-100">
+                      {(reportResult.headers as string[]).map((header: string) => (
+                        <th key={header} className="p-3 text-xs font-bold text-slate-600 uppercase border-b border-slate-200 whitespace-nowrap">{header}</th>
                       ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {reportResult.data.map((row: any, idx: number) => (
+                      <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50">
+                        {(reportResult.headers as string[]).map((h: string, vIdx: number) => (
+                          <td key={vIdx} className="p-3 text-slate-700">{row[h]}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
 
             <div className="p-4 border-t border-slate-100 bg-slate-50 rounded-b-xl flex justify-end">

@@ -13,6 +13,7 @@ const Classes = React.lazy(() => import('./pages/Classes'));
 const UserManagement = React.lazy(() => import('./pages/UserManagement'));
 const Reports = React.lazy(() => import('./pages/Reports'));
 const Finance = React.lazy(() => import('./pages/Finance'));
+const Caixa = React.lazy(() => import('./pages/Caixa'));
 const DeveloperBackup = React.lazy(() => import('./pages/DeveloperBackup'));
 
 // Loading Component
@@ -81,6 +82,7 @@ const App: React.FC = () => {
                   <Route path="/students" element={<Students />} />
                   <Route path="/classes" element={<Classes />} />
                   <Route path="/reports" element={<Reports />} />
+                  <Route path="/caixa" element={<Caixa />} />
                   <Route path="/finance" element={<Finance />} />
 
                   {/* DEV ONLY ROUTES */}

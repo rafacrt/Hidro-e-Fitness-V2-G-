@@ -27,3 +27,8 @@ alunos.csv
 
 /backup/
 /backup2/
+
+# Backups do banco de dados (apenas local)
+*.sql.gz
+*.sql.bak
+hidro_restauracao_completa2.sql

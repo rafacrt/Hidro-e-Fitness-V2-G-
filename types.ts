@@ -113,8 +113,9 @@ export interface ClassSession {
 // --- FINANCE TYPES ---
 
 export type TransactionType = 'INCOME' | 'EXPENSE';
-export type TransactionCategory = 'TUITION' | 'SALARY' | 'MAINTENANCE' | 'RENT' | 'EQUIPMENT' | 'OTHER';
+export type TransactionCategory = 'TUITION' | 'SALARY' | 'MAINTENANCE' | 'RENT' | 'EQUIPMENT' | 'OTHER' | 'REGISTRATION';
 export type TransactionStatus = 'PAID' | 'PENDING' | 'LATE' | 'CANCELLED';
+export type PaymentMethod = 'DINHEIRO' | 'PIX' | 'DEBITO' | 'CREDITO' | 'CHEQUE';
 
 export interface FinancialTransaction {
   id: string;
@@ -126,4 +127,5 @@ export interface FinancialTransaction {
   dueDate: string;
   status: TransactionStatus;
   relatedEntity?: string; // Student Name or Supplier Name
+  paymentMethod?: PaymentMethod; // Form of payment
 }

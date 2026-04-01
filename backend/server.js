@@ -670,9 +670,10 @@ app.post('/api/classes', async (req, res) => {
 app.get('/api/finance', async (req, res) => {
     try {
         const result = await pool.query(`
-            SELECT 
-                id, description, type, category, amount, date, 
-                due_date as "dueDate", status, related_entity as "relatedEntity"
+            SELECT
+                id, description, type, category, amount, date,
+                due_date as "dueDate", status, related_entity as "relatedEntity",
+                payment_method as "paymentMethod"
             FROM transactions ORDER BY date DESC
         `);
         res.json(result.rows);
@@ -684,12 +685,12 @@ app.get('/api/finance', async (req, res) => {
 
 // Finance - POST
 app.post('/api/finance', async (req, res) => {
-    const { id, description, type, category, amount, date, dueDate, status, relatedEntity } = req.body;
+    const { id, description, type, category, amount, date, dueDate, status, relatedEntity, paymentMethod } = req.body;
     try {
         await pool.query(
-            `INSERT INTO transactions (id, description, type, category, amount, date, due_date, status, related_entity)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-            [id, description, type, category, amount, date, dueDate, status, relatedEntity]
+            `INSERT INTO transactions (id, description, type, category, amount, date, due_date, status, related_entity, payment_method)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+            [id, description, type, category, amount, date, dueDate, status, relatedEntity, paymentMethod || null]
         );
         res.status(201).json({ message: 'Transaction created' });
     } catch (err) {
@@ -701,13 +702,13 @@ app.post('/api/finance', async (req, res) => {
 // Finance - PUT
 app.put('/api/finance/:id', async (req, res) => {
     const { id } = req.params;
-    const { description, type, category, amount, date, dueDate, status, relatedEntity } = req.body;
+    const { description, type, category, amount, date, dueDate, status, relatedEntity, paymentMethod } = req.body;
     try {
         await pool.query(
-            `UPDATE transactions 
-             SET description = $1, type = $2, category = $3, amount = $4, date = $5, due_date = $6, status = $7, related_entity = $8
-             WHERE id = $9`,
-            [description, type, category, amount, date, dueDate, status, relatedEntity, id]
+            `UPDATE transactions
+             SET description = $1, type = $2, category = $3, amount = $4, date = $5, due_date = $6, status = $7, related_entity = $8, payment_method = $9
+             WHERE id = $10`,
+            [description, type, category, amount, date, dueDate, status, relatedEntity, paymentMethod || null, id]
         );
         res.json({ message: 'Transaction updated' });
     } catch (err) {

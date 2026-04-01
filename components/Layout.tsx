@@ -5,6 +5,8 @@ import {
   Users,
   Droplets,
   Wallet,
+  Banknote,
+  BarChart2,
   Server,
   Menu,
   X,
@@ -91,7 +93,8 @@ const Layout: React.FC<LayoutProps> = ({ children, user, onLogout }) => {
           <SidebarItem icon={Calendar} label="Planos e Turmas" to="/classes" active={location.pathname === '/classes'} />
 
           <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-8 mb-4 px-4">Gestão</div>
-          <SidebarItem icon={Wallet} label="Financeiro" to="/finance" active={location.pathname === '/finance'} />
+          <SidebarItem icon={Banknote} label="Caixa" to="/caixa" active={location.pathname === '/caixa'} />
+          <SidebarItem icon={BarChart2} label="Financeiro" to="/finance" active={location.pathname === '/finance'} />
           <SidebarItem icon={FileBarChart} label="Relatórios" to="/reports" active={location.pathname === '/reports'} />
 
           {/* DEV ONLY MODULES */}
@@ -144,7 +147,9 @@ const Layout: React.FC<LayoutProps> = ({ children, user, onLogout }) => {
                   location.pathname === '/classes' ? 'Planos e Turmas' :
                     location.pathname === '/users' ? 'Gestão de Usuários' :
                       location.pathname === '/reports' ? 'Relatórios Gerenciais' :
-                        location.pathname === '/architecture' ? 'Arquitetura do Sistema' : 'Sistema'}
+                        location.pathname === '/caixa' ? 'Caixa' :
+                          location.pathname === '/finance' ? 'Financeiro' :
+                            location.pathname === '/architecture' ? 'Arquitetura do Sistema' : 'Sistema'}
             </h1>
           </div>
 
