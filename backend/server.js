@@ -403,22 +403,8 @@ app.get('/api/students', async (req, res) => {
         const planIdToName = {};
         plansResult.rows.forEach(p => { planIdToName[String(p.id)] = p.name; });
 
-        // Parse JSON array stored in plan_name / modality_name,
-        // resolving any numeric IDs to actual plan names
-        const resolvePlans = (raw) => {
-            if (!raw) return [];
-            let arr;
-            try { arr = typeof raw === 'string' ? JSON.parse(raw) : raw; } catch { arr = [raw]; }
-            if (!Array.isArray(arr)) arr = [arr];
-            return arr.map(v => {
-                const s = String(v).trim();
-                // If it looks like a numeric ID, resolve to plan name
-                if (/^\d+$/.test(s)) return planIdToName[s] || s;
-                return s;
-            }).filter(Boolean);
-        };
-
-        const resolveModalities = (raw) => {
+        // Parse raw JSON array from plan_name / modality_name columns
+        const parseRaw = (raw) => {
             if (!raw) return [];
             let arr;
             try { arr = typeof raw === 'string' ? JSON.parse(raw) : raw; } catch { arr = [raw]; }
@@ -426,13 +412,28 @@ app.get('/api/students', async (req, res) => {
             return arr.map(v => String(v).trim()).filter(Boolean);
         };
 
+        // Return the raw identifiers as-is (IDs stay as IDs, names stay as names)
+        // planIds preserves the exact values stored in the DB so the frontend
+        // can do precise lookups by numeric ID when available.
+        const extractPlanIds = (raw) => parseRaw(raw);
+
+        // Resolve each entry: numeric ID → plan name; plain name → keep as-is
+        const resolvePlans = (raw) => parseRaw(raw).map(v => {
+            if (/^\d+$/.test(v)) return planIdToName[v] || v;
+            return v;
+        });
+
+        const resolveModalities = (raw) => parseRaw(raw);
+
         const students = studentsResult.rows.map(s => {
-            const plans = resolvePlans(s.planRaw);
+            const planIds  = extractPlanIds(s.planRaw);   // raw: ["523"] or ["Hidroginástica 3x..."]
+            const plans    = resolvePlans(s.planRaw);      // resolved: ["Hidroginástica 3x na semana"]
             const modalities = resolveModalities(s.modalityRaw);
             return {
                 ...s,
                 plan: plans[0] || '',
                 plans,
+                planIds,   // raw identifiers — used by frontend for precise plan lookup
                 modality: modalities[0] || '',
                 modalities,
                 address: {

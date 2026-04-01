@@ -159,15 +159,25 @@ const Caixa: React.FC = () => {
         }
 
         // Resolve plan → amount + frequency
-        const planNames = parsePlanNames(student.plan);
+        // Prefer planIds (exact ID lookup) over name lookup to avoid
+        // picking the wrong plan when multiple plans share the same name.
+        const planIdentifiers: string[] = (student as any).planIds?.length
+          ? (student as any).planIds
+          : parsePlanNames(student.plan);
         let amount = 0;
         let planLabel = '';
         let planFrequency = '';
         let freqMonths = 1;
 
-        if (planNames.length > 0) {
-          const found = planNames
-            .map(name => plans.find(pl => pl.name.toLowerCase().trim() === name.toLowerCase().trim()))
+        if (planIdentifiers.length > 0) {
+          const found = planIdentifiers
+            .map((id: string) => {
+              // Try exact ID match first
+              const byId = plans.find((pl: any) => String(pl.id) === String(id));
+              if (byId) return byId;
+              // Fall back to name match (for legacy data stored as names)
+              return plans.find((pl: any) => pl.name.toLowerCase().trim() === String(id).toLowerCase().trim());
+            })
             .filter(Boolean);
 
           if (found.length > 0) {
@@ -178,7 +188,7 @@ const Caixa: React.FC = () => {
             // Use the LARGEST frequency window among combined plans
             freqMonths   = Math.max(...freqs.map(f => FREQ_MONTHS[f] || 1));
           } else {
-            planLabel = planNames.join(' + ');
+            planLabel = planIdentifiers.join(' + ');
           }
         } else {
           planLabel = student.plan || 'Sem Plano';

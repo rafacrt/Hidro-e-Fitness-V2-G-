@@ -603,13 +603,17 @@ const Students: React.FC = () => {
       }
     }
 
-    // Keep plan identifiers (IDs or names from legacy data)
-    const resolvedPlans = parsePlans(student.plan).map(pStr => String(pStr));
+    // Use planIds (raw IDs from DB) when available — these allow precise lookups
+    // by numeric ID and avoid ambiguity when multiple plans share the same name.
+    // Fall back to parsePlans(student.plan) for legacy data that has no planIds.
+    const editPlans: string[] = (student as any).planIds?.length
+      ? (student as any).planIds.map((v: any) => String(v))
+      : parsePlans(student.plan).map(pStr => String(pStr));
 
     setFormData({
       ...student,
       birthDate: formattedBirthDate,
-      plans: resolvedPlans,
+      plans: editPlans,
       modalities: student.modalities && student.modalities.length > 0 ? student.modalities : parsePlans(student.modality)
     });
     setOpenMenuId(null);
