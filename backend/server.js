@@ -189,6 +189,22 @@ const connectWithRetry = async () => {
                 -- Alter columns to TEXT to avoid truncation issues with JSON array
                 ALTER TABLE students ALTER COLUMN plan_name TYPE TEXT;
                 ALTER TABLE students ALTER COLUMN modality_name TYPE TEXT;
+
+                -- Add payment_method column to transactions if not exists
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns
+                    WHERE table_name = 'transactions' AND column_name = 'payment_method'
+                ) THEN
+                    ALTER TABLE transactions ADD COLUMN payment_method VARCHAR(20)
+                        CHECK (payment_method IN ('DINHEIRO', 'PIX', 'DEBITO', 'CREDITO', 'CHEQUE'));
+                END IF;
+
+                -- Update transactions category constraint to include REGISTRATION
+                IF EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'transactions_category_check') THEN
+                    ALTER TABLE transactions DROP CONSTRAINT transactions_category_check;
+                END IF;
+                ALTER TABLE transactions ADD CONSTRAINT transactions_category_check
+                    CHECK (category IN ('TUITION', 'SALARY', 'MAINTENANCE', 'RENT', 'EQUIPMENT', 'OTHER', 'REGISTRATION'));
             END $$;
         `);
         console.log("Schema constraints updated.");

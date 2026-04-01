@@ -105,12 +105,13 @@ CREATE TABLE IF NOT EXISTS transactions (
     id VARCHAR(50) PRIMARY KEY,
     description VARCHAR(200) NOT NULL,
     type VARCHAR(10) CHECK (type IN ('INCOME', 'EXPENSE')),
-    category VARCHAR(20) CHECK (category IN ('TUITION', 'SALARY', 'MAINTENANCE', 'RENT', 'EQUIPMENT', 'OTHER')),
+    category VARCHAR(20) CHECK (category IN ('TUITION', 'SALARY', 'MAINTENANCE', 'RENT', 'EQUIPMENT', 'OTHER', 'REGISTRATION')),
     amount DECIMAL(10, 2) NOT NULL,
     date DATE NOT NULL,
     due_date DATE NOT NULL,
     status VARCHAR(20) CHECK (status IN ('PAID', 'PENDING', 'LATE', 'CANCELLED')),
-    related_entity VARCHAR(200)
+    related_entity VARCHAR(200),
+    payment_method VARCHAR(20) CHECK (payment_method IN ('DINHEIRO', 'PIX', 'DEBITO', 'CREDITO', 'CHEQUE'))
 );
 
 -- ==========================================
