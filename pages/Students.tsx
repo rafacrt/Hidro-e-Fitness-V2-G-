@@ -242,8 +242,8 @@ const Students: React.FC = () => {
       birthDate: s.birthDate,
       phone: s.phone,
       isWhatsapp: s.isWhatsapp ? 'Sim' : 'Não',
-      plan: parsePlans(s.plan).map(pStr => {
-        const pMatch = plans.find(p => String(p.id) === String(pStr) || p.name === pStr);
+      plan: ((s as any).planIds?.length ? (s as any).planIds : parsePlans(s.plan)).map((pStr: string) => {
+        const pMatch = plans.find(p => String(p.id) === String(pStr)) || plans.find(p => p.name === pStr);
         return pMatch ? `${pMatch.name} (${pMatch.frequency})` : pStr;
       }).join('; '),
       modalities: s.modalities && s.modalities.length > 0 ? s.modalities.join('; ') : parsePlans(s.modality).join('; '),
@@ -496,11 +496,14 @@ const Students: React.FC = () => {
         const selectedStudents = students.filter(s => selectedStudentIds.includes(s.id));
 
         for (const student of selectedStudents) {
-          const studentPlans = parsePlans(student.plan);
+          const studentPlans = (student as any).planIds?.length
+            ? (student as any).planIds
+            : parsePlans(student.plan);
           if (studentPlans.length === 0) continue;
 
           for (const planIdentifier of studentPlans) {
-            const plan = plans.find(p => String(p.id) === String(planIdentifier) || p.name === planIdentifier);
+            const plan = plans.find(p => String(p.id) === String(planIdentifier)) ||
+                         plans.find(p => p.name === planIdentifier);
             if (!plan) continue;
 
             const today = new Date();
@@ -797,10 +800,17 @@ const Students: React.FC = () => {
                     {student.modalities && student.modalities.length > 0 ? student.modalities.join(', ') : (student.modality || 'Sem Modalidade')}
                   </div>
                   <div className="text-xs text-slate-500">
-                    {(!student.plan || student.plan === '[]' || student.plan === 'Sem Plano') ? 'Sem Plano' : parsePlans(student.plan).map(pStr => {
-                      const pMatch = plans.find(p => String(p.id) === String(pStr) || p.name === pStr);
-                      return pMatch ? `${pMatch.name} (${pMatch.frequency})` : pStr;
-                    }).join(', ')}
+                    {(() => {
+                      const ids: string[] = (student as any).planIds?.length
+                        ? (student as any).planIds
+                        : parsePlans(student.plan);
+                      if (!ids.length) return 'Sem Plano';
+                      return ids.map(pStr => {
+                        const pMatch = plans.find(p => String(p.id) === String(pStr)) ||
+                                       plans.find(p => p.name === pStr);
+                        return pMatch ? `${pMatch.name} (${pMatch.frequency})` : pStr;
+                      }).join(', ');
+                    })()}
                   </div>
                 </td>
                 <td className="px-6 py-4">
@@ -927,7 +937,12 @@ const Students: React.FC = () => {
                         </button>
                         <div>
                           <p className="font-medium text-slate-800">{student.name}</p>
-                          <p className="text-xs text-slate-500">{parsePlans(student.plan).join(', ') || 'Sem Plano'}</p>
+                          <p className="text-xs text-slate-500">
+                            {((student as any).planIds?.length ? (student as any).planIds : parsePlans(student.plan)).map((pStr: string) => {
+                              const pMatch = plans.find(p => String(p.id) === String(pStr)) || plans.find(p => p.name === pStr);
+                              return pMatch ? `${pMatch.name} (${pMatch.frequency})` : pStr;
+                            }).join(', ') || 'Sem Plano'}
+                          </p>
                         </div>
                       </div>
                     ))}
