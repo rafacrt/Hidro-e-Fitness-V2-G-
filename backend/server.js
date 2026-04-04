@@ -396,7 +396,7 @@ app.get('/api/students', async (req, res) => {
                     medical_notes as "medicalNotes"
                 FROM students ORDER BY name
             `),
-            pool.query('SELECT id, name FROM plans')
+            pool.query('SELECT id, name FROM plans ORDER BY id')
         ]);
 
         // Build plan ID → name lookup map
@@ -581,7 +581,7 @@ app.get('/api/modalities', async (req, res) => {
 // Plans
 app.get('/api/plans', async (req, res) => {
     try {
-        const result = await pool.query('SELECT id, name, modality_id as "modalityId", frequency, price, duration_months as "durationMonths", classes_per_week as "classesPerWeek" FROM plans');
+        const result = await pool.query('SELECT id, name, modality_id as "modalityId", frequency, price, duration_months as "durationMonths", classes_per_week as "classesPerWeek" FROM plans ORDER BY id');
         res.json(result.rows);
     } catch (err) {
         console.error(err);
