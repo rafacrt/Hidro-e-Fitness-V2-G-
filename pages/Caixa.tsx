@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
-  Search, X, RotateCcw, CheckCircle, ChevronLeft, ChevronRight, Check, Info
+  Search, X, CheckCircle, ChevronLeft, ChevronRight, Check, Info, Trash2
 } from 'lucide-react';
 import { fetchStudents, fetchTransactions, fetchPlans, createTransaction, deleteTransaction } from '../services/api';
 import { FinancialTransaction } from '../types';
@@ -89,6 +89,11 @@ const Caixa: React.FC = () => {
   const [observation,   setObservation]   = useState('');
   const [saving,        setSaving]        = useState(false);
 
+  // Seleção / exclusão em massa
+  const [selectedIds,  setSelectedIds]  = useState<Set<number>>(new Set());
+  const [deleting,     setDeleting]     = useState(false);
+  const headerCheckboxRef = useRef<HTMLInputElement>(null);
+
   // ── Data ────────────────────────────────────────────────────────────────────
 
   const loadData = async () => {
@@ -98,6 +103,7 @@ const Caixa: React.FC = () => {
       setStudents(s);
       setTransactions(t);
       setPlans(p);
+      setSelectedIds(new Set()); // limpa seleção após recarregar
     } catch (e) {
       console.error('Caixa: erro ao carregar dados', e);
     } finally {
@@ -120,12 +126,14 @@ const Caixa: React.FC = () => {
     const d = new Date(selectedMonth + '-15');
     d.setMonth(d.getMonth() - 1);
     setSelectedMonth(d.toISOString().slice(0, 7));
+    setSelectedIds(new Set());
   };
 
   const nextMonth = () => {
     const d = new Date(selectedMonth + '-15');
     d.setMonth(d.getMonth() + 1);
     setSelectedMonth(d.toISOString().slice(0, 7));
+    setSelectedIds(new Set());
   };
 
   // ── Plan helpers ─────────────────────────────────────────────────────────────
@@ -161,8 +169,6 @@ const Caixa: React.FC = () => {
         }
 
         // Resolve plan → amount + frequency
-        // Prefer planIds (exact ID lookup) over name lookup to avoid
-        // picking the wrong plan when multiple plans share the same name.
         const planIdentifiers: string[] = (student as any).planIds?.length
           ? (student as any).planIds
           : parsePlanNames(student.plan);
@@ -174,10 +180,8 @@ const Caixa: React.FC = () => {
         if (planIdentifiers.length > 0) {
           const found = planIdentifiers
             .map((id: string) => {
-              // Try exact ID match first
               const byId = plans.find((pl: any) => String(pl.id) === String(id));
               if (byId) return byId;
-              // Fall back to name match (for legacy data stored as names)
               return plans.find((pl: any) => pl.name.toLowerCase().trim() === String(id).toLowerCase().trim());
             })
             .filter(Boolean);
@@ -187,7 +191,6 @@ const Caixa: React.FC = () => {
             planLabel    = found.map((p: any) => p.name).join(' + ');
             const freqs  = [...new Set(found.map((p: any) => p.frequency))] as string[];
             planFrequency = freqs.join('/');
-            // Use the LARGEST frequency window among combined plans
             freqMonths   = Math.max(...freqs.map(f => FREQ_MONTHS[f] || 1));
           } else {
             planLabel = planIdentifiers.join(' + ');
@@ -196,7 +199,7 @@ const Caixa: React.FC = () => {
           planLabel = student.plan || 'Sem Plano';
         }
 
-        // Detect parcelado: student has existing PAID transactions with installmentTotal > 1
+        // Detect parcelado
         const parceladoTxs = transactions.filter((t: any) =>
           t.relatedEntity === student.name &&
           t.category === 'TUITION' &&
@@ -208,17 +211,8 @@ const Caixa: React.FC = () => {
         const installTotal = isParcelado ? (parceladoTxs[0] as any).installmentTotal : freqMonths;
         const paidInstallments = parceladoTxs.length;
         const nextInstallment = paidInstallments + 1;
-
-        // For parcelado, each payment covers only 1 month
         const effectiveFreqMonths = isParcelado ? 1 : freqMonths;
 
-        /**
-         * Find a transaction that "covers" the selected month.
-         * A transaction covers month M if it was recorded within
-         * the effectiveFreqMonths window ending at M.
-         * e.g.: trimestral à vista (3 months) → a payment in Jan covers Jan, Feb, Mar.
-         * e.g.: trimestral parcelado (1 month each) → payment only covers its own month.
-         */
         const transaction = transactions.find(t => {
           if (t.relatedEntity !== student.name) return false;
           if (t.category !== 'TUITION' || t.type !== 'INCOME') return false;
@@ -230,28 +224,22 @@ const Caixa: React.FC = () => {
             tDate = new Date(ty, tm - 1, td);
           }
 
-          // monthsDiff: positive = transaction is in the past relative to selectedMonth
           const tYear  = tDate.getFullYear();
           const tMonth = tDate.getMonth() + 1;
           const diff   = (year - tYear) * 12 + (month - tMonth);
-
-          // Transaction covers selectedMonth if 0 ≤ diff < effectiveFreqMonths
           return diff >= 0 && diff < effectiveFreqMonths;
         });
 
-        // Override amount with actual transaction amount if present
         if (transaction && Number(transaction.amount) > 0) {
           amount = Number(transaction.amount);
         }
 
-        // Determine status
         let status: 'PAID' | 'PENDING' | 'LATE' = 'PENDING';
         if (transaction) {
           status = transaction.status === 'PAID'  ? 'PAID'
                  : transaction.status === 'LATE'  ? 'LATE'
                  : 'PENDING';
         } else {
-          // Future months are always PENDING — can't be late yet
           const isFuture = year > now.getFullYear()
             || (year === now.getFullYear() && month > now.getMonth() + 1);
           if (isFuture) {
@@ -266,7 +254,6 @@ const Caixa: React.FC = () => {
       })
       .filter(Boolean) as any[];
 
-    // Sort: LATE → PENDING → PAID, then A–Z
     const order: Record<string, number> = { LATE: 0, PENDING: 1, PAID: 2 };
     return list.sort(
       (a, b) => order[a.status] - order[b.status]
@@ -286,12 +273,50 @@ const Caixa: React.FC = () => {
     late:    tuitionList.filter(i => i.status === 'LATE').length,
   }), [tuitionList]);
 
+  // Itens que podem ser selecionados (têm transação no banco)
+  const selectableItems = useMemo(
+    () => filtered.filter(i => i.transaction),
+    [filtered]
+  );
+
+  const allFilteredSelected = selectableItems.length > 0
+    && selectableItems.every(i => selectedIds.has(i.student.id));
+  const someFilteredSelected = !allFilteredSelected
+    && selectableItems.some(i => selectedIds.has(i.student.id));
+
+  // Atualiza estado indeterminate do checkbox do header
+  useEffect(() => {
+    if (headerCheckboxRef.current) {
+      headerCheckboxRef.current.indeterminate = someFilteredSelected;
+    }
+  }, [someFilteredSelected]);
+
+  const selectedCount = useMemo(
+    () => filtered.filter(i => selectedIds.has(i.student.id) && i.transaction).length,
+    [filtered, selectedIds]
+  );
+
   // ── Handlers ─────────────────────────────────────────────────────────────────
+
+  const toggleSelect = (id: number) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (allFilteredSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(selectableItems.map(i => i.student.id)));
+    }
+  };
 
   const openReceiveModal = (item: any) => {
     setReceiveItem(item);
     setPaymentMethod(null);
-    // Auto-select parcelado if student already has parcelado history, or if plan has freqMonths > 1
     setPaymentMode(item.isParcelado ? 'PARCELADO' : (item.freqMonths > 1 ? 'PARCELADO' : 'AVISTA'));
     setCustomAmount(Number(item.amount).toFixed(2).replace('.', ','));
     setReceiptDate(new Date().toISOString().split('T')[0]);
@@ -344,14 +369,32 @@ const Caixa: React.FC = () => {
     }
   };
 
-  const handleUndo = async (item: any) => {
+  const handleDeleteSingle = async (item: any) => {
     if (!item.transaction) return;
-    if (!window.confirm(`Desfazer recebimento de "${item.student.name}"?\nA mensalidade voltará a ficar pendente.`)) return;
+    if (!window.confirm(`Excluir mensalidade de "${item.student.name}"?\nEssa ação não pode ser desfeita.`)) return;
     try {
       await deleteTransaction(item.transaction.id);
       await loadData();
     } catch {
-      alert('Erro ao estornar. Tente novamente.');
+      alert('Erro ao excluir. Tente novamente.');
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    const toDelete = filtered.filter(i => selectedIds.has(i.student.id) && i.transaction);
+    if (toDelete.length === 0) return;
+    if (!window.confirm(
+      `Excluir ${toDelete.length} mensalidade${toDelete.length > 1 ? 's' : ''}?\nEssa ação não pode ser desfeita.`
+    )) return;
+    setDeleting(true);
+    try {
+      await Promise.all(toDelete.map(i => deleteTransaction(i.transaction.id)));
+      await loadData();
+      setSelectedIds(new Set());
+    } catch {
+      alert('Erro ao excluir. Tente novamente.');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -403,7 +446,7 @@ const Caixa: React.FC = () => {
         </button>
       </div>
 
-      {/* Status counters — counts only, no R$ visible */}
+      {/* Status counters */}
       <div className="grid grid-cols-3 gap-3">
         {([
           { key: 'PAID',    count: counts.paid,    label: '✅ Pagos',      actCls: 'bg-green-600 border-green-600',   inaCls: 'bg-white border-slate-200 hover:border-green-300 hover:bg-green-50',   numCls: 'text-green-600' },
@@ -447,6 +490,18 @@ const Caixa: React.FC = () => {
           <table className="w-full text-left">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-100">
+                {/* Checkbox select-all */}
+                <th className="pl-4 pr-1 py-3 w-10">
+                  <input
+                    ref={headerCheckboxRef}
+                    type="checkbox"
+                    checked={allFilteredSelected}
+                    onChange={toggleSelectAll}
+                    disabled={selectableItems.length === 0}
+                    className="w-4 h-4 rounded border-slate-300 accent-primary-600 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
+                    title={selectableItems.length === 0 ? 'Nenhuma mensalidade registrada para selecionar' : 'Selecionar todos'}
+                  />
+                </th>
                 <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Aluno</th>
                 <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Plano</th>
                 <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Valor</th>
@@ -457,79 +512,133 @@ const Caixa: React.FC = () => {
             <tbody className="divide-y divide-slate-100">
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-5 py-12 text-center text-slate-400 text-sm">
+                  <td colSpan={6} className="px-5 py-12 text-center text-slate-400 text-sm">
                     Nenhum aluno encontrado para este filtro.
                   </td>
                 </tr>
               )}
-              {filtered.map((item: any) => (
-                <tr
-                  key={item.student.id}
-                  className={`transition-colors ${
-                    item.status === 'LATE'    ? 'bg-red-50/40 hover:bg-red-50/70' :
-                    item.status === 'PENDING' ? 'hover:bg-yellow-50/40' :
-                                               'hover:bg-green-50/20'
-                  }`}
-                >
-                  <td className="px-5 py-3 font-medium text-slate-800 text-sm">{item.student.name}</td>
-                  <td className="px-5 py-3">
-                    <div className="text-sm text-slate-700">{item.planLabel || 'Sem Plano'}</div>
-                    {item.planFrequency && (
-                      <span className={`mt-1 inline-block text-xs px-2 py-0.5 rounded-full font-medium ${FREQ_COLOR[item.planFrequency] || 'bg-slate-100 text-slate-500'}`}>
-                        {item.planFrequency}
-                      </span>
-                    )}
-                    {item.isParcelado && (
-                      <span className="mt-1 inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium bg-indigo-50 text-indigo-700">
-                        {item.paidInstallments}ª/{item.installTotal} parcela
-                      </span>
-                    )}
-                    {item.isParcelado && item.paidInstallments >= item.installTotal - 1 && (
-                      <span className="text-xs text-amber-600 font-medium block mt-0.5">🔔 Renovação</span>
-                    )}
-                  </td>
-                  <td className="px-5 py-3 text-sm font-semibold text-slate-700">
-                    {item.amount > 0 ? `R$ ${Number(item.amount).toFixed(2).replace('.', ',')}` : '—'}
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="flex flex-col gap-0.5">
-                      {item.status === 'PAID'    && <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold w-fit"><Check size={11} /> Pago</span>}
-                      {item.status === 'PENDING' && <span className="px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-bold w-fit">⚠️ Pendente</span>}
-                      {item.status === 'LATE'    && <span className="px-2 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold w-fit">🔴 Atrasado</span>}
-                      {item.transaction?.paymentMethod && (
-                        <span className="text-xs text-slate-400 mt-0.5">{PAYMENT_LABEL[item.transaction.paymentMethod] || item.transaction.paymentMethod}</span>
+              {filtered.map((item: any) => {
+                const isSelected = selectedIds.has(item.student.id);
+                const canSelect  = !!item.transaction;
+                return (
+                  <tr
+                    key={item.student.id}
+                    className={`transition-colors ${
+                      isSelected                ? 'bg-primary-50/60' :
+                      item.status === 'LATE'    ? 'bg-red-50/40 hover:bg-red-50/70' :
+                      item.status === 'PENDING' ? 'hover:bg-yellow-50/40' :
+                                                 'hover:bg-green-50/20'
+                    }`}
+                  >
+                    {/* Checkbox */}
+                    <td className="pl-4 pr-1 py-3 w-10">
+                      {canSelect ? (
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleSelect(item.student.id)}
+                          className="w-4 h-4 rounded border-slate-300 accent-primary-600 cursor-pointer"
+                        />
+                      ) : (
+                        <span className="block w-4 h-4" />
                       )}
-                    </div>
-                  </td>
-                  <td className="px-5 py-3 text-right">
-                    {item.status !== 'PAID' ? (
-                      <button
-                        onClick={() => openReceiveModal(item)}
-                        className="px-4 py-1.5 bg-primary-600 text-white text-xs font-bold rounded-lg hover:bg-primary-700 transition-colors shadow-sm"
-                      >
-                        Receber
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => handleUndo(item)}
-                        className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Estornar recebimento"
-                      >
-                        <RotateCcw size={15} />
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                    </td>
+
+                    <td className="px-5 py-3 font-medium text-slate-800 text-sm">{item.student.name}</td>
+                    <td className="px-5 py-3">
+                      <div className="text-sm text-slate-700">{item.planLabel || 'Sem Plano'}</div>
+                      {item.planFrequency && (
+                        <span className={`mt-1 inline-block text-xs px-2 py-0.5 rounded-full font-medium ${FREQ_COLOR[item.planFrequency] || 'bg-slate-100 text-slate-500'}`}>
+                          {item.planFrequency}
+                        </span>
+                      )}
+                      {item.isParcelado && (
+                        <span className="mt-1 inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium bg-indigo-50 text-indigo-700">
+                          {item.paidInstallments}ª/{item.installTotal} parcela
+                        </span>
+                      )}
+                      {item.isParcelado && item.paidInstallments >= item.installTotal - 1 && (
+                        <span className="text-xs text-amber-600 font-medium block mt-0.5">🔔 Renovação</span>
+                      )}
+                    </td>
+                    <td className="px-5 py-3 text-sm font-semibold text-slate-700">
+                      {item.amount > 0 ? `R$ ${Number(item.amount).toFixed(2).replace('.', ',')}` : '—'}
+                    </td>
+                    <td className="px-5 py-3">
+                      <div className="flex flex-col gap-0.5">
+                        {item.status === 'PAID'    && <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold w-fit"><Check size={11} /> Pago</span>}
+                        {item.status === 'PENDING' && <span className="px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-bold w-fit">⚠️ Pendente</span>}
+                        {item.status === 'LATE'    && <span className="px-2 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold w-fit">🔴 Atrasado</span>}
+                        {item.transaction?.paymentMethod && (
+                          <span className="text-xs text-slate-400 mt-0.5">{PAYMENT_LABEL[item.transaction.paymentMethod] || item.transaction.paymentMethod}</span>
+                        )}
+                      </div>
+                    </td>
+
+                    {/* Ação */}
+                    <td className="px-5 py-3 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        {item.status !== 'PAID' && (
+                          <button
+                            onClick={() => openReceiveModal(item)}
+                            className="px-4 py-1.5 bg-primary-600 text-white text-xs font-bold rounded-lg hover:bg-primary-700 transition-colors shadow-sm"
+                          >
+                            Receber
+                          </button>
+                        )}
+                        {canSelect && (
+                          <button
+                            onClick={() => handleDeleteSingle(item)}
+                            className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Excluir mensalidade"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
         {filtered.length > 0 && (
           <div className="px-5 py-2.5 border-t border-slate-100 bg-slate-50 text-xs text-slate-400 text-right">
             {filtered.length} aluno{filtered.length !== 1 ? 's' : ''} exibido{filtered.length !== 1 ? 's' : ''}
+            {selectableItems.length > 0 && (
+              <> · {selectableItems.length} com registro</>
+            )}
           </div>
         )}
       </div>
+
+      {/* ── Barra de ação em massa ────────────────────────────────────────────── */}
+      {selectedCount > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl shadow-slate-900/40 animate-in slide-in-from-bottom-3 duration-200">
+          <span className="text-sm font-medium">
+            {selectedCount} mensalidade{selectedCount > 1 ? 's' : ''} selecionada{selectedCount > 1 ? 's' : ''}
+          </span>
+          <div className="w-px h-5 bg-white/20" />
+          <button
+            onClick={() => setSelectedIds(new Set())}
+            className="text-xs text-slate-400 hover:text-white transition-colors"
+          >
+            Limpar
+          </button>
+          <button
+            onClick={handleDeleteSelected}
+            disabled={deleting}
+            className="flex items-center gap-2 px-4 py-1.5 bg-red-500 hover:bg-red-400 disabled:opacity-60 text-white text-xs font-bold rounded-xl transition-colors"
+          >
+            {deleting
+              ? <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              : <Trash2 size={14} />
+            }
+            Excluir {selectedCount > 1 ? `(${selectedCount})` : ''}
+          </button>
+        </div>
+      )}
 
       {/* ── Receive Modal ─────────────────────────────────────────────────────── */}
       {receiveItem && (
@@ -563,7 +672,6 @@ const Caixa: React.FC = () => {
                     </span>
                   )}
                 </div>
-                {/* Period coverage info */}
                 {receiveItem.freqMonths > 1 && (
                   <div className="flex items-center gap-1.5 text-xs text-amber-700 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-100">
                     <Info size={12} />
@@ -572,7 +680,7 @@ const Caixa: React.FC = () => {
                 )}
               </div>
 
-              {/* Payment mode toggle — only for plans with freqMonths > 1 */}
+              {/* Payment mode toggle */}
               {receiveItem.freqMonths > 1 && (
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-2">Modalidade de Pagamento</label>
@@ -624,7 +732,7 @@ const Caixa: React.FC = () => {
                 </div>
               </div>
 
-              {/* Payment method — 4 options, 2×2 grid */}
+              {/* Payment method */}
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">Forma de Pagamento</label>
                 <div className="grid grid-cols-4 gap-2">
