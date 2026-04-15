@@ -8,10 +8,12 @@ import { FinancialTransaction } from '../types';
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface PendingDelete {
-  toastId:        string;
-  label:          string;          // "Mensalidade de João" | "3 mensalidades"
-  transactionIds: string[];
-  timeoutId:      ReturnType<typeof setTimeout>;
+  toastId:          string;
+  label:            string;                    // "Mensalidade de João" | "3 mensalidades"
+  transactionIds:   string[];                  // IDs de transações existentes a deletar
+  noTxStudentIds:   number[];                  // IDs de alunos sem transação (ocultação visual)
+  cancelledTxData:  FinancialTransaction[];    // transações CANCELLED a criar ao expirar
+  timeoutId:        ReturnType<typeof setTimeout>;
 }
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -216,8 +218,20 @@ const Caixa: React.FC = () => {
         const nextInstallment  = paidInstallments + 1;
         const effectiveFreqMonths = isParcelado ? 1 : freqMonths;
 
+        // Se houver transação CANCELLED para este mês, o aluno foi excluído → ocultar
+        const isCancelled = transactions.some(t => {
+          if (t.relatedEntity !== student.name || t.category !== 'TUITION' ||
+              t.type !== 'INCOME' || t.status !== 'CANCELLED') return false;
+          let tDate: Date;
+          if (t.date.includes('T')) tDate = new Date(t.date);
+          else { const [ty, tm, td] = t.date.split('-').map(Number); tDate = new Date(ty, tm - 1, td); }
+          return (year - tDate.getFullYear()) * 12 + (month - (tDate.getMonth() + 1)) === 0;
+        });
+        if (isCancelled) return null;
+
         const transaction = transactions.find(t => {
           if (t.relatedEntity !== student.name || t.category !== 'TUITION' || t.type !== 'INCOME') return false;
+          if (t.status === 'CANCELLED') return false;
           let tDate: Date;
           if (t.date.includes('T')) tDate = new Date(t.date);
           else { const [ty, tm, td] = t.date.split('-').map(Number); tDate = new Date(ty, tm - 1, td); }
@@ -241,16 +255,18 @@ const Caixa: React.FC = () => {
   }, [students, transactions, plans, selectedMonth]);
 
   const filtered = useMemo(() => {
-    const pendingTxIds = new Set(pendingDeletes.flatMap(pd => pd.transactionIds));
+    const pendingTxIds        = new Set(pendingDeletes.flatMap(pd => pd.transactionIds));
+    const pendingNoTxStudentIds = new Set(pendingDeletes.flatMap(pd => pd.noTxStudentIds));
     return tuitionList
       .filter(item => {
-        if (!search && statusFilter === 'all') return true;
         const matchSearch = !search || item.student.name.toLowerCase().includes(search.toLowerCase());
         const matchStatus = statusFilter === 'all' || item.status === statusFilter;
         return matchSearch && matchStatus;
       })
-      // Hide items whose transaction is pending deletion
-      .filter(item => !item.transaction || !pendingTxIds.has(item.transaction.id));
+      // Oculta itens com transação em exclusão pendente
+      .filter(item => !item.transaction || !pendingTxIds.has(item.transaction.id))
+      // Oculta itens sem transação que estão em exclusão pendente
+      .filter(item => item.transaction || !pendingNoTxStudentIds.has(item.student.id));
   }, [tuitionList, search, statusFilter, pendingDeletes]);
 
   const counts = useMemo(() => ({
@@ -259,14 +275,14 @@ const Caixa: React.FC = () => {
     late:    tuitionList.filter(i => i.status === 'LATE').length,
   }), [tuitionList]);
 
-  // Items that can be selected (have a DB transaction and aren't pending delete)
+  // Todos os não-pagos podem ser selecionados/excluídos
   const selectableItems = useMemo(
-    () => filtered.filter(i => i.transaction && i.status !== 'PAID'),
+    () => filtered.filter(i => i.status !== 'PAID'),
     [filtered]
   );
   const allSelected  = selectableItems.length > 0 && selectableItems.every(i => selectedIds.has(i.student.id));
   const someSelected = !allSelected && selectableItems.some(i => selectedIds.has(i.student.id));
-  const selectedCount = filtered.filter(i => selectedIds.has(i.student.id) && i.transaction).length;
+  const selectedCount = filtered.filter(i => selectedIds.has(i.student.id) && i.status !== 'PAID').length;
 
   // Sync indeterminate state on master checkbox
   useEffect(() => {
@@ -341,36 +357,77 @@ const Caixa: React.FC = () => {
     }
   };
 
-  /** Schedule deletion with undo window */
-  const scheduleDelete = (label: string, transactionIds: string[]) => {
-    const toastId  = crypto.randomUUID();
+  /** Constrói uma FinancialTransaction CANCELLED para persistir exclusão de itens sem tx */
+  const buildCancelledTx = (item: any): FinancialTransaction => {
+    const [year, month] = selectedMonth.split('-').map(Number);
+    const mm = String(month).padStart(2, '0');
+    return {
+      id:            crypto.randomUUID(),
+      description:   `Mensalidade excluída ${mm}/${year} - ${item.student.name}`,
+      type:          'INCOME',
+      category:      'TUITION',
+      amount:        item.amount || 0,
+      date:          `${year}-${mm}-01`,
+      dueDate:       `${year}-${mm}-10`,
+      status:        'CANCELLED' as any,
+      relatedEntity: item.student.name,
+    };
+  };
+
+  /** Agenda exclusão com janela de undo de 5s */
+  const scheduleDelete = (
+    label:           string,
+    transactionIds:  string[],
+    noTxStudentIds:  number[]              = [],
+    cancelledTxData: FinancialTransaction[] = [],
+  ) => {
+    const toastId   = crypto.randomUUID();
     const timeoutId = setTimeout(async () => {
       try {
-        await Promise.all(transactionIds.map(id => deleteTransaction(id)));
+        await Promise.all([
+          ...transactionIds.map(id  => deleteTransaction(id)),
+          ...cancelledTxData.map(tx => createTransaction(tx)),
+        ]);
         setPendingDeletes(prev => prev.filter(pd => pd.toastId !== toastId));
         await loadData();
       } catch {
-        // On failure restore the item by removing from pending
         setPendingDeletes(prev => prev.filter(pd => pd.toastId !== toastId));
         alert('Erro ao excluir. Tente novamente.');
       }
     }, UNDO_DELAY_MS);
 
-    setPendingDeletes(prev => [...prev, { toastId, label, transactionIds, timeoutId }]);
+    setPendingDeletes(prev => [...prev, { toastId, label, transactionIds, noTxStudentIds, cancelledTxData, timeoutId }]);
   };
 
   const handleDeleteSingle = (item: any) => {
-    if (!item.transaction) return;
-    scheduleDelete(`Mensalidade de ${item.student.name}`, [item.transaction.id]);
+    if (item.transaction) {
+      // Tem transação: deleta ela
+      scheduleDelete(`Mensalidade de ${item.student.name}`, [item.transaction.id]);
+    } else {
+      // Sem transação: cria CANCELLED ao expirar para persistir exclusão
+      scheduleDelete(
+        `Mensalidade de ${item.student.name}`,
+        [],
+        [item.student.id],
+        [buildCancelledTx(item)],
+      );
+    }
   };
 
-  const handleDeleteSelected = async () => {
-    const toDelete = filtered.filter(i => selectedIds.has(i.student.id) && i.transaction);
+  const handleDeleteSelected = () => {
+    const toDelete = filtered.filter(i => selectedIds.has(i.student.id) && i.status !== 'PAID');
     if (toDelete.length === 0) return;
     const label = toDelete.length === 1
       ? `Mensalidade de ${toDelete[0].student.name}`
       : `${toDelete.length} mensalidades`;
-    scheduleDelete(label, toDelete.map(i => i.transaction.id));
+    const withTx    = toDelete.filter(i => i.transaction);
+    const withoutTx = toDelete.filter(i => !i.transaction);
+    scheduleDelete(
+      label,
+      withTx.map(i => i.transaction.id),
+      withoutTx.map(i => i.student.id),
+      withoutTx.map(i => buildCancelledTx(i)),
+    );
     setSelectedIds(new Set());
     setCheckboxMode(false);
   };
@@ -485,7 +542,7 @@ const Caixa: React.FC = () => {
               )}
               {filtered.map((item: any) => {
                 const isSelected  = checkboxMode && selectedIds.has(item.student.id);
-                const canSelect   = checkboxMode && !!item.transaction && item.status !== 'PAID';
+                const canSelect   = checkboxMode && item.status !== 'PAID';
                 return (
                   <tr key={item.student.id}
                     className={`transition-colors ${
@@ -552,7 +609,7 @@ const Caixa: React.FC = () => {
                             Receber
                           </button>
                         )}
-                        {item.transaction && item.status !== 'PAID' && (
+                        {item.status !== 'PAID' && (
                           <button onClick={() => handleDeleteSingle(item)}
                             className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                             title="Excluir mensalidade">
