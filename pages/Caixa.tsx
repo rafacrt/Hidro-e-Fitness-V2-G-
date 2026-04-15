@@ -261,7 +261,7 @@ const Caixa: React.FC = () => {
 
   // Items that can be selected (have a DB transaction and aren't pending delete)
   const selectableItems = useMemo(
-    () => filtered.filter(i => i.transaction),
+    () => filtered.filter(i => i.transaction && i.status !== 'PAID'),
     [filtered]
   );
   const allSelected  = selectableItems.length > 0 && selectableItems.every(i => selectedIds.has(i.student.id));
@@ -485,7 +485,7 @@ const Caixa: React.FC = () => {
               )}
               {filtered.map((item: any) => {
                 const isSelected  = checkboxMode && selectedIds.has(item.student.id);
-                const canSelect   = checkboxMode && !!item.transaction;
+                const canSelect   = checkboxMode && !!item.transaction && item.status !== 'PAID';
                 return (
                   <tr key={item.student.id}
                     className={`transition-colors ${
@@ -552,7 +552,7 @@ const Caixa: React.FC = () => {
                             Receber
                           </button>
                         )}
-                        {item.transaction && (
+                        {item.transaction && item.status !== 'PAID' && (
                           <button onClick={() => handleDeleteSingle(item)}
                             className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                             title="Excluir mensalidade">
