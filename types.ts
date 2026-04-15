@@ -73,6 +73,7 @@ export interface Student {
   modality?: string; // Deprecated, kept for backward compatibility
   modalities: string[]; // New field for multiple modalities
   enrollmentDate: string;
+  reactivationDate?: string;
 
   // Financial
   paymentStatus: 'Pago' | 'Pendente' | 'Atrasado';
@@ -128,4 +129,6 @@ export interface FinancialTransaction {
   status: TransactionStatus;
   relatedEntity?: string; // Student Name or Supplier Name
   paymentMethod?: PaymentMethod; // Form of payment
+  installmentNumber?: number;
+  installmentTotal?: number;
 }

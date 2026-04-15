@@ -60,7 +60,8 @@ CREATE TABLE IF NOT EXISTS students (
     plan_name VARCHAR(100), 
     modality_name VARCHAR(100),
     enrollment_date DATE DEFAULT CURRENT_DATE,
-    
+    reactivation_date DATE,
+
     -- Financeiro
     payment_status VARCHAR(20) CHECK (payment_status IN ('Pago', 'Pendente', 'Atrasado')) DEFAULT 'Pendente',
     
@@ -111,7 +112,9 @@ CREATE TABLE IF NOT EXISTS transactions (
     due_date DATE NOT NULL,
     status VARCHAR(20) CHECK (status IN ('PAID', 'PENDING', 'LATE', 'CANCELLED')),
     related_entity VARCHAR(200),
-    payment_method VARCHAR(20) CHECK (payment_method IN ('DINHEIRO', 'PIX', 'DEBITO', 'CREDITO', 'CHEQUE'))
+    payment_method VARCHAR(20) CHECK (payment_method IN ('DINHEIRO', 'PIX', 'DEBITO', 'CREDITO', 'CHEQUE')),
+    installment_number INT,
+    installment_total INT
 );
 
 -- ==========================================

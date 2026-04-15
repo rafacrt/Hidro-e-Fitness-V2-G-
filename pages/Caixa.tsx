@@ -83,6 +83,7 @@ const Caixa: React.FC = () => {
   // Modal
   const [receiveItem,   setReceiveItem]   = useState<any | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodId | null>(null);
+  const [paymentMode,   setPaymentMode]   = useState<'AVISTA' | 'PARCELADO'>('AVISTA');
   const [customAmount,  setCustomAmount]  = useState('');
   const [receiptDate,   setReceiptDate]   = useState('');
   const [observation,   setObservation]   = useState('');
@@ -147,15 +148,16 @@ const Caixa: React.FC = () => {
     const list = students
       .filter(s => s.status === 'Ativo')
       .map(student => {
-        // Skip if enrolled after this month
-        if (student.enrollmentDate) {
-          let enrolDate: Date;
-          if (student.enrollmentDate.includes('T')) enrolDate = new Date(student.enrollmentDate);
+        // Skip if billing start (reactivation date if set, otherwise enrollment date) is after this month
+        const billingStartStr = student.reactivationDate || student.enrollmentDate;
+        if (billingStartStr) {
+          let billingStart: Date;
+          if (billingStartStr.includes('T')) billingStart = new Date(billingStartStr);
           else {
-            const [ey, em, ed] = student.enrollmentDate.split('-').map(Number);
-            enrolDate = new Date(ey, em - 1, ed);
+            const [by, bm, bd] = billingStartStr.split('-').map(Number);
+            billingStart = new Date(by, bm - 1, bd);
           }
-          if (enrolDate > endOfMonth) return null;
+          if (billingStart > endOfMonth) return null;
         }
 
         // Resolve plan → amount + frequency
@@ -194,11 +196,28 @@ const Caixa: React.FC = () => {
           planLabel = student.plan || 'Sem Plano';
         }
 
+        // Detect parcelado: student has existing PAID transactions with installmentTotal > 1
+        const parceladoTxs = transactions.filter((t: any) =>
+          t.relatedEntity === student.name &&
+          t.category === 'TUITION' &&
+          t.type === 'INCOME' &&
+          t.status === 'PAID' &&
+          (t.installmentTotal || 0) > 1
+        );
+        const isParcelado = parceladoTxs.length > 0;
+        const installTotal = isParcelado ? (parceladoTxs[0] as any).installmentTotal : freqMonths;
+        const paidInstallments = parceladoTxs.length;
+        const nextInstallment = paidInstallments + 1;
+
+        // For parcelado, each payment covers only 1 month
+        const effectiveFreqMonths = isParcelado ? 1 : freqMonths;
+
         /**
          * Find a transaction that "covers" the selected month.
          * A transaction covers month M if it was recorded within
-         * the freqMonths window ending at M.
-         * e.g.: trimestral (3 months) → a payment in Jan covers Jan, Feb, Mar.
+         * the effectiveFreqMonths window ending at M.
+         * e.g.: trimestral à vista (3 months) → a payment in Jan covers Jan, Feb, Mar.
+         * e.g.: trimestral parcelado (1 month each) → payment only covers its own month.
          */
         const transaction = transactions.find(t => {
           if (t.relatedEntity !== student.name) return false;
@@ -216,8 +235,8 @@ const Caixa: React.FC = () => {
           const tMonth = tDate.getMonth() + 1;
           const diff   = (year - tYear) * 12 + (month - tMonth);
 
-          // Transaction covers selectedMonth if 0 ≤ diff < freqMonths
-          return diff >= 0 && diff < freqMonths;
+          // Transaction covers selectedMonth if 0 ≤ diff < effectiveFreqMonths
+          return diff >= 0 && diff < effectiveFreqMonths;
         });
 
         // Override amount with actual transaction amount if present
@@ -243,7 +262,7 @@ const Caixa: React.FC = () => {
           }
         }
 
-        return { student, planLabel, planFrequency, freqMonths, amount, status, transaction };
+        return { student, planLabel, planFrequency, freqMonths, amount, status, transaction, isParcelado, installTotal, paidInstallments, nextInstallment };
       })
       .filter(Boolean) as any[];
 
@@ -272,6 +291,8 @@ const Caixa: React.FC = () => {
   const openReceiveModal = (item: any) => {
     setReceiveItem(item);
     setPaymentMethod(null);
+    // Auto-select parcelado if student already has parcelado history, or if plan has freqMonths > 1
+    setPaymentMode(item.isParcelado ? 'PARCELADO' : (item.freqMonths > 1 ? 'PARCELADO' : 'AVISTA'));
     setCustomAmount(Number(item.amount).toFixed(2).replace('.', ','));
     setReceiptDate(new Date().toISOString().split('T')[0]);
     setObservation('');
@@ -284,7 +305,19 @@ const Caixa: React.FC = () => {
       const [year, month] = selectedMonth.split('-').map(Number);
       const dueDate       = new Date(year, month - 1, 10).toISOString().split('T')[0];
       const amountValue   = parseFloat(customAmount.replace(',', '.'));
-      const desc          = getPeriodDescription(year, month, receiveItem.freqMonths, receiveItem.student.name);
+
+      const instLabel = paymentMode === 'PARCELADO' && receiveItem.freqMonths > 1
+        ? ` [${receiveItem.nextInstallment}ª/${receiveItem.installTotal}]`
+        : '';
+      const baseDesc = getPeriodDescription(year, month, receiveItem.freqMonths, receiveItem.student.name);
+      const desc     = baseDesc + instLabel;
+
+      const installmentFields = paymentMode === 'PARCELADO' && receiveItem.freqMonths > 1
+        ? {
+            installmentNumber: receiveItem.nextInstallment,
+            installmentTotal:  receiveItem.installTotal,
+          }
+        : {};
 
       const tx: FinancialTransaction = {
         id:            crypto.randomUUID(),
@@ -297,6 +330,7 @@ const Caixa: React.FC = () => {
         status:        'PAID',
         relatedEntity: receiveItem.student.name,
         paymentMethod: paymentMethod as any,
+        ...installmentFields,
       };
 
       await createTransaction(tx);
@@ -445,6 +479,14 @@ const Caixa: React.FC = () => {
                         {item.planFrequency}
                       </span>
                     )}
+                    {item.isParcelado && (
+                      <span className="mt-1 inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium bg-indigo-50 text-indigo-700">
+                        {item.paidInstallments}ª/{item.installTotal} parcela
+                      </span>
+                    )}
+                    {item.isParcelado && item.paidInstallments >= item.installTotal - 1 && (
+                      <span className="text-xs text-amber-600 font-medium block mt-0.5">🔔 Renovação</span>
+                    )}
                   </td>
                   <td className="px-5 py-3 text-sm font-semibold text-slate-700">
                     {item.amount > 0 ? `R$ ${Number(item.amount).toFixed(2).replace('.', ',')}` : '—'}
@@ -529,6 +571,44 @@ const Caixa: React.FC = () => {
                   </div>
                 )}
               </div>
+
+              {/* Payment mode toggle — only for plans with freqMonths > 1 */}
+              {receiveItem.freqMonths > 1 && (
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Modalidade de Pagamento</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => setPaymentMode('PARCELADO')}
+                      className={`p-3 rounded-xl border-2 text-sm font-semibold transition-all ${
+                        paymentMode === 'PARCELADO'
+                          ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
+                          : 'border-slate-200 text-slate-600 hover:border-slate-300'
+                      }`}
+                    >
+                      📅 Parcelado {receiveItem.installTotal}x
+                      <div className="text-xs font-normal mt-0.5 opacity-70">1 pagamento por mês</div>
+                    </button>
+                    <button
+                      onClick={() => setPaymentMode('AVISTA')}
+                      className={`p-3 rounded-xl border-2 text-sm font-semibold transition-all ${
+                        paymentMode === 'AVISTA'
+                          ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
+                          : 'border-slate-200 text-slate-600 hover:border-slate-300'
+                      }`}
+                    >
+                      💰 À Vista
+                      <div className="text-xs font-normal mt-0.5 opacity-70">Cobre {receiveItem.freqMonths} meses</div>
+                    </button>
+                  </div>
+                  {paymentMode === 'PARCELADO' && receiveItem.freqMonths > 1 && (
+                    <div className="mt-2 flex items-center gap-1.5 text-xs text-indigo-700 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100">
+                      <Info size={12} />
+                      Parcela <strong>{receiveItem.nextInstallment}ª de {receiveItem.installTotal}</strong>
+                      {receiveItem.paidInstallments > 0 && ` — ${receiveItem.paidInstallments} já paga${receiveItem.paidInstallments > 1 ? 's' : ''}`}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Amount */}
               <div>

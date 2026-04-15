@@ -1311,6 +1311,21 @@ const Students: React.FC = () => {
                           <option value="Trancado">Trancado</option>
                         </select>
                       </div>
+
+                      {isEditing && (
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-medium text-slate-700 mb-1">
+                            Data de Reativação
+                            <span className="text-xs text-slate-400 font-normal ml-1">(preencher ao reativar aluno inativo)</span>
+                          </label>
+                          <input
+                            type="date"
+                            value={(formData as any).reactivationDate || ''}
+                            onChange={e => setFormData({ ...formData, reactivationDate: e.target.value } as any)}
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                          />
+                        </div>
+                      )}
                     </div>
 
                     <div className="border-t border-slate-100 pt-6">

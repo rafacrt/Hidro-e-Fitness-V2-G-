@@ -205,6 +205,23 @@ const connectWithRetry = async () => {
                 END IF;
                 ALTER TABLE transactions ADD CONSTRAINT transactions_category_check
                     CHECK (category IN ('TUITION', 'SALARY', 'MAINTENANCE', 'RENT', 'EQUIPMENT', 'OTHER', 'REGISTRATION'));
+
+                -- Add reactivation_date column to students if not exists
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns
+                    WHERE table_name = 'students' AND column_name = 'reactivation_date'
+                ) THEN
+                    ALTER TABLE students ADD COLUMN reactivation_date DATE;
+                END IF;
+
+                -- Add installment columns to transactions if not exists
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns
+                    WHERE table_name = 'transactions' AND column_name = 'installment_number'
+                ) THEN
+                    ALTER TABLE transactions ADD COLUMN installment_number INT;
+                    ALTER TABLE transactions ADD COLUMN installment_total INT;
+                END IF;
             END $$;
         `);
         console.log("Schema constraints updated.");
@@ -391,7 +408,7 @@ app.get('/api/students', async (req, res) => {
                     addr_neighborhood as "neighborhood", addr_city as "city", addr_state as "state",
                     addr_complement as "complement",
                     status, plan_name as "planRaw", modality_name as "modalityRaw",
-                    enrollment_date as "enrollmentDate", payment_status as "paymentStatus",
+                    enrollment_date as "enrollmentDate", reactivation_date as "reactivationDate", payment_status as "paymentStatus",
                     guardian_name, guardian_cpf, guardian_phone, guardian_relationship,
                     medical_notes as "medicalNotes"
                 FROM students ORDER BY name
@@ -513,7 +530,7 @@ app.put('/api/students/:id', async (req, res) => {
     const { id } = req.params;
     const {
         name, email, cpf, birthDate, phone, isWhatsapp,
-        address, guardian, plan, modality, status, medicalNotes
+        address, guardian, plan, modality, status, medicalNotes, reactivationDate
     } = req.body;
 
     try {
@@ -522,8 +539,9 @@ app.put('/api/students/:id', async (req, res) => {
                 name = $1, email = $2, cpf = $3, birth_date = $4, phone = $5, is_whatsapp = $6,
                 addr_cep = $7, addr_street = $8, addr_number = $9, addr_neighborhood = $10, addr_city = $11, addr_state = $12, addr_complement = $13,
                 guardian_name = $14, guardian_cpf = $15, guardian_phone = $16, guardian_relationship = $17,
-                plan_name = $18, modality_name = $19, status = $20, medical_notes = $21
-            WHERE id = $22
+                plan_name = $18, modality_name = $19, status = $20, medical_notes = $21,
+                reactivation_date = $22
+            WHERE id = $23
         `, [
             name,
             toNull(email),
@@ -546,6 +564,7 @@ app.put('/api/students/:id', async (req, res) => {
             toNull(modality),
             status,
             toNull(medicalNotes),
+            reactivationDate ? toNull(reactivationDate) : null,
             id
         ]);
         res.json({ message: 'Student updated' });
@@ -721,7 +740,8 @@ app.get('/api/finance', async (req, res) => {
             SELECT
                 id, description, type, category, amount, date,
                 due_date as "dueDate", status, related_entity as "relatedEntity",
-                payment_method as "paymentMethod"
+                payment_method as "paymentMethod",
+                installment_number as "installmentNumber", installment_total as "installmentTotal"
             FROM transactions ORDER BY date DESC
         `);
         res.json(result.rows);
@@ -733,12 +753,12 @@ app.get('/api/finance', async (req, res) => {
 
 // Finance - POST
 app.post('/api/finance', async (req, res) => {
-    const { id, description, type, category, amount, date, dueDate, status, relatedEntity, paymentMethod } = req.body;
+    const { id, description, type, category, amount, date, dueDate, status, relatedEntity, paymentMethod, installmentNumber, installmentTotal } = req.body;
     try {
         await pool.query(
-            `INSERT INTO transactions (id, description, type, category, amount, date, due_date, status, related_entity, payment_method)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-            [id, description, type, category, amount, date, dueDate, status, relatedEntity, paymentMethod || null]
+            `INSERT INTO transactions (id, description, type, category, amount, date, due_date, status, related_entity, payment_method, installment_number, installment_total)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+            [id, description, type, category, amount, date, dueDate, status, relatedEntity, paymentMethod || null, installmentNumber || null, installmentTotal || null]
         );
         res.status(201).json({ message: 'Transaction created' });
     } catch (err) {
@@ -750,13 +770,13 @@ app.post('/api/finance', async (req, res) => {
 // Finance - PUT
 app.put('/api/finance/:id', async (req, res) => {
     const { id } = req.params;
-    const { description, type, category, amount, date, dueDate, status, relatedEntity, paymentMethod } = req.body;
+    const { description, type, category, amount, date, dueDate, status, relatedEntity, paymentMethod, installmentNumber, installmentTotal } = req.body;
     try {
         await pool.query(
             `UPDATE transactions
-             SET description = $1, type = $2, category = $3, amount = $4, date = $5, due_date = $6, status = $7, related_entity = $8, payment_method = $9
-             WHERE id = $10`,
-            [description, type, category, amount, date, dueDate, status, relatedEntity, paymentMethod || null, id]
+             SET description = $1, type = $2, category = $3, amount = $4, date = $5, due_date = $6, status = $7, related_entity = $8, payment_method = $9, installment_number = $10, installment_total = $11
+             WHERE id = $12`,
+            [description, type, category, amount, date, dueDate, status, relatedEntity, paymentMethod || null, installmentNumber || null, installmentTotal || null, id]
         );
         res.json({ message: 'Transaction updated' });
     } catch (err) {
