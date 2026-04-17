@@ -214,6 +214,14 @@ const connectWithRetry = async () => {
                     ALTER TABLE students ADD COLUMN reactivation_date DATE;
                 END IF;
 
+                -- Add due_day column to students if not exists
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns
+                    WHERE table_name = 'students' AND column_name = 'due_day'
+                ) THEN
+                    ALTER TABLE students ADD COLUMN due_day INTEGER DEFAULT 10;
+                END IF;
+
                 -- Add installment columns to transactions if not exists
                 IF NOT EXISTS (
                     SELECT 1 FROM information_schema.columns
@@ -408,7 +416,7 @@ app.get('/api/students', async (req, res) => {
                     addr_neighborhood as "neighborhood", addr_city as "city", addr_state as "state",
                     addr_complement as "complement",
                     status, plan_name as "planRaw", modality_name as "modalityRaw",
-                    enrollment_date as "enrollmentDate", reactivation_date as "reactivationDate", payment_status as "paymentStatus",
+                    enrollment_date as "enrollmentDate", reactivation_date as "reactivationDate", due_day as "dueDay", payment_status as "paymentStatus",
                     guardian_name, guardian_cpf, guardian_phone, guardian_relationship,
                     medical_notes as "medicalNotes"
                 FROM students ORDER BY name
@@ -530,7 +538,7 @@ app.put('/api/students/:id', async (req, res) => {
     const { id } = req.params;
     const {
         name, email, cpf, birthDate, phone, isWhatsapp,
-        address, guardian, plan, modality, status, medicalNotes, reactivationDate
+        address, guardian, plan, modality, status, medicalNotes, reactivationDate, dueDay
     } = req.body;
 
     try {
@@ -540,8 +548,8 @@ app.put('/api/students/:id', async (req, res) => {
                 addr_cep = $7, addr_street = $8, addr_number = $9, addr_neighborhood = $10, addr_city = $11, addr_state = $12, addr_complement = $13,
                 guardian_name = $14, guardian_cpf = $15, guardian_phone = $16, guardian_relationship = $17,
                 plan_name = $18, modality_name = $19, status = $20, medical_notes = $21,
-                reactivation_date = $22
-            WHERE id = $23
+                reactivation_date = $22, due_day = $23
+            WHERE id = $24
         `, [
             name,
             toNull(email),
@@ -565,6 +573,7 @@ app.put('/api/students/:id', async (req, res) => {
             status,
             toNull(medicalNotes),
             reactivationDate ? toNull(reactivationDate) : null,
+            dueDay ? parseInt(dueDay, 10) : 10,
             id
         ]);
         res.json({ message: 'Student updated' });

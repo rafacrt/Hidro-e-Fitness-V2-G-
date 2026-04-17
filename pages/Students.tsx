@@ -58,7 +58,7 @@ const Students: React.FC = () => {
   // Form State
   const [formData, setFormData] = useState<Partial<Student>>({
     name: '', email: '', cpf: '', birthDate: '', phone: '', isWhatsapp: false,
-    plan: '', modalities: [], status: 'Ativo',
+    plan: '', modalities: [], status: 'Ativo', dueDay: 10,
     address: { cep: '', street: '', number: '', neighborhood: '', city: '', state: '', complement: '' },
     guardian: { name: '', cpf: '', phone: '', relationship: '' },
     medicalNotes: '', documents: []
@@ -1312,8 +1312,24 @@ const Students: React.FC = () => {
                         </select>
                       </div>
 
+                      {/* Dia de vencimento — sempre visível */}
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                          Dia de Vencimento
+                          <span className="text-xs text-slate-400 font-normal ml-1">(dia do mês, padrão: 10)</span>
+                        </label>
+                        <input
+                          type="number"
+                          min={1}
+                          max={28}
+                          value={(formData as any).dueDay ?? 10}
+                          onChange={e => setFormData({ ...formData, dueDay: Number(e.target.value) } as any)}
+                          className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                        />
+                      </div>
+
                       {isEditing && (
-                        <div className="md:col-span-2">
+                        <div>
                           <label className="block text-sm font-medium text-slate-700 mb-1">
                             Data de Reativação
                             <span className="text-xs text-slate-400 font-normal ml-1">(preencher ao reativar aluno inativo)</span>

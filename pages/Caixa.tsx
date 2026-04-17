@@ -246,10 +246,12 @@ const Caixa: React.FC = () => {
           status = transaction.status === 'PAID' ? 'PAID' : transaction.status === 'LATE' ? 'LATE' : 'PENDING';
         } else {
           const isFuture = year > now.getFullYear() || (year === now.getFullYear() && month > now.getMonth() + 1);
-          status = (!isFuture && now > new Date(year, month - 1, 10)) ? 'LATE' : 'PENDING';
+          const dueDay = student.dueDay ?? 10;
+          status = (!isFuture && now > new Date(year, month - 1, dueDay)) ? 'LATE' : 'PENDING';
         }
 
-        return { student, planLabel, planFrequency, freqMonths, amount, status, transaction, isParcelado, installTotal, paidInstallments, nextInstallment };
+        const dueDay = student.dueDay ?? 10;
+        return { student, planLabel, planFrequency, freqMonths, amount, status, transaction, isParcelado, installTotal, paidInstallments, nextInstallment, dueDay };
       })
       .filter(Boolean) as any[];
   }, [students, transactions, plans, selectedMonth]);
@@ -331,7 +333,7 @@ const Caixa: React.FC = () => {
     setSaving(true);
     try {
       const [year, month] = selectedMonth.split('-').map(Number);
-      const dueDate  = new Date(year, month - 1, 10).toISOString().split('T')[0];
+      const dueDate  = new Date(year, month - 1, receiveItem.dueDay ?? 10).toISOString().split('T')[0];
       const amount   = parseFloat(customAmount.replace(',', '.'));
       const instLabel = paymentMode === 'PARCELADO' && receiveItem.freqMonths > 1
         ? ` [${receiveItem.nextInstallment}ª/${receiveItem.installTotal}]` : '';
@@ -368,7 +370,7 @@ const Caixa: React.FC = () => {
       category:      'TUITION',
       amount:        item.amount || 0,
       date:          `${year}-${mm}-01`,
-      dueDate:       `${year}-${mm}-10`,
+      dueDate:       `${year}-${mm}-${String(item.dueDay ?? 10).padStart(2,'0')}`,
       status:        'CANCELLED' as any,
       relatedEntity: item.student.name,
     };
@@ -591,12 +593,38 @@ const Caixa: React.FC = () => {
 
                     <td className="px-5 py-3">
                       <div className="flex flex-col gap-0.5">
-                        {item.status === 'PAID'    && <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold w-fit"><Check size={11} /> Pago</span>}
-                        {item.status === 'PENDING' && <span className="px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-bold w-fit">⚠️ Pendente</span>}
-                        {item.status === 'LATE'    && <span className="px-2 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold w-fit">🔴 Atrasado</span>}
-                        {item.transaction?.paymentMethod && (
-                          <span className="text-xs text-slate-400 mt-0.5">{PAYMENT_LABEL[item.transaction.paymentMethod] || item.transaction.paymentMethod}</span>
+                        {item.status === 'PAID' && (
+                          <>
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold w-fit"><Check size={11} /> Pago</span>
+                            {item.transaction?.date && (
+                              <span className="text-xs text-slate-400">
+                                {(() => { const d = item.transaction.date.split('T')[0].split('-'); return `${d[2]}/${d[1]}/${d[0]}`; })()}
+                                {item.transaction.paymentMethod ? ` · ${PAYMENT_LABEL[item.transaction.paymentMethod] || item.transaction.paymentMethod}` : ''}
+                              </span>
+                            )}
+                          </>
                         )}
+                        {item.status === 'PENDING' && (
+                          <>
+                            <span className="px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-bold w-fit">⚠️ Pendente</span>
+                            <span className="text-xs text-slate-400">
+                              Vence {String(item.dueDay).padStart(2,'0')}/{String(selMonth).padStart(2,'0')}
+                            </span>
+                          </>
+                        )}
+                        {item.status === 'LATE' && (() => {
+                          const dueDate = new Date(selYear, selMonth - 1, item.dueDay);
+                          const daysLate = Math.max(0, Math.floor((today.getTime() - dueDate.getTime()) / 86400000));
+                          return (
+                            <>
+                              <span className="px-2 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold w-fit">🔴 Atrasado</span>
+                              <span className="text-xs text-red-400 font-medium">
+                                Venceu {String(item.dueDay).padStart(2,'0')}/{String(selMonth).padStart(2,'0')}
+                                {daysLate > 0 && ` · ${daysLate} dia${daysLate !== 1 ? 's' : ''}`}
+                              </span>
+                            </>
+                          );
+                        })()}
                       </div>
                     </td>
 

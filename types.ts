@@ -74,6 +74,7 @@ export interface Student {
   modalities: string[]; // New field for multiple modalities
   enrollmentDate: string;
   reactivationDate?: string;
+  dueDay?: number;          // Dia do mês em que a mensalidade vence (padrão: 10)
 
   // Financial
   paymentStatus: 'Pago' | 'Pendente' | 'Atrasado';
