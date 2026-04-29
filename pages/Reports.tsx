@@ -107,8 +107,16 @@ const reports: ReportDef[] = [
     color: 'text-slate-600 bg-slate-100'
   },
 ];
-
-
+const parseDateLocalHelper = (s: string): Date => {
+  if (!s) return new Date();
+  if (s.includes('T')) return new Date(s);
+  const [y, m, d] = s.split('-').map(Number);
+  return new Date(y, m - 1, d);
+};
+const formatDateLocalHelper = (s: string): string => {
+  if (!s) return '';
+  return parseDateLocalHelper(s).toLocaleDateString('pt-BR');
+};
 
 const Reports: React.FC = () => {
   const location = useLocation();
@@ -464,33 +472,55 @@ const Reports: React.FC = () => {
 
         setReportResult({
           title: selectedReport.title,
-          period: `${new Date(dateRange.start).toLocaleDateString()} a ${new Date(dateRange.end).toLocaleDateString()}`,
+          period: `${formatDateLocalHelper(dateRange.start)} a ${formatDateLocalHelper(dateRange.end)}`,
           data: tableData,
           headers: reportData.headers // Store specific headers for ordering
         });
 
       } else if (format === 'PDF') {
-        const doc = new jsPDF();
-
-        doc.setFontSize(18);
-        doc.text(selectedReport.title, 14, 22);
-
-        doc.setFontSize(11);
-        doc.setTextColor(100);
-        doc.text(`Período: ${new Date(dateRange.start).toLocaleDateString()} a ${new Date(dateRange.end).toLocaleDateString()}`, 14, 30);
-
-        if (selectedReport.description) {
-          doc.setFontSize(10);
-          doc.text(selectedReport.description, 14, 36);
-        }
+        const doc = new jsPDF('landscape'); // Landscape to better fit table columns
+        const pageWidth = doc.internal.pageSize.width;
+        const pageHeight = doc.internal.pageSize.height;
+        const periodStr = `Período: ${formatDateLocalHelper(dateRange.start)} a ${formatDateLocalHelper(dateRange.end)}`;
 
         autoTable(doc, {
           head: [reportData.headers],
           body: reportData.data,
-          startY: 44,
+          startY: 40,
           theme: 'grid',
-          headStyles: { fillColor: [41, 128, 185], textColor: 255 },
-          alternateRowStyles: { fillColor: [245, 245, 245] }
+          headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' },
+          alternateRowStyles: { fillColor: [245, 245, 245] },
+          styles: { fontSize: 9, cellPadding: 3 },
+          margin: { top: 40, left: 14, right: 14, bottom: 20 },
+          didDrawPage: function (data) {
+            // Header
+            doc.setFillColor(41, 128, 185);
+            doc.rect(0, 0, pageWidth, 20, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(16);
+            doc.setFont("helvetica", "bold");
+            doc.text("Hidro & Fitness", 14, 13);
+            
+            doc.setTextColor(50, 50, 50);
+            doc.setFontSize(14);
+            doc.setFont("helvetica", "bold");
+            doc.text(selectedReport.title, 14, 28);
+            
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(100, 100, 100);
+            doc.text(periodStr, 14, 34);
+            
+            // Footer
+            const pageStr = "Página " + doc.internal.getNumberOfPages();
+            doc.setFontSize(8);
+            doc.setTextColor(150, 150, 150);
+            
+            doc.text(pageStr, pageWidth - doc.getStringUnitWidth(pageStr) * doc.internal.getFontSize() / doc.internal.scaleFactor - 14, pageHeight - 10);
+            
+            const dateStr = "Gerado em " + new Date().toLocaleString('pt-BR');
+            doc.text(dateStr, 14, pageHeight - 10);
+          }
         });
 
         doc.save(`${selectedReport.id}_${dateRange.start}.pdf`);
@@ -671,14 +701,20 @@ const Reports: React.FC = () => {
 
       {/* Screen Result Modal */}
       {selectedReport && reportResult && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-xl">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 print-modal-backdrop">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-200 print-modal-content">
+            {/* Print Header Branding (Hidden on screen) */}
+            <div className="hidden print-header-brand border-b-2 border-slate-800 pb-2 mb-4">
+               <h1 className="text-2xl font-black text-slate-800">Hidro & Fitness</h1>
+               <p className="text-xs text-slate-500">Relatório Gerado em {new Date().toLocaleString('pt-BR')}</p>
+            </div>
+
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-xl print:bg-white print:border-none print:p-0 print:mb-4">
               <div>
                 <h3 className="text-xl font-bold text-slate-800">{reportResult.title}</h3>
                 <p className="text-sm text-slate-500">Período: {reportResult.period}</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 print-hide">
                 <button onClick={() => window.print()} className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-200 rounded-lg" title="Imprimir">
                   <Printer size={20} />
                 </button>
@@ -688,7 +724,7 @@ const Reports: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-6 overflow-auto">
+            <div className="p-6 overflow-auto print-modal-body">
               {reportResult.data.length === 0 ? (
                 <div className="text-center py-12 text-slate-400">
                   <p className="text-lg font-medium">Nenhum resultado encontrado</p>
@@ -716,7 +752,7 @@ const Reports: React.FC = () => {
               )}
             </div>
 
-            <div className="p-4 border-t border-slate-100 bg-slate-50 rounded-b-xl flex justify-end">
+            <div className="p-4 border-t border-slate-100 bg-slate-50 rounded-b-xl flex justify-end print-hide">
               <button onClick={closeReportModal} className="px-6 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 font-medium">
                 Fechar
               </button>
