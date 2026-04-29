@@ -207,15 +207,20 @@ const Reports: React.FC = () => {
         const [students, trans, plans] = await Promise.all([fetchStudents(), fetchTransactions(), fetchPlans()]);
         const active = students.filter(s => s.status === 'Ativo');
 
-        const planMap: Record<string, any> = {};
-        plans.forEach((p: any) => { planMap[p.name] = p; });
+        const planMapByName: Record<string, any> = {};
+        const planMapById: Record<string, any> = {};
+        plans.forEach((p: any) => { 
+          planMapByName[p.name] = p;
+          planMapById[p.id.toString()] = p;
+        });
 
         const delinquent = active.filter(s => {
           const studentPlans = Array.isArray(s.plans) && s.plans.length > 0 ? s.plans : (s.plan ? [s.plan] : []);
-          if (studentPlans.length === 0) return false;
+          const studentPlanIds = Array.isArray(s.planIds) && s.planIds.length > 0 ? s.planIds : studentPlans;
+          if (studentPlanIds.length === 0) return false;
           // Check if any plan covers this month via a paid transaction
-          return studentPlans.every(planName => {
-            const plan = planMap[planName];
+          return studentPlanIds.every(planIdOrName => {
+            const plan = planMapById[planIdOrName] || planMapByName[planIdOrName];
             const freqMonths = plan ? (FREQ_MONTHS[plan.frequency] ?? 1) : 1;
             const hasPaid = trans.some(t => {
               if (t.type !== 'INCOME') return false;
@@ -247,16 +252,22 @@ const Reports: React.FC = () => {
         const [students, trans, plans] = await Promise.all([fetchStudents(), fetchTransactions(), fetchPlans()]);
         const active = students.filter(s => s.status === 'Ativo');
 
-        const planMap: Record<string, any> = {};
-        plans.forEach((p: any) => { planMap[p.name] = p; });
+        const planMapByName: Record<string, any> = {};
+        const planMapById: Record<string, any> = {};
+        plans.forEach((p: any) => { 
+          planMapByName[p.name] = p;
+          planMapById[p.id.toString()] = p;
+        });
 
         const today = new Date();
         const isPast = refYear < today.getFullYear() || (refYear === today.getFullYear() && refMonth < today.getMonth());
 
         const rows = active.map(s => {
           const studentPlans = Array.isArray(s.plans) && s.plans.length > 0 ? s.plans : (s.plan ? [s.plan] : []);
+          const studentPlanIds = Array.isArray(s.planIds) && s.planIds.length > 0 ? s.planIds : studentPlans;
           const planName = studentPlans[0] || '-';
-          const plan = planMap[planName];
+          const planIdOrName = studentPlanIds[0] || '-';
+          const plan = planMapById[planIdOrName] || planMapByName[planIdOrName];
           const freqMonths = plan ? (FREQ_MONTHS[plan.frequency] ?? 1) : 1;
           const planPrice = plan ? fmtMoney(plan.price) : '-';
 
