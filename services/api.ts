@@ -240,6 +240,12 @@ export const deleteClass = async (id: number): Promise<void> => {
     if (!response.ok) throw new Error('Falha ao remover turma');
 };
 
+export const fetchStudentsWithContracts = async (): Promise<number[]> => {
+    const response = await fetch('/api/contracts/with-contracts');
+    if (!response.ok) throw new Error('Falha ao buscar alunos com contratos');
+    return await response.json();
+};
+
 export const fetchContracts = async (studentId: number): Promise<Contract[]> => {
     const response = await fetch(`/api/contracts?studentId=${studentId}`);
     if (!response.ok) throw new Error('Falha ao buscar contratos');

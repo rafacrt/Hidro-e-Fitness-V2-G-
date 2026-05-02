@@ -616,6 +616,17 @@ app.delete('/api/students/:id', async (req, res) => {
     }
 });
 
+// Contracts - GET student IDs that already have at least one contract
+app.get('/api/contracts/with-contracts', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT DISTINCT student_id FROM contracts');
+        res.json(result.rows.map(r => r.student_id));
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 // Contracts - GET (by studentId)
 app.get('/api/contracts', async (req, res) => {
     const { studentId } = req.query;
