@@ -512,11 +512,11 @@ const Reports: React.FC = () => {
             doc.text(periodStr, 14, 34);
             
             // Footer
-            const pageStr = "Página " + doc.internal.getNumberOfPages();
+            const pageStr = "Página " + (doc.internal as any).getNumberOfPages();
             doc.setFontSize(8);
             doc.setTextColor(150, 150, 150);
-            
-            doc.text(pageStr, pageWidth - doc.getStringUnitWidth(pageStr) * doc.internal.getFontSize() / doc.internal.scaleFactor - 14, pageHeight - 10);
+
+            doc.text(pageStr, pageWidth - doc.getStringUnitWidth(pageStr) * (doc.internal as any).getFontSize() / doc.internal.scaleFactor - 14, pageHeight - 10);
             
             const dateStr = "Gerado em " + new Date().toLocaleString('pt-BR');
             doc.text(dateStr, 14, pageHeight - 10);

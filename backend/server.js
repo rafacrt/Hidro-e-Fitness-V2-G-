@@ -230,6 +230,27 @@ const connectWithRetry = async () => {
                     ALTER TABLE transactions ADD COLUMN installment_number INT;
                     ALTER TABLE transactions ADD COLUMN installment_total INT;
                 END IF;
+
+                -- Create contracts table if not exists
+                CREATE TABLE IF NOT EXISTS contracts (
+                    id SERIAL PRIMARY KEY,
+                    student_id INTEGER NOT NULL,
+                    contract_number INTEGER NOT NULL DEFAULT 1,
+                    plan_ids TEXT,
+                    start_date DATE NOT NULL,
+                    planned_end_date DATE,
+                    actual_end_date DATE,
+                    status VARCHAR(20) NOT NULL DEFAULT 'Ativo',
+                    closure_reason VARCHAR(50),
+                    closure_notes TEXT,
+                    duration_months INTEGER,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    CONSTRAINT contracts_status_check CHECK (status IN ('Ativo', 'Encerrado', 'Trancado')),
+                    CONSTRAINT contracts_closure_reason_check CHECK (
+                        closure_reason IN ('Abandono', 'Desistência', 'Doença', 'Conclusão', 'Transferência', 'Inadimplência', 'Outros')
+                        OR closure_reason IS NULL
+                    )
+                );
             END $$;
         `);
         console.log("Schema constraints updated.");
@@ -589,6 +610,106 @@ app.delete('/api/students/:id', async (req, res) => {
     try {
         await pool.query('DELETE FROM students WHERE id = $1', [id]);
         res.json({ message: 'Student deleted' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Contracts - GET (by studentId)
+app.get('/api/contracts', async (req, res) => {
+    const { studentId } = req.query;
+    try {
+        const result = await pool.query(`
+            SELECT
+                id,
+                student_id as "studentId",
+                contract_number as "contractNumber",
+                plan_ids as "planIdsRaw",
+                start_date as "startDate",
+                planned_end_date as "plannedEndDate",
+                actual_end_date as "actualEndDate",
+                status,
+                closure_reason as "closureReason",
+                closure_notes as "closureNotes",
+                duration_months as "durationMonths",
+                created_at as "createdAt"
+            FROM contracts
+            WHERE student_id = $1
+            ORDER BY contract_number ASC
+        `, [studentId]);
+
+        const rows = result.rows.map(r => ({
+            ...r,
+            planIds: r.planIdsRaw ? (() => { try { return JSON.parse(r.planIdsRaw); } catch { return [r.planIdsRaw]; } })() : [],
+            planIdsRaw: undefined,
+        }));
+        res.json(rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Contracts - POST (create new contract)
+app.post('/api/contracts', async (req, res) => {
+    const { studentId, planIds, startDate, plannedEndDate, durationMonths } = req.body;
+    try {
+        // Get next contract number for this student
+        const countResult = await pool.query(
+            'SELECT COALESCE(MAX(contract_number), 0) + 1 AS next_num FROM contracts WHERE student_id = $1',
+            [studentId]
+        );
+        const contractNumber = countResult.rows[0].next_num;
+
+        const result = await pool.query(`
+            INSERT INTO contracts (student_id, contract_number, plan_ids, start_date, planned_end_date, duration_months, status)
+            VALUES ($1, $2, $3, $4, $5, $6, 'Ativo')
+            RETURNING id, contract_number as "contractNumber"
+        `, [
+            studentId,
+            contractNumber,
+            planIds ? JSON.stringify(planIds) : null,
+            startDate,
+            toNull(plannedEndDate),
+            toNull(durationMonths),
+        ]);
+
+        res.status(201).json({ id: result.rows[0].id, contractNumber: result.rows[0].contractNumber });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Contracts - PUT (update / close contract)
+app.put('/api/contracts/:id', async (req, res) => {
+    const { id } = req.params;
+    const { status, closureReason, closureNotes, actualEndDate, planIds, startDate, plannedEndDate, durationMonths } = req.body;
+    try {
+        await pool.query(`
+            UPDATE contracts SET
+                status = COALESCE($1, status),
+                closure_reason = $2,
+                closure_notes = $3,
+                actual_end_date = $4,
+                plan_ids = COALESCE($5, plan_ids),
+                start_date = COALESCE($6, start_date),
+                planned_end_date = $7,
+                duration_months = $8
+            WHERE id = $9
+        `, [
+            toNull(status),
+            toNull(closureReason),
+            toNull(closureNotes),
+            toNull(actualEndDate),
+            planIds ? JSON.stringify(planIds) : null,
+            toNull(startDate),
+            toNull(plannedEndDate),
+            toNull(durationMonths),
+            id,
+        ]);
+        res.json({ message: 'Contract updated' });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Internal Server Error' });

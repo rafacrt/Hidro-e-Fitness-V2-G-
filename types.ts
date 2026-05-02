@@ -113,6 +113,26 @@ export interface ClassSession {
   status: 'Open' | 'Full' | 'Cancelled';
 }
 
+// --- CONTRACT TYPES ---
+
+export type ContractStatus = 'Ativo' | 'Encerrado' | 'Trancado';
+export type ContractClosureReason = 'Abandono' | 'Desistência' | 'Doença' | 'Conclusão' | 'Transferência' | 'Inadimplência' | 'Outros';
+
+export interface Contract {
+  id: number;
+  studentId: number;
+  contractNumber: number;
+  planIds: string[];
+  startDate: string;
+  plannedEndDate?: string;
+  actualEndDate?: string;
+  status: ContractStatus;
+  closureReason?: ContractClosureReason;
+  closureNotes?: string;
+  durationMonths?: number;
+  createdAt?: string;
+}
+
 // --- FINANCE TYPES ---
 
 export type TransactionType = 'INCOME' | 'EXPENSE';

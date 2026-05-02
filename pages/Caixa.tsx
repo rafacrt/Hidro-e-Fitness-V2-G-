@@ -88,13 +88,14 @@ const Caixa: React.FC = () => {
 
   // ── Receive modal ─────────────────────────────────────────────────────────
 
-  const [receiveItem,   setReceiveItem]   = useState<any | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodId | null>(null);
-  const [paymentMode,   setPaymentMode]   = useState<'AVISTA' | 'PARCELADO'>('AVISTA');
-  const [customAmount,  setCustomAmount]  = useState('');
-  const [receiptDate,   setReceiptDate]   = useState('');
-  const [observation,   setObservation]   = useState('');
-  const [saving,        setSaving]        = useState(false);
+  const [receiveItem,     setReceiveItem]     = useState<any | null>(null);
+  const [paymentMethod,   setPaymentMethod]   = useState<PaymentMethodId | null>(null);
+  const [paymentMode,     setPaymentMode]     = useState<'AVISTA' | 'PARCELADO'>('AVISTA');
+  const [customAmount,    setCustomAmount]    = useState('');
+  const [receiptDate,     setReceiptDate]     = useState('');
+  const [referenceMonth,  setReferenceMonth]  = useState('');
+  const [observation,     setObservation]     = useState('');
+  const [saving,          setSaving]          = useState(false);
 
   // ── Delete / undo ─────────────────────────────────────────────────────────
 
@@ -325,6 +326,7 @@ const Caixa: React.FC = () => {
     setPaymentMode(item.isParcelado ? 'PARCELADO' : (item.freqMonths > 1 ? 'PARCELADO' : 'AVISTA'));
     setCustomAmount(Number(item.amount).toFixed(2).replace('.', ','));
     setReceiptDate(new Date().toISOString().split('T')[0]);
+    setReferenceMonth(selectedMonth);
     setObservation('');
   };
 
@@ -332,7 +334,8 @@ const Caixa: React.FC = () => {
     if (!receiveItem || !paymentMethod) return;
     setSaving(true);
     try {
-      const [year, month] = selectedMonth.split('-').map(Number);
+      const refMonth = referenceMonth || selectedMonth;
+      const [year, month] = refMonth.split('-').map(Number);
       const dueDate  = new Date(year, month - 1, receiveItem.dueDay ?? 10).toISOString().split('T')[0];
       const amount   = parseFloat(customAmount.replace(',', '.'));
       const instLabel = paymentMode === 'PARCELADO' && receiveItem.freqMonths > 1
@@ -790,6 +793,26 @@ const Caixa: React.FC = () => {
                   ))}
                 </div>
                 {!paymentMethod && <p className="text-xs text-slate-400 mt-2">Selecione a forma de pagamento para continuar</p>}
+              </div>
+
+              {/* Reference month */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                  Mês de Referência
+                  <span className="font-normal text-slate-400 ml-1">(mensalidade de qual mês?)</span>
+                </label>
+                <input
+                  type="month"
+                  value={referenceMonth}
+                  onChange={e => setReferenceMonth(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                />
+                {referenceMonth !== selectedMonth && (
+                  <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                    <Info size={11} />
+                    Pagamento retroativo — vencimento será em {new Date(referenceMonth + '-15').toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+                  </p>
+                )}
               </div>
 
               {/* Date + observation */}

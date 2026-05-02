@@ -1,4 +1,4 @@
-import { KPI, Student, ClassSession, FinancialTransaction, User } from '../types';
+import { KPI, Student, ClassSession, FinancialTransaction, User, Contract } from '../types';
 
 export const fetchDashboardKPIs = async (): Promise<KPI[]> => {
     try {
@@ -238,6 +238,46 @@ export const deleteClass = async (id: number): Promise<void> => {
         method: 'DELETE',
     });
     if (!response.ok) throw new Error('Falha ao remover turma');
+};
+
+export const fetchContracts = async (studentId: number): Promise<Contract[]> => {
+    const response = await fetch(`/api/contracts?studentId=${studentId}`);
+    if (!response.ok) throw new Error('Falha ao buscar contratos');
+    return await response.json();
+};
+
+export const createContract = async (data: {
+    studentId: number;
+    planIds: string[];
+    startDate: string;
+    plannedEndDate?: string;
+    durationMonths?: number;
+}): Promise<{ id: number; contractNumber: number }> => {
+    const response = await fetch('/api/contracts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Falha ao criar contrato');
+    return await response.json();
+};
+
+export const updateContract = async (id: number, data: Partial<{
+    status: string;
+    closureReason: string;
+    closureNotes: string;
+    actualEndDate: string;
+    planIds: string[];
+    startDate: string;
+    plannedEndDate: string;
+    durationMonths: number;
+}>): Promise<void> => {
+    const response = await fetch(`/api/contracts/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error('Falha ao atualizar contrato');
 };
 
 export const fetchAddressByCep = async (cep: string) => {

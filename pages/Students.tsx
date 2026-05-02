@@ -4,17 +4,19 @@ import {
   Plus, Search, FileText, MoreVertical, Loader2, MapPin,
   Upload, Download, User, Shield, Activity, Trash2, File,
   MessageCircle, Phone, Mail, AlertTriangle, Calendar, X, Edit, Printer, DollarSign,
-  Users, CheckSquare, Square, Clock, ArrowUpDown, ChevronUp, ChevronDown
+  Users, CheckSquare, Square, Clock, ArrowUpDown, ChevronUp, ChevronDown,
+  ClipboardList, CheckCircle2, XCircle
 } from 'lucide-react';
 import {
   fetchStudents, createStudent, updateStudent, deleteStudent,
-  fetchModalities, fetchPlans, fetchAddressByCep, createTransaction
+  fetchModalities, fetchPlans, fetchAddressByCep, createTransaction,
+  fetchContracts, createContract, updateContract
 } from '../services/api';
-import { Student, StudentDocument, Modality, Plan } from '../types';
+import { Student, StudentDocument, Modality, Plan, Contract, ContractClosureReason } from '../types';
 import { exportToCSV, parseCSV, downloadTemplate } from '../utils/csvHelper';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 
-type TabType = 'registration' | 'enrollment' | 'documents';
+type TabType = 'registration' | 'enrollment' | 'contracts' | 'documents';
 
 // Helper to parse plans from string (JSON or single value)
 const parsePlans = (planStr: string | undefined): string[] => {
@@ -62,6 +64,24 @@ const Students: React.FC = () => {
     address: { cep: '', street: '', number: '', neighborhood: '', city: '', state: '', complement: '' },
     guardian: { name: '', cpf: '', phone: '', relationship: '' },
     medicalNotes: '', documents: []
+  });
+
+  // Contracts State
+  const [contracts, setContracts] = useState<Contract[]>([]);
+  const [loadingContracts, setLoadingContracts] = useState(false);
+  const [editingContractStudentId, setEditingContractStudentId] = useState<number | null>(null);
+  const [showNewContractForm, setShowNewContractForm] = useState(false);
+  const [newContractData, setNewContractData] = useState({
+    startDate: new Date().toISOString().split('T')[0],
+    durationMonths: '',
+    plannedEndDate: '',
+  });
+  const [showCloseContractId, setShowCloseContractId] = useState<number | null>(null);
+  const [closeContractData, setCloseContractData] = useState({
+    actualEndDate: new Date().toISOString().split('T')[0],
+    closureReason: '' as ContractClosureReason | '',
+    closureNotes: '',
+    updateStudentStatus: true,
   });
 
   // Generation Modal State
@@ -588,7 +608,24 @@ const Students: React.FC = () => {
       guardian: { name: '', cpf: '', phone: '', relationship: '' },
       medicalNotes: '', documents: []
     });
+    setContracts([]);
+    setEditingContractStudentId(null);
+    setShowNewContractForm(false);
+    setShowCloseContractId(null);
     setShowFormModal(true);
+  };
+
+  const loadStudentContracts = async (studentId: number) => {
+    setLoadingContracts(true);
+    try {
+      const data = await fetchContracts(studentId);
+      setContracts(data);
+      setEditingContractStudentId(studentId);
+    } catch (e) {
+      console.error('Erro ao carregar contratos:', e);
+    } finally {
+      setLoadingContracts(false);
+    }
   };
 
   const handleOpenEdit = (student: Student) => {
@@ -621,6 +658,10 @@ const Students: React.FC = () => {
     });
     setOpenMenuId(null);
     setShowDetailsModal(null); // Close details if open
+    setContracts([]);
+    setShowNewContractForm(false);
+    setShowCloseContractId(null);
+    loadStudentContracts(student.id);
     setShowFormModal(true);
   };
 
@@ -631,23 +672,29 @@ const Students: React.FC = () => {
   // --- Render Components ---
 
   const renderTabNavigation = () => (
-    <div className="flex border-b border-slate-200 mb-6">
+    <div className="flex border-b border-slate-200 mb-6 overflow-x-auto">
       {[
         { id: 'registration', label: 'Dados Cadastrais', icon: User },
         { id: 'enrollment', label: 'Matrícula', icon: FileText },
+        ...(isEditing ? [{ id: 'contracts', label: 'Contratos', icon: ClipboardList }] : []),
         { id: 'documents', label: 'Arquivos', icon: Upload },
       ].map((tab) => (
         <button
           key={tab.id}
           type="button"
           onClick={() => setActiveTab(tab.id as TabType)}
-          className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.id
+          className={`flex items-center gap-2 px-5 py-3 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${activeTab === tab.id
             ? 'border-primary-600 text-primary-700'
             : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
             }`}
         >
           <tab.icon size={16} />
           <span className="hidden sm:inline">{tab.label}</span>
+          {tab.id === 'contracts' && contracts.length > 0 && (
+            <span className="ml-1 text-xs bg-primary-100 text-primary-700 rounded-full px-1.5 py-0.5 font-semibold">
+              {contracts.length}
+            </span>
+          )}
         </button>
       ))}
     </div>
@@ -1321,7 +1368,7 @@ const Students: React.FC = () => {
                         <input
                           type="number"
                           min={1}
-                          max={28}
+                          max={31}
                           value={(formData as any).dueDay ?? 10}
                           onChange={e => setFormData({ ...formData, dueDay: Number(e.target.value) } as any)}
                           className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none"
@@ -1329,17 +1376,9 @@ const Students: React.FC = () => {
                       </div>
 
                       {isEditing && (
-                        <div>
-                          <label className="block text-sm font-medium text-slate-700 mb-1">
-                            Data de Reativação
-                            <span className="text-xs text-slate-400 font-normal ml-1">(preencher ao reativar aluno inativo)</span>
-                          </label>
-                          <input
-                            type="date"
-                            value={(formData as any).reactivationDate || ''}
-                            onChange={e => setFormData({ ...formData, reactivationDate: e.target.value } as any)}
-                            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none"
-                          />
+                        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700 flex items-start gap-2">
+                          <ClipboardList size={14} className="mt-0.5 shrink-0" />
+                          <span>Para registrar reativação ou novo ciclo, use a aba <strong>Contratos</strong>.</span>
                         </div>
                       )}
                     </div>
@@ -1360,6 +1399,299 @@ const Students: React.FC = () => {
                 )}
 
 
+
+                {activeTab === 'contracts' && (
+                  <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
+
+                    {/* Header */}
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-800">Histórico de Contratos</h4>
+                        <p className="text-xs text-slate-400 mt-0.5">Cada matrícula ou reativação gera um contrato numerado.</p>
+                      </div>
+                      {!showNewContractForm && !contracts.some(c => c.status === 'Ativo') && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setNewContractData({
+                              startDate: new Date().toISOString().split('T')[0],
+                              durationMonths: '',
+                              plannedEndDate: '',
+                            });
+                            setShowNewContractForm(true);
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-primary-600 text-white text-xs font-semibold rounded-lg hover:bg-primary-700 transition-colors"
+                        >
+                          <Plus size={14} /> Novo Contrato
+                        </button>
+                      )}
+                      {contracts.some(c => c.status === 'Ativo') && !showNewContractForm && (
+                        <span className="text-xs text-green-600 font-medium flex items-center gap-1">
+                          <CheckCircle2 size={13} /> Contrato ativo
+                        </span>
+                      )}
+                    </div>
+
+                    {/* New contract inline form */}
+                    {showNewContractForm && (
+                      <div className="border-2 border-primary-200 bg-primary-50 rounded-xl p-4 space-y-3">
+                        <p className="text-sm font-bold text-primary-800">Novo Contrato #{String(contracts.length + 1).padStart(3, '0')}</p>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs font-medium text-slate-600 mb-1">Data de Início *</label>
+                            <input
+                              type="date"
+                              value={newContractData.startDate}
+                              onChange={e => setNewContractData(p => ({ ...p, startDate: e.target.value }))}
+                              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-slate-600 mb-1">Duração (meses)</label>
+                            <input
+                              type="number"
+                              min={1}
+                              max={36}
+                              placeholder="Ex: 12"
+                              value={newContractData.durationMonths}
+                              onChange={e => {
+                                const months = e.target.value;
+                                const planned = months && newContractData.startDate
+                                  ? (() => {
+                                      const d = new Date(newContractData.startDate);
+                                      d.setMonth(d.getMonth() + parseInt(months));
+                                      return d.toISOString().split('T')[0];
+                                    })()
+                                  : '';
+                                setNewContractData(p => ({ ...p, durationMonths: months, plannedEndDate: planned }));
+                              }}
+                              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                            />
+                          </div>
+                        </div>
+                        {newContractData.plannedEndDate && (
+                          <p className="text-xs text-slate-500 flex items-center gap-1">
+                            <Calendar size={11} /> Previsão de término: {new Date(newContractData.plannedEndDate + 'T12:00:00').toLocaleDateString('pt-BR')}
+                          </p>
+                        )}
+                        <div className="flex gap-2 pt-1">
+                          <button
+                            type="button"
+                            onClick={() => setShowNewContractForm(false)}
+                            className="flex-1 py-2 border border-slate-300 text-slate-600 text-sm font-medium rounded-lg hover:bg-white transition-colors"
+                          >
+                            Cancelar
+                          </button>
+                          <button
+                            type="button"
+                            disabled={!newContractData.startDate || !editingContractStudentId}
+                            onClick={async () => {
+                              if (!editingContractStudentId) return;
+                              try {
+                                const planIds = (formData as any).planIds?.length
+                                  ? (formData as any).planIds
+                                  : (formData.plans ?? []);
+                                await createContract({
+                                  studentId: editingContractStudentId,
+                                  planIds,
+                                  startDate: newContractData.startDate,
+                                  plannedEndDate: newContractData.plannedEndDate || undefined,
+                                  durationMonths: newContractData.durationMonths ? parseInt(newContractData.durationMonths) : undefined,
+                                });
+                                await loadStudentContracts(editingContractStudentId);
+                                setShowNewContractForm(false);
+                              } catch {
+                                alert('Erro ao criar contrato.');
+                              }
+                            }}
+                            className="flex-[2] py-2 bg-primary-600 text-white text-sm font-bold rounded-lg hover:bg-primary-700 disabled:opacity-50 transition-colors"
+                          >
+                            Salvar Contrato
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Close contract modal */}
+                    {showCloseContractId !== null && (
+                      <div className="border-2 border-red-200 bg-red-50 rounded-xl p-4 space-y-3">
+                        <p className="text-sm font-bold text-red-800 flex items-center gap-1.5">
+                          <XCircle size={15} /> Encerrar Contrato
+                        </p>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs font-medium text-slate-600 mb-1">Data de Encerramento *</label>
+                            <input
+                              type="date"
+                              value={closeContractData.actualEndDate}
+                              onChange={e => setCloseContractData(p => ({ ...p, actualEndDate: e.target.value }))}
+                              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-red-400 outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-slate-600 mb-1">Motivo *</label>
+                            <select
+                              value={closeContractData.closureReason}
+                              onChange={e => setCloseContractData(p => ({ ...p, closureReason: e.target.value as ContractClosureReason }))}
+                              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-red-400 outline-none bg-white"
+                            >
+                              <option value="">Selecione...</option>
+                              {(['Abandono', 'Desistência', 'Doença', 'Conclusão', 'Transferência', 'Inadimplência', 'Outros'] as ContractClosureReason[]).map(r => (
+                                <option key={r} value={r}>{r}</option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-slate-600 mb-1">Observações</label>
+                          <input
+                            type="text"
+                            value={closeContractData.closureNotes}
+                            onChange={e => setCloseContractData(p => ({ ...p, closureNotes: e.target.value }))}
+                            placeholder="Ex: Aluno comunicou via WhatsApp"
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-red-400 outline-none"
+                          />
+                        </div>
+                        <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={closeContractData.updateStudentStatus}
+                            onChange={e => setCloseContractData(p => ({ ...p, updateStudentStatus: e.target.checked }))}
+                            className="w-4 h-4 rounded text-red-500"
+                          />
+                          Marcar aluno como <strong>Inativo</strong> ao encerrar
+                        </label>
+                        <div className="flex gap-2 pt-1">
+                          <button
+                            type="button"
+                            onClick={() => setShowCloseContractId(null)}
+                            className="flex-1 py-2 border border-slate-300 text-slate-600 text-sm font-medium rounded-lg hover:bg-white transition-colors"
+                          >
+                            Cancelar
+                          </button>
+                          <button
+                            type="button"
+                            disabled={!closeContractData.actualEndDate || !closeContractData.closureReason}
+                            onClick={async () => {
+                              if (!editingContractStudentId) return;
+                              try {
+                                await updateContract(showCloseContractId!, {
+                                  status: 'Encerrado',
+                                  closureReason: closeContractData.closureReason as ContractClosureReason,
+                                  closureNotes: closeContractData.closureNotes || undefined,
+                                  actualEndDate: closeContractData.actualEndDate,
+                                });
+                                if (closeContractData.updateStudentStatus) {
+                                  setFormData(p => ({ ...p, status: 'Inativo' }));
+                                }
+                                await loadStudentContracts(editingContractStudentId);
+                                setShowCloseContractId(null);
+                              } catch {
+                                alert('Erro ao encerrar contrato.');
+                              }
+                            }}
+                            className="flex-[2] py-2 bg-red-600 text-white text-sm font-bold rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+                          >
+                            Confirmar Encerramento
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Contracts list */}
+                    {loadingContracts ? (
+                      <div className="flex items-center justify-center py-10 text-slate-400 gap-2">
+                        <Loader2 size={18} className="animate-spin" /> Carregando contratos...
+                      </div>
+                    ) : contracts.length === 0 ? (
+                      <div className="text-center py-10 border-2 border-dashed border-slate-200 rounded-xl text-slate-400">
+                        <ClipboardList size={32} className="mx-auto mb-2 opacity-40" />
+                        <p className="text-sm">Nenhum contrato registrado</p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setNewContractData({ startDate: new Date().toISOString().split('T')[0], durationMonths: '', plannedEndDate: '' });
+                            setShowNewContractForm(true);
+                          }}
+                          className="mt-3 text-xs text-primary-600 font-semibold hover:underline"
+                        >
+                          + Criar primeiro contrato
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {[...contracts].reverse().map(c => {
+                          const isActive = c.status === 'Ativo';
+                          const num = String(c.contractNumber).padStart(3, '0');
+                          return (
+                            <div
+                              key={c.id}
+                              className={`rounded-xl border p-4 space-y-2 ${isActive ? 'border-green-200 bg-green-50' : 'border-slate-200 bg-white'}`}
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-bold text-slate-700 text-sm">Contrato #{num}</span>
+                                  <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
+                                    c.status === 'Ativo' ? 'bg-green-100 text-green-700' :
+                                    c.status === 'Encerrado' ? 'bg-red-100 text-red-700' :
+                                    'bg-yellow-100 text-yellow-700'
+                                  }`}>
+                                    {c.status}
+                                  </span>
+                                  {c.closureReason && (
+                                    <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">{c.closureReason}</span>
+                                  )}
+                                </div>
+                                {isActive && showCloseContractId !== c.id && !showNewContractForm && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setCloseContractData({
+                                        actualEndDate: new Date().toISOString().split('T')[0],
+                                        closureReason: '',
+                                        closureNotes: '',
+                                        updateStudentStatus: true,
+                                      });
+                                      setShowCloseContractId(c.id);
+                                    }}
+                                    className="text-xs text-red-600 border border-red-200 px-2 py-1 rounded-lg hover:bg-red-50 transition-colors font-medium"
+                                  >
+                                    Encerrar
+                                  </button>
+                                )}
+                              </div>
+                              <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+                                <span className="flex items-center gap-1"><Calendar size={11} /> Início: {new Date(c.startDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span>
+                                {c.plannedEndDate && (
+                                  <span>Previsão: {new Date(c.plannedEndDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span>
+                                )}
+                                {c.actualEndDate && (
+                                  <span className="text-red-600">Encerrado em: {new Date(c.actualEndDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span>
+                                )}
+                                {c.durationMonths && <span>{c.durationMonths} meses</span>}
+                              </div>
+                              {c.closureNotes && (
+                                <p className="text-xs text-slate-500 italic">"{c.closureNotes}"</p>
+                              )}
+                              {c.planIds && c.planIds.length > 0 && (
+                                <div className="flex flex-wrap gap-1 pt-1">
+                                  {c.planIds.map((pid, i) => {
+                                    const p = plans.find(pl => String(pl.id) === String(pid));
+                                    return (
+                                      <span key={i} className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">
+                                        {p ? p.name : pid}
+                                      </span>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {activeTab === 'documents' && (
                   <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
