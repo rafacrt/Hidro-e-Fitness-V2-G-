@@ -231,6 +231,18 @@ const connectWithRetry = async () => {
                     ALTER TABLE transactions ADD COLUMN installment_total INT;
                 END IF;
 
+                -- Add is_test flag to students if not exists
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns
+                    WHERE table_name = 'students' AND column_name = 'is_test'
+                ) THEN
+                    ALTER TABLE students ADD COLUMN is_test BOOLEAN DEFAULT FALSE;
+                END IF;
+
+                -- Mark known test accounts (strips CPF formatting before comparing)
+                UPDATE students SET is_test = TRUE
+                WHERE REPLACE(REPLACE(REPLACE(cpf, '.', ''), '-', ''), ' ', '') IN ('36570049801', '33646614803');
+
                 -- Create contracts table if not exists
                 CREATE TABLE IF NOT EXISTS contracts (
                     id SERIAL PRIMARY KEY,
@@ -307,7 +319,7 @@ app.get('/api/health', (req, res) => {
 // Dashboard KPIs
 app.get('/api/dashboard/kpis', async (req, res) => {
     try {
-        const activeStudentsResult = await pool.query("SELECT COUNT(*) FROM students WHERE status = 'Ativo'");
+        const activeStudentsResult = await pool.query("SELECT COUNT(*) FROM students WHERE status = 'Ativo' AND is_test IS NOT TRUE");
         const activeStudents = parseInt(activeStudentsResult.rows[0].count);
 
         const occupationResult = await pool.query("SELECT SUM(capacity) as total_cap, SUM(enrolled) as total_enrolled FROM classes WHERE status != 'Cancelled'");
@@ -316,28 +328,30 @@ app.get('/api/dashboard/kpis', async (req, res) => {
         const occupationRate = totalCap > 0 ? Math.round((totalEnrolled / totalCap) * 100) : 0;
 
         const revenueResult = await pool.query(`
-            SELECT SUM(amount) 
-            FROM transactions 
-            WHERE type = 'INCOME' 
-            AND status = 'PAID' 
+            SELECT SUM(amount)
+            FROM transactions
+            WHERE type = 'INCOME'
+            AND status = 'PAID'
             AND date_part('month', date) = date_part('month', CURRENT_DATE)
             AND date_part('year', date) = date_part('year', CURRENT_DATE)
+            AND (related_entity IS NULL OR related_entity NOT IN (SELECT name FROM students WHERE is_test = TRUE))
         `);
         const revenue = parseFloat(revenueResult.rows[0].sum) || 0;
 
         // Pending Revenue
         const pendingRevenueResult = await pool.query(`
-            SELECT SUM(amount) 
-            FROM transactions 
-            WHERE type = 'INCOME' 
+            SELECT SUM(amount)
+            FROM transactions
+            WHERE type = 'INCOME'
             AND status IN ('PENDING', 'LATE')
             AND date_part('month', date) = date_part('month', CURRENT_DATE)
             AND date_part('year', date) = date_part('year', CURRENT_DATE)
+            AND (related_entity IS NULL OR related_entity NOT IN (SELECT name FROM students WHERE is_test = TRUE))
         `);
         const pendingRevenue = parseFloat(pendingRevenueResult.rows[0].sum) || 0;
 
         // Total Students (not just active)
-        const totalStudentsResult = await pool.query("SELECT COUNT(*) FROM students");
+        const totalStudentsResult = await pool.query("SELECT COUNT(*) FROM students WHERE is_test IS NOT TRUE");
         const totalStudents = parseInt(totalStudentsResult.rows[0].count);
 
         const daysMap = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
@@ -370,16 +384,17 @@ app.get('/api/dashboard/charts', async (req, res) => {
     try {
         // Occupation (Students per Modality)
         const occupationResult = await pool.query(`
-            SELECT modality_name as name, COUNT(*)::int as value 
-            FROM students 
-            WHERE modality_name IS NOT NULL 
+            SELECT modality_name as name, COUNT(*)::int as value
+            FROM students
+            WHERE modality_name IS NOT NULL AND is_test IS NOT TRUE
             GROUP BY modality_name
         `);
 
         // Status (Students per Status)
         const statusResult = await pool.query(`
-            SELECT status as name, COUNT(*)::int as value 
-            FROM students 
+            SELECT status as name, COUNT(*)::int as value
+            FROM students
+            WHERE is_test IS NOT TRUE
             GROUP BY status
         `);
 
@@ -439,7 +454,7 @@ app.get('/api/students', async (req, res) => {
                     status, plan_name as "planRaw", modality_name as "modalityRaw",
                     enrollment_date as "enrollmentDate", reactivation_date as "reactivationDate", due_day as "dueDay", payment_status as "paymentStatus",
                     guardian_name, guardian_cpf, guardian_phone, guardian_relationship,
-                    medical_notes as "medicalNotes"
+                    medical_notes as "medicalNotes", is_test as "isTest"
                 FROM students ORDER BY name
             `),
             pool.query('SELECT id, name FROM plans ORDER BY id')

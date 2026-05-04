@@ -155,10 +155,18 @@ const Finance: React.FC = () => {
 
   // ── Derived data ────────────────────────────────────────────────────────────
 
+  const testStudentNames = useMemo(
+    () => new Set(students.filter(s => s.isTest).map(s => s.name.toLowerCase())),
+    [students]
+  );
+
   const filteredTransactions = useMemo(() => {
     const { startDate, endDate } = getFilterDates()!;
 
     return transactions.filter(t => {
+      // Exclude test-student transactions from all financial views
+      if (t.relatedEntity && testStudentNames.has(t.relatedEntity.toLowerCase())) return false;
+
       let d: Date;
       if (t.date.includes('T')) d = new Date(t.date);
       else { const [y, m, day] = t.date.split('-').map(Number); d = new Date(y, m - 1, day); }
@@ -173,7 +181,7 @@ const Finance: React.FC = () => {
       }
       return d >= start && d <= end;
     });
-  }, [transactions, periodFilter, customStartDate, customEndDate, studentFilter]);
+  }, [transactions, students, periodFilter, customStartDate, customEndDate, studentFilter]);
 
   const stats = useMemo(() => {
     const totalIncome   = filteredTransactions.filter(t => t.type === 'INCOME'  && t.status === 'PAID').reduce((s, t) => s + Number(t.amount), 0);
@@ -191,6 +199,7 @@ const Finance: React.FC = () => {
     const start = new Date(now.getTime() - 90 * 86400000);
     start.setHours(0, 0, 0, 0);
     const hist = transactions.filter(t => {
+      if (t.relatedEntity && testStudentNames.has(t.relatedEntity.toLowerCase())) return false;
       let d: Date;
       if (t.date.includes('T')) d = new Date(t.date);
       else { const [y, m, day] = t.date.split('-').map(Number); d = new Date(y, m - 1, day); }

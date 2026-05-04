@@ -76,6 +76,7 @@ export interface Student {
   enrollmentDate: string;
   reactivationDate?: string;
   dueDay?: number;          // Dia do mês em que a mensalidade vence (padrão: 10)
+  isTest?: boolean;         // Conta de teste — ignorada em financeiro/relatórios
 
   // Financial
   paymentStatus: 'Pago' | 'Pendente' | 'Atrasado';

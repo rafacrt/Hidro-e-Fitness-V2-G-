@@ -174,7 +174,7 @@ const Caixa: React.FC = () => {
     const now           = new Date();
 
     return students
-      .filter(s => s.status === 'Ativo')
+      .filter(s => s.status === 'Ativo' && !s.isTest)
       .map(student => {
         const billingStartStr = student.reactivationDate || student.enrollmentDate;
         if (billingStartStr) {

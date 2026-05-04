@@ -902,7 +902,12 @@ const Students: React.FC = () => {
                       {student.name.substring(0, 2).toUpperCase()}
                     </div>
                     <div>
-                      <div className="font-medium text-slate-900">{student.name}</div>
+                      <div className="font-medium text-slate-900 flex items-center gap-2">
+                        {student.name}
+                        {(student as any).isTest && (
+                          <span className="text-xs bg-yellow-100 text-yellow-700 border border-yellow-200 px-1.5 py-0.5 rounded font-semibold">TESTE</span>
+                        )}
+                      </div>
                       <div className="text-xs text-slate-500">Matrícula: {student.id}</div>
                     </div>
                   </div>

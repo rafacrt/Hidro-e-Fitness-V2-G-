@@ -181,8 +181,10 @@ const Reports: React.FC = () => {
 
       // ── FINANCEIRO ──────────────────────────────────────────────
       case 'fin_receita': {
-        const trans = await fetchTransactions();
+        const [trans, allStudents] = await Promise.all([fetchTransactions(), fetchStudents()]);
+        const testNames = new Set(allStudents.filter((s: any) => s.isTest).map((s: any) => s.name.toLowerCase()));
         const filtered = trans.filter(t => {
+          if (t.relatedEntity && testNames.has(t.relatedEntity.toLowerCase())) return false;
           const d = parseDateLocal(t.date);
           return d >= rangeStart && d <= rangeEnd;
         }).sort((a, b) => parseDateLocal(a.date).getTime() - parseDateLocal(b.date).getTime());
@@ -213,7 +215,7 @@ const Reports: React.FC = () => {
 
       case 'fin_inadimplencia': {
         const [students, trans, plans] = await Promise.all([fetchStudents(), fetchTransactions(), fetchPlans()]);
-        const active = students.filter(s => s.status === 'Ativo');
+        const active = students.filter((s: any) => s.status === 'Ativo' && !s.isTest);
 
         const planMapByName: Record<string, any> = {};
         const planMapById: Record<string, any> = {};
@@ -258,7 +260,7 @@ const Reports: React.FC = () => {
 
       case 'fin_mensalidades': {
         const [students, trans, plans] = await Promise.all([fetchStudents(), fetchTransactions(), fetchPlans()]);
-        const active = students.filter(s => s.status === 'Ativo');
+        const active = students.filter((s: any) => s.status === 'Ativo' && !s.isTest);
 
         const planMapByName: Record<string, any> = {};
         const planMapById: Record<string, any> = {};
@@ -316,7 +318,7 @@ const Reports: React.FC = () => {
       // ── ACADÊMICO ─────────────────────────────────────────────────
       case 'acad_alunos_ativos': {
         const students = await fetchStudents();
-        const active = students.filter(s => s.status === 'Ativo')
+        const active = students.filter((s: any) => s.status === 'Ativo' && !s.isTest)
           .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
         return {
           headers: ['Nome', 'Modalidades', 'Plano', 'Telefone', 'Data Matrícula'],
@@ -332,7 +334,8 @@ const Reports: React.FC = () => {
 
       case 'acad_novas_matriculas': {
         const students = await fetchStudents();
-        const newStudents = students.filter(s => {
+        const newStudents = students.filter((s: any) => {
+          if (s.isTest) return false;
           if (!s.enrollmentDate) return false;
           const d = parseDateLocal(s.enrollmentDate);
           return d >= rangeStart && d <= rangeEnd;
@@ -351,7 +354,7 @@ const Reports: React.FC = () => {
 
       case 'acad_cancelamentos': {
         const students = await fetchStudents();
-        const inactive = students.filter(s => s.status === 'Inativo' || s.status === 'Trancado')
+        const inactive = students.filter((s: any) => !s.isTest && (s.status === 'Inativo' || s.status === 'Trancado'))
           .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
         return {
           headers: ['Nome', 'Status', 'Plano', 'Modalidades', 'Telefone'],
@@ -377,7 +380,8 @@ const Reports: React.FC = () => {
           return bdate;
         };
 
-        const birthdays = students.filter(s => {
+        const birthdays = students.filter((s: any) => {
+          if (s.isTest) return false;
           const bdate = parseBirthDate(s);
           if (!bdate) return false;
           const thisYear = new Date().getFullYear();
