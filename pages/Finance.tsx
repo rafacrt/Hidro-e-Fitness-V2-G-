@@ -307,17 +307,65 @@ const Finance: React.FC = () => {
   };
 
   const [tableSearch, setTableSearch] = React.useState('');
+  const [sortCol, setSortCol]   = React.useState<string>('dueDate');
+  const [sortDir, setSortDir]   = React.useState<'asc' | 'desc'>('desc');
+
+  const toggleSort = (col: string) => {
+    if (sortCol === col) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    else { setSortCol(col); setSortDir('asc'); }
+  };
+
+  /** Parses any date value from the API (Date object, ISO string, YYYY-MM-DD string) safely. */
+  const parseApiDate = (d: any): Date | null => {
+    if (!d) return null;
+    if (d instanceof Date) return isNaN(d.getTime()) ? null : d;
+    const s = String(d);
+    const parsed = (s.includes('T') || s.includes('Z')) ? new Date(s) : new Date(s + 'T12:00:00');
+    return isNaN(parsed.getTime()) ? null : parsed;
+  };
+
+  const fmtApiDate = (d: any) => {
+    const p = parseApiDate(d);
+    return p ? p.toLocaleDateString('pt-BR') : '—';
+  };
+
+  const STATUS_ORDER: Record<string, number> = { LATE: 0, PENDING: 1, PAID: 2, CANCELLED: 3 };
 
   const renderTable = (type: TransactionType) => {
     const isIncome = type === 'INCOME';
     const allRows = filteredTransactions.filter(t => t.type === type);
-    const rows = tableSearch.trim()
+    const searched = tableSearch.trim()
       ? allRows.filter(t =>
           t.description.toLowerCase().includes(tableSearch.toLowerCase()) ||
           (t.relatedEntity ?? '').toLowerCase().includes(tableSearch.toLowerCase())
         )
       : allRows;
+
+    const rows = [...searched].sort((a, b) => {
+      let av: any, bv: any;
+      switch (sortCol) {
+        case 'description': av = a.description; bv = b.description; break;
+        case 'category':    av = CATEGORY_LABELS[a.category] || a.category; bv = CATEGORY_LABELS[b.category] || b.category; break;
+        case 'payment':     av = (a as any).paymentMethod || ''; bv = (b as any).paymentMethod || ''; break;
+        case 'dueDate':     av = parseApiDate(a.dueDate || a.date)?.getTime() ?? 0; bv = parseApiDate(b.dueDate || b.date)?.getTime() ?? 0; break;
+        case 'status':      av = STATUS_ORDER[a.status] ?? 9; bv = STATUS_ORDER[b.status] ?? 9; break;
+        case 'amount':      av = Number(a.amount); bv = Number(b.amount); break;
+        default:            av = 0; bv = 0;
+      }
+      if (av < bv) return sortDir === 'asc' ? -1 : 1;
+      if (av > bv) return sortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+
     const totalPaid = rows.filter(t => t.status === 'PAID').reduce((s, t) => s + Number(t.amount), 0);
+
+    const SortIcon = ({ col }: { col: string }) => (
+      <span className="ml-1 inline-block text-slate-400">
+        {sortCol === col ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}
+      </span>
+    );
+
+    const thCls = "px-5 py-3 text-xs font-semibold text-slate-500 uppercase cursor-pointer select-none hover:text-slate-700 hover:bg-slate-100 transition-colors";
 
     return (
       <div className="space-y-3">
@@ -349,12 +397,12 @@ const Finance: React.FC = () => {
               <table className="w-full text-left">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-100">
-                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Descrição</th>
-                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Categoria</th>
-                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Pagamento</th>
-                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Vencimento</th>
-                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Status</th>
-                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase text-right">Valor</th>
+                    <th className={thCls} onClick={() => toggleSort('description')}>Descrição<SortIcon col="description" /></th>
+                    <th className={thCls} onClick={() => toggleSort('category')}>Categoria<SortIcon col="category" /></th>
+                    <th className={thCls} onClick={() => toggleSort('payment')}>Pagamento<SortIcon col="payment" /></th>
+                    <th className={thCls} onClick={() => toggleSort('dueDate')}>Vencimento<SortIcon col="dueDate" /></th>
+                    <th className={thCls} onClick={() => toggleSort('status')}>Status<SortIcon col="status" /></th>
+                    <th className={`${thCls} text-right`} onClick={() => toggleSort('amount')}>Valor<SortIcon col="amount" /></th>
                     <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase text-right">Ações</th>
                   </tr>
                 </thead>
@@ -374,7 +422,7 @@ const Finance: React.FC = () => {
                         {(t as any).paymentMethod ? (PAYMENT_LABELS[(t as any).paymentMethod] || (t as any).paymentMethod) : '—'}
                       </td>
                       <td className="px-5 py-3 text-sm text-slate-500">
-                        {(() => { const d = t.dueDate || t.date; return d ? new Date(d + 'T12:00:00').toLocaleDateString('pt-BR') : '—'; })()}
+                        {fmtApiDate(t.dueDate || t.date)}
                       </td>
                       <td className="px-5 py-3">
                         <StatusBadge status={t.status} />
