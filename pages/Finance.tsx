@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import {
   TrendingUp, TrendingDown, DollarSign, AlertOctagon,
   Plus, Filter, ArrowUpRight, ArrowDownRight, Calendar,
-  X, Printer, Edit, Trash2, MoreVertical
+  X, Printer, Edit, Trash2
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
@@ -306,93 +306,120 @@ const Finance: React.FC = () => {
     return <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${cls}`}>{label}</span>;
   };
 
-  const renderTable = (type: TransactionType) => {
-    const rows = filteredTransactions.filter(t => t.type === type);
-    const totalPaid = rows.filter(t => t.status === 'PAID').reduce((s, t) => s + Number(t.amount), 0);
-    const isIncome = type === 'INCOME';
+  const [tableSearch, setTableSearch] = React.useState('');
 
-    if (!rows.length) return (
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-14 text-center text-slate-400">
-        <DollarSign size={40} className="mx-auto mb-3 text-slate-200" />
-        <p className="text-sm">Nenhuma {isIncome ? 'entrada' : 'saída'} no período selecionado.</p>
-      </div>
-    );
+  const renderTable = (type: TransactionType) => {
+    const isIncome = type === 'INCOME';
+    const allRows = filteredTransactions.filter(t => t.type === type);
+    const rows = tableSearch.trim()
+      ? allRows.filter(t =>
+          t.description.toLowerCase().includes(tableSearch.toLowerCase()) ||
+          (t.relatedEntity ?? '').toLowerCase().includes(tableSearch.toLowerCase())
+        )
+      : allRows;
+    const totalPaid = rows.filter(t => t.status === 'PAID').reduce((s, t) => s + Number(t.amount), 0);
 
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="bg-slate-50 border-b border-slate-100">
-                <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Descrição</th>
-                <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Categoria</th>
-                <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Pagamento</th>
-                <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Vencimento</th>
-                <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Status</th>
-                <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase text-right">Valor</th>
-                <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase text-right">Ações</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {rows.map(t => (
-                <tr key={t.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-5 py-3">
-                    <div className="font-medium text-slate-800 text-sm">{t.description}</div>
-                    {t.relatedEntity && <div className="text-xs text-slate-400 mt-0.5">{t.relatedEntity}</div>}
-                  </td>
-                  <td className="px-5 py-3">
-                    <span className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600 font-medium">
-                      {CATEGORY_LABELS[t.category] || t.category}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3 text-xs text-slate-500">
-                    {(t as any).paymentMethod ? (PAYMENT_LABELS[(t as any).paymentMethod] || (t as any).paymentMethod) : '—'}
-                  </td>
-                  <td className="px-5 py-3 text-sm text-slate-500">
-                    {new Date(t.dueDate + 'T12:00:00').toLocaleDateString('pt-BR')}
-                  </td>
-                  <td className="px-5 py-3">
-                    <StatusBadge status={t.status} />
-                  </td>
-                  <td className="px-5 py-3 text-right">
-                    <span className={`font-semibold text-sm ${isIncome ? 'text-green-700' : 'text-red-700'}`}>
-                      {fmtMoney(Number(t.amount))}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3 text-right relative">
-                    <button
-                      onClick={ev => { ev.stopPropagation(); setOpenActionMenu(openActionMenu === t.id ? null : t.id); }}
-                      className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-slate-100 rounded-lg transition-colors"
-                    >
-                      <MoreVertical size={16} />
-                    </button>
-                    {openActionMenu === t.id && (
-                      <div className="absolute right-8 top-8 w-44 bg-white rounded-lg shadow-xl border border-slate-100 z-10 py-1">
-                        <button onClick={ev => openEditModal(t, ev)} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                          <Edit size={14} /> Editar
-                        </button>
-                        <button onClick={ev => handleDelete(t.id, ev)} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
-                          <Trash2 size={14} /> Excluir
-                        </button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr className="bg-slate-50 border-t border-slate-200">
-                <td colSpan={5} className="px-5 py-3 text-sm font-bold text-slate-600">
-                  Total pago ({rows.filter(r => r.status === 'PAID').length} de {rows.length} lançamentos)
-                </td>
-                <td className={`px-5 py-3 text-right font-bold text-sm ${isIncome ? 'text-green-700' : 'text-red-700'}`}>
-                  {fmtMoney(totalPaid)}
-                </td>
-                <td />
-              </tr>
-            </tfoot>
-          </table>
+      <div className="space-y-3">
+        {/* Search bar */}
+        <div className="relative">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+          <input
+            type="text"
+            value={tableSearch}
+            onChange={e => setTableSearch(e.target.value)}
+            placeholder="Buscar por aluno ou descrição..."
+            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none bg-white"
+          />
+          {tableSearch && (
+            <button onClick={() => setTableSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              <X size={14} />
+            </button>
+          )}
         </div>
+
+        {rows.length === 0 ? (
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-14 text-center text-slate-400">
+            <DollarSign size={40} className="mx-auto mb-3 text-slate-200" />
+            <p className="text-sm">{tableSearch ? 'Nenhum resultado para a busca.' : `Nenhuma ${isIncome ? 'entrada' : 'saída'} no período selecionado.`}</p>
+          </div>
+        ) : (
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-100">
+                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Descrição</th>
+                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Categoria</th>
+                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Pagamento</th>
+                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Vencimento</th>
+                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Status</th>
+                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase text-right">Valor</th>
+                    <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {rows.map(t => (
+                    <tr key={t.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-5 py-3">
+                        <div className="font-medium text-slate-800 text-sm">{t.description}</div>
+                        {t.relatedEntity && <div className="text-xs text-slate-400 mt-0.5">{t.relatedEntity}</div>}
+                      </td>
+                      <td className="px-5 py-3">
+                        <span className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600 font-medium">
+                          {CATEGORY_LABELS[t.category] || t.category}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3 text-xs text-slate-500">
+                        {(t as any).paymentMethod ? (PAYMENT_LABELS[(t as any).paymentMethod] || (t as any).paymentMethod) : '—'}
+                      </td>
+                      <td className="px-5 py-3 text-sm text-slate-500">
+                        {new Date(t.dueDate + 'T12:00:00').toLocaleDateString('pt-BR')}
+                      </td>
+                      <td className="px-5 py-3">
+                        <StatusBadge status={t.status} />
+                      </td>
+                      <td className="px-5 py-3 text-right">
+                        <span className={`font-semibold text-sm ${isIncome ? 'text-green-700' : 'text-red-700'}`}>
+                          {fmtMoney(Number(t.amount))}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={ev => openEditModal(t, ev)}
+                            className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-slate-100 rounded-lg transition-colors"
+                            title="Editar"
+                          >
+                            <Edit size={15} />
+                          </button>
+                          <button
+                            onClick={ev => handleDelete(t.id, ev)}
+                            className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Excluir transação"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr className="bg-slate-50 border-t border-slate-200">
+                    <td colSpan={5} className="px-5 py-3 text-sm font-bold text-slate-600">
+                      Total pago ({rows.filter(r => r.status === 'PAID').length} de {rows.length} lançamentos)
+                    </td>
+                    <td className={`px-5 py-3 text-right font-bold text-sm ${isIncome ? 'text-green-700' : 'text-red-700'}`}>
+                      {fmtMoney(totalPaid)}
+                    </td>
+                    <td />
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
     );
   };
