@@ -348,6 +348,7 @@ const Finance: React.FC = () => {
         case 'category':    av = CATEGORY_LABELS[a.category] || a.category; bv = CATEGORY_LABELS[b.category] || b.category; break;
         case 'payment':     av = (a as any).paymentMethod || ''; bv = (b as any).paymentMethod || ''; break;
         case 'dueDate':     av = parseApiDate(a.dueDate || a.date)?.getTime() ?? 0; bv = parseApiDate(b.dueDate || b.date)?.getTime() ?? 0; break;
+        case 'date':        av = parseApiDate(a.date)?.getTime() ?? 0; bv = parseApiDate(b.date)?.getTime() ?? 0; break;
         case 'status':      av = STATUS_ORDER[a.status] ?? 9; bv = STATUS_ORDER[b.status] ?? 9; break;
         case 'amount':      av = Number(a.amount); bv = Number(b.amount); break;
         default:            av = 0; bv = 0;
@@ -401,6 +402,7 @@ const Finance: React.FC = () => {
                     <th className={thCls} onClick={() => toggleSort('category')}>Categoria<SortIcon col="category" /></th>
                     <th className={thCls} onClick={() => toggleSort('payment')}>Pagamento<SortIcon col="payment" /></th>
                     <th className={thCls} onClick={() => toggleSort('dueDate')}>Vencimento<SortIcon col="dueDate" /></th>
+                    <th className={thCls} onClick={() => toggleSort('date')}>Recebido em<SortIcon col="date" /></th>
                     <th className={thCls} onClick={() => toggleSort('status')}>Status<SortIcon col="status" /></th>
                     <th className={`${thCls} text-right`} onClick={() => toggleSort('amount')}>Valor<SortIcon col="amount" /></th>
                     <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase text-right">Ações</th>
@@ -423,6 +425,9 @@ const Finance: React.FC = () => {
                       </td>
                       <td className="px-5 py-3 text-sm text-slate-500">
                         {fmtApiDate(t.dueDate || t.date)}
+                      </td>
+                      <td className="px-5 py-3 text-sm text-slate-500">
+                        {t.status === 'PAID' ? fmtApiDate(t.date) : '—'}
                       </td>
                       <td className="px-5 py-3">
                         <StatusBadge status={t.status} />
@@ -455,7 +460,7 @@ const Finance: React.FC = () => {
                 </tbody>
                 <tfoot>
                   <tr className="bg-slate-50 border-t border-slate-200">
-                    <td colSpan={5} className="px-5 py-3 text-sm font-bold text-slate-600">
+                    <td colSpan={6} className="px-5 py-3 text-sm font-bold text-slate-600">
                       Total pago ({rows.filter(r => r.status === 'PAID').length} de {rows.length} lançamentos)
                     </td>
                     <td className={`px-5 py-3 text-right font-bold text-sm ${isIncome ? 'text-green-700' : 'text-red-700'}`}>
