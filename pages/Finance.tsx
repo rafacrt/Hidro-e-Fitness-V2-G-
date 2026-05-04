@@ -374,7 +374,7 @@ const Finance: React.FC = () => {
                         {(t as any).paymentMethod ? (PAYMENT_LABELS[(t as any).paymentMethod] || (t as any).paymentMethod) : '—'}
                       </td>
                       <td className="px-5 py-3 text-sm text-slate-500">
-                        {new Date(t.dueDate + 'T12:00:00').toLocaleDateString('pt-BR')}
+                        {(() => { const d = t.dueDate || t.date; return d ? new Date(d + 'T12:00:00').toLocaleDateString('pt-BR') : '—'; })()}
                       </td>
                       <td className="px-5 py-3">
                         <StatusBadge status={t.status} />

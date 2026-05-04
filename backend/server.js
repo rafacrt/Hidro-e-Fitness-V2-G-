@@ -231,6 +231,17 @@ const connectWithRetry = async () => {
                     ALTER TABLE transactions ADD COLUMN installment_total INT;
                 END IF;
 
+                -- Add due_date column to transactions if not exists
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns
+                    WHERE table_name = 'transactions' AND column_name = 'due_date'
+                ) THEN
+                    ALTER TABLE transactions ADD COLUMN due_date DATE;
+                END IF;
+
+                -- Backfill due_date from date where null
+                UPDATE transactions SET due_date = date WHERE due_date IS NULL;
+
                 -- Add is_test flag to students if not exists
                 IF NOT EXISTS (
                     SELECT 1 FROM information_schema.columns

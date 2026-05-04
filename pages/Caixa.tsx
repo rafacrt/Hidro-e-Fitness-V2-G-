@@ -341,6 +341,22 @@ const Caixa: React.FC = () => {
       const refMonth = referenceMonth || selectedMonth;
       const [year, month] = refMonth.split('-').map(Number);
       const dueDate  = new Date(year, month - 1, receiveItem.dueDay ?? 10).toISOString().split('T')[0];
+
+      // Guard: prevent duplicate PAID transaction for same student + reference month
+      const alreadyPaid = transactions.some(t => {
+        if (t.relatedEntity !== receiveItem.student.name || t.category !== 'TUITION' ||
+            t.type !== 'INCOME' || t.status !== 'PAID') return false;
+        const ref = t.dueDate || t.date;
+        if (!ref) return false;
+        const [ty, tm] = ref.split('-').map(Number);
+        return ty === year && tm === month;
+      });
+      if (alreadyPaid) {
+        alert(`Já existe um recebimento registrado para ${receiveItem.student.name} em ${String(month).padStart(2,'0')}/${year}. Use a lixeira em Financeiro → Entradas para desfazer.`);
+        setSaving(false);
+        return;
+      }
+
       const amount   = parseFloat(customAmount.replace(',', '.'));
       const instLabel = paymentMode === 'PARCELADO' && receiveItem.freqMonths > 1
         ? ` [${receiveItem.nextInstallment}ª/${receiveItem.installTotal}]` : '';
