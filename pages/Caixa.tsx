@@ -223,9 +223,10 @@ const Caixa: React.FC = () => {
         const isCancelled = transactions.some(t => {
           if (t.relatedEntity !== student.name || t.category !== 'TUITION' ||
               t.type !== 'INCOME' || t.status !== 'CANCELLED') return false;
+          const ref = t.dueDate || t.date;
           let tDate: Date;
-          if (t.date.includes('T')) tDate = new Date(t.date);
-          else { const [ty, tm, td] = t.date.split('-').map(Number); tDate = new Date(ty, tm - 1, td); }
+          if (ref.includes('T')) tDate = new Date(ref);
+          else { const [ty, tm, td] = ref.split('-').map(Number); tDate = new Date(ty, tm - 1, td); }
           return (year - tDate.getFullYear()) * 12 + (month - (tDate.getMonth() + 1)) === 0;
         });
         if (isCancelled) return null;
@@ -233,9 +234,12 @@ const Caixa: React.FC = () => {
         const transaction = transactions.find(t => {
           if (t.relatedEntity !== student.name || t.category !== 'TUITION' || t.type !== 'INCOME') return false;
           if (t.status === 'CANCELLED') return false;
+          // Use dueDate to identify which month this transaction belongs to,
+          // so retroactive payments (paid in month X but due in month Y) resolve correctly.
+          const ref = t.dueDate || t.date;
           let tDate: Date;
-          if (t.date.includes('T')) tDate = new Date(t.date);
-          else { const [ty, tm, td] = t.date.split('-').map(Number); tDate = new Date(ty, tm - 1, td); }
+          if (ref.includes('T')) tDate = new Date(ref);
+          else { const [ty, tm, td] = ref.split('-').map(Number); tDate = new Date(ty, tm - 1, td); }
           const diff = (year - tDate.getFullYear()) * 12 + (month - (tDate.getMonth() + 1));
           return diff >= 0 && diff < effectiveFreqMonths;
         });
