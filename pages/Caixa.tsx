@@ -179,9 +179,13 @@ const Caixa: React.FC = () => {
         const billingStartStr = student.reactivationDate || student.enrollmentDate;
         if (billingStartStr) {
           let bs: Date;
-          if (billingStartStr.includes('T')) bs = new Date(billingStartStr);
-          else { const [by, bm, bd] = billingStartStr.split('-').map(Number); bs = new Date(by, bm - 1, bd); }
-          if (bs > endOfMonth) return null;
+          if (String(billingStartStr).includes('T')) bs = new Date(billingStartStr);
+          else { const [by, bm, bd] = String(billingStartStr).split('-').map(Number); bs = new Date(by, bm - 1, bd); }
+          // Hide only if billing starts in a strictly future month — within the current
+          // month the student must appear even if the start day hasn't arrived yet.
+          const bsMonthKey  = bs.getFullYear() * 12 + bs.getMonth();
+          const selMonthKey = year * 12 + (month - 1);
+          if (bsMonthKey > selMonthKey) return null;
         }
 
         const ids: string[] = (student as any).planIds?.length

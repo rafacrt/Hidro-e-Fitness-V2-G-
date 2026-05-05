@@ -1575,13 +1575,14 @@ const Students: React.FC = () => {
                                   plannedEndDate: newContractData.plannedEndDate || undefined,
                                   durationMonths: newContractData.durationMonths ? parseInt(newContractData.durationMonths) : undefined,
                                 });
-                                // Sync student record: new billing cycle starts on contract date,
-                                // and ensure status is Ativo so the student appears in Caixa.
-                                await patchStudent(editingContractStudentId, {
-                                  reactivationDate: newContractData.startDate,
-                                  status: 'Ativo',
-                                });
-                                setFormData(p => ({ ...p, reactivationDate: newContractData.startDate, status: 'Ativo' }));
+                                // Only update reactivationDate when re-activating an Inativo student.
+                                // For already-Ativo students, leave their billing cycle untouched so
+                                // they don't disappear from Caixa if the new contract starts in the future.
+                                const wasInativo = formData.status === 'Inativo';
+                                const patch: { status: string; reactivationDate?: string } = { status: 'Ativo' };
+                                if (wasInativo) patch.reactivationDate = newContractData.startDate;
+                                await patchStudent(editingContractStudentId, patch);
+                                setFormData(p => ({ ...p, status: 'Ativo', ...(wasInativo ? { reactivationDate: newContractData.startDate } : {}) }));
                                 await loadStudentContracts(editingContractStudentId);
                                 await loadData();
                                 setShowNewContractForm(false);
