@@ -8,7 +8,7 @@ import {
   ClipboardList, CheckCircle2, XCircle
 } from 'lucide-react';
 import {
-  fetchStudents, createStudent, updateStudent, deleteStudent,
+  fetchStudents, createStudent, updateStudent, deleteStudent, patchStudent,
   fetchModalities, fetchPlans, fetchAddressByCep, createTransaction,
   fetchContracts, createContract, updateContract, fetchStudentsWithContracts
 } from '../services/api';
@@ -1568,7 +1568,15 @@ const Students: React.FC = () => {
                                   plannedEndDate: newContractData.plannedEndDate || undefined,
                                   durationMonths: newContractData.durationMonths ? parseInt(newContractData.durationMonths) : undefined,
                                 });
+                                // Sync student record: new billing cycle starts on contract date,
+                                // and ensure status is Ativo so the student appears in Caixa.
+                                await patchStudent(editingContractStudentId, {
+                                  reactivationDate: newContractData.startDate,
+                                  status: 'Ativo',
+                                });
+                                setFormData(p => ({ ...p, reactivationDate: newContractData.startDate, status: 'Ativo' }));
                                 await loadStudentContracts(editingContractStudentId);
+                                await loadData();
                                 setShowNewContractForm(false);
                               } catch {
                                 alert('Erro ao criar contrato.');

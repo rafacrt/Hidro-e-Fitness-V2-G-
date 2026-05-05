@@ -74,6 +74,15 @@ export const updateStudent = async (id: number, student: Partial<Student>): Prom
     if (!response.ok) throw new Error('Falha ao atualizar aluno');
 };
 
+export const patchStudent = async (id: number, fields: { status?: string; reactivationDate?: string; dueDay?: number; paymentStatus?: string }): Promise<void> => {
+    const response = await fetch(`/api/students/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fields),
+    });
+    if (!response.ok) throw new Error('Falha ao atualizar aluno');
+};
+
 export const deleteStudent = async (id: number): Promise<void> => {
     const response = await fetch(`/api/students/${id}`, {
         method: 'DELETE',

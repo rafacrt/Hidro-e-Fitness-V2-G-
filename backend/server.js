@@ -630,6 +630,31 @@ app.put('/api/students/:id', async (req, res) => {
     }
 });
 
+// Students - PATCH (partial update for specific fields)
+app.patch('/api/students/:id', async (req, res) => {
+    const { id } = req.params;
+    const allowed = ['status', 'reactivation_date', 'due_day', 'payment_status'];
+    const fieldMap = { status: 'status', reactivationDate: 'reactivation_date', dueDay: 'due_day', paymentStatus: 'payment_status' };
+    const sets = [];
+    const values = [];
+    let idx = 1;
+    for (const [jsKey, dbCol] of Object.entries(fieldMap)) {
+        if (jsKey in req.body) {
+            sets.push(`${dbCol} = $${idx++}`);
+            values.push(req.body[jsKey] ?? null);
+        }
+    }
+    if (sets.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
+    values.push(id);
+    try {
+        await pool.query(`UPDATE students SET ${sets.join(', ')} WHERE id = $${idx}`, values);
+        res.json({ message: 'Student patched' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 // Students - DELETE
 app.delete('/api/students/:id', async (req, res) => {
     const { id } = req.params;
