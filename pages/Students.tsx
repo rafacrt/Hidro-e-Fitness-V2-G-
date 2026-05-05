@@ -32,6 +32,13 @@ const parsePlans = (planStr: string | undefined): string[] => {
   }
 };
 
+const fmtDate = (d: any): string => {
+  if (!d) return '—';
+  const s = String(d);
+  const parsed = (s.includes('T') || s.includes('Z')) ? new Date(s) : new Date(s + 'T12:00:00');
+  return isNaN(parsed.getTime()) ? '—' : parsed.toLocaleDateString('pt-BR');
+};
+
 const Students: React.FC = () => {
   const navigate = useNavigate();
   const [students, setStudents] = useState<Student[]>([]);
@@ -1541,7 +1548,7 @@ const Students: React.FC = () => {
                         </div>
                         {newContractData.plannedEndDate && (
                           <p className="text-xs text-slate-500 flex items-center gap-1">
-                            <Calendar size={11} /> Previsão de término: {new Date(newContractData.plannedEndDate + 'T12:00:00').toLocaleDateString('pt-BR')}
+                            <Calendar size={11} /> Previsão de término: {fmtDate(newContractData.plannedEndDate)}
                           </p>
                         )}
                         <div className="flex gap-2 pt-1">
@@ -1739,12 +1746,12 @@ const Students: React.FC = () => {
                                 )}
                               </div>
                               <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
-                                <span className="flex items-center gap-1"><Calendar size={11} /> Início: {new Date(c.startDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span>
+                                <span className="flex items-center gap-1"><Calendar size={11} /> Início: {fmtDate(c.startDate)}</span>
                                 {c.plannedEndDate && (
-                                  <span>Previsão: {new Date(c.plannedEndDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span>
+                                  <span>Previsão: {fmtDate(c.plannedEndDate)}</span>
                                 )}
                                 {c.actualEndDate && (
-                                  <span className="text-red-600">Encerrado em: {new Date(c.actualEndDate + 'T12:00:00').toLocaleDateString('pt-BR')}</span>
+                                  <span className="text-red-600">Encerrado em: {fmtDate(c.actualEndDate)}</span>
                                 )}
                                 {c.durationMonths && <span>{c.durationMonths} meses</span>}
                               </div>
