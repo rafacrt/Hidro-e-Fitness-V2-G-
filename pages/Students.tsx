@@ -1919,7 +1919,7 @@ const Students: React.FC = () => {
                     <div className="border border-slate-200 rounded-xl max-h-48 overflow-y-auto divide-y divide-slate-100">
                       {targets.map(s => {
                         const startDate = bulkContractStartMode === 'enrollment' && s.enrollmentDate
-                          ? new Date(s.enrollmentDate.split('T')[0] + 'T12:00:00').toLocaleDateString('pt-BR')
+                          ? fmtDate(s.enrollmentDate)
                           : new Date(bulkContractCustomDate + 'T12:00:00').toLocaleDateString('pt-BR');
                         return (
                           <div key={s.id} className="flex items-center justify-between px-3 py-2 text-sm">
